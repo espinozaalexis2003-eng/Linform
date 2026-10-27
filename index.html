@@ -1171,5 +1171,223 @@ search.addEventListener("input", renderCommands);
 renderCourses();
 renderCommands();
 </script>
+  <!-- Linform learning colors -->
+<style>
+  .course-card,
+  #course-dialog,
+  #commands {
+    --learning-color: #f5cf65;
+    --learning-soft: rgba(245, 207, 101, 0.08);
+    --learning-border: rgba(245, 207, 101, 0.35);
+  }
+
+  [data-learning="linux"] {
+    --learning-color: #f5cf65;
+    --learning-soft: rgba(245, 207, 101, 0.08);
+    --learning-border: rgba(245, 207, 101, 0.35);
+  }
+
+  [data-learning="aws"] {
+    --learning-color: #ffad42;
+    --learning-soft: rgba(255, 173, 66, 0.08);
+    --learning-border: rgba(255, 173, 66, 0.35);
+  }
+
+  [data-learning="azure"] {
+    --learning-color: #73bdff;
+    --learning-soft: rgba(115, 189, 255, 0.08);
+    --learning-border: rgba(115, 189, 255, 0.35);
+  }
+
+  [data-learning="terraform"] {
+    --learning-color: #b59aff;
+    --learning-soft: rgba(181, 154, 255, 0.08);
+    --learning-border: rgba(181, 154, 255, 0.35);
+  }
+
+  /* Learning cards */
+  .course-card {
+    position: relative;
+    overflow: hidden;
+    border-color: var(--learning-border);
+    border-top: 3px solid var(--learning-color);
+    background:
+      linear-gradient(
+        145deg,
+        var(--learning-soft),
+        transparent 65%
+      ),
+      #111b2c;
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .course-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--learning-color);
+  }
+
+  .course-card .course-icon {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    margin-bottom: 8px;
+    border: 1px solid var(--learning-border);
+    border-radius: 14px;
+    background: var(--learning-soft);
+    color: var(--learning-color);
+  }
+
+  .course-card h3 {
+    color: var(--learning-color);
+  }
+
+  .course-card .button,
+  #course-dialog #complete-lesson {
+    background: var(--learning-color);
+    color: #0b101b;
+  }
+
+  .course-card .progress-fill {
+    background: var(--learning-color);
+  }
+
+  /* Match each tutorial to its learning card */
+  #course-dialog {
+    border-color: var(--learning-border);
+  }
+
+  #course-dialog .dialog-header {
+    border-top: 3px solid var(--learning-color);
+    background: var(--learning-soft);
+  }
+
+  #course-dialog .kicker,
+  #course-dialog .lesson-content h2,
+  #course-dialog .challenge h3,
+  #course-dialog summary,
+  #course-dialog .lesson-content a {
+    color: var(--learning-color);
+  }
+
+  #course-dialog .badge {
+    color: var(--learning-color);
+    border-color: var(--learning-border);
+    background: var(--learning-soft);
+  }
+
+  #course-dialog .lesson-nav[aria-current="step"] {
+    color: var(--learning-color);
+    border-color: var(--learning-border);
+    background: var(--learning-soft);
+  }
+
+  #course-dialog .challenge {
+    border-color: var(--learning-border);
+    background: var(--learning-soft);
+  }
+
+  #course-dialog details {
+    border-color: var(--learning-border);
+  }
+
+  #course-dialog .notice {
+    border-left-color: var(--learning-color);
+    background: var(--learning-soft);
+  }
+
+  #course-dialog .code-block {
+    border-color: var(--learning-border);
+  }
+
+  #course-dialog .code-toolbar {
+    background: var(--learning-soft);
+  }
+
+  #course-dialog .copy-button {
+    color: var(--learning-color);
+    border-color: var(--learning-border);
+    background: var(--learning-soft);
+  }
+
+  #course-dialog .button.secondary {
+    color: var(--learning-color);
+    border-color: var(--learning-border);
+  }
+
+  /* Linux command practice */
+  #commands .kicker,
+  #commands .command-row code {
+    color: var(--learning-color);
+  }
+
+  #commands .badge,
+  #commands .command-box {
+    border-color: var(--learning-border);
+  }
+
+  #commands .copy-button {
+    color: var(--learning-color);
+    border-color: var(--learning-border);
+    background: var(--learning-soft);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .course-card {
+      transition: none;
+    }
+
+    .course-card:hover {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+(() => {
+  const learningGrid = document.getElementById("course-grid");
+  const learningDialog = document.getElementById("course-dialog");
+  const dialogTitle = document.getElementById("dialog-course-title");
+
+  function colorLearningCards() {
+    const courseKeys = Object.keys(courses);
+
+    Array.from(learningGrid.children).forEach((card, index) => {
+      const key = courseKeys[index];
+
+      if (key) {
+        card.dataset.learning = key;
+      }
+    });
+  }
+
+  function colorLearningDialog() {
+    // The FinanceCorp case study uses AWS colors.
+    learningDialog.dataset.learning =
+      activeCourse === "finance" ? "aws" : activeCourse;
+  }
+
+  colorLearningCards();
+  colorLearningDialog();
+
+  // Keep colors after progress updates rebuild the cards.
+  const cardObserver = new MutationObserver(colorLearningCards);
+
+  cardObserver.observe(learningGrid, {
+    childList: true
+  });
+
+  // Match the tutorial color whenever a course opens.
+  const dialogObserver = new MutationObserver(colorLearningDialog);
+
+  dialogObserver.observe(dialogTitle, {
+    childList: true,
+    subtree: true,
+    characterData: true
+  });
+})();
+</script>
 </body>
 </html>
