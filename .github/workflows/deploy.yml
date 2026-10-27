@@ -6,6 +6,8 @@ on:
     paths:
       - index.html
       - .github/workflows/deploy.yml
+      - tests/**
+      - infra/**
   workflow_dispatch:
 
 permissions:
@@ -44,6 +46,11 @@ jobs:
             exit 1
           fi
 
+      - name: Check learning platform
+        run: |
+          node tests/validate-site.mjs
+          python -m unittest discover -s infra -p 'test_*.py' -v
+
       - name: Authenticate to AWS with OIDC
         uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
@@ -77,3 +84,4 @@ jobs:
         run: |
           echo "Published index.html and completed CloudFront cache refresh." >> "$GITHUB_STEP_SUMMARY"
           echo "Website: https://linformcloud.com" >> "$GITHUB_STEP_SUMMARY"
+
