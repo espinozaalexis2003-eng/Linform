@@ -1,0 +1,375 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Linform student accounts and per-user completion sync. Creates billable AWS services.",
+  "Parameters": {
+    "PrimaryOrigin": {
+      "Type": "String",
+      "Default": "https://linformcloud.com",
+      "AllowedPattern": "https://[a-z0-9.-]+",
+      "Description": "Canonical website origin; HTTPS, no trailing slash. Accounts work on this exact origin."
+    },
+    "DomainPrefix": {
+      "Type": "String",
+      "AllowedPattern": "[a-z0-9][a-z0-9-]{1,60}[a-z0-9]",
+      "Description": "Unique Cognito hosted login domain prefix."
+    }
+  },
+  "Resources": {
+    "UserPool": {
+      "Type": "AWS::Cognito::UserPool",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "UserPoolName": {
+          "Fn::Sub": "${AWS::StackName}-students"
+        },
+        "UserPoolTier": "LITE",
+        "UsernameAttributes": [
+          "email"
+        ],
+        "AutoVerifiedAttributes": [
+          "email"
+        ],
+        "UsernameConfiguration": {
+          "CaseSensitive": false
+        },
+        "Policies": {
+          "PasswordPolicy": {
+            "MinimumLength": 12,
+            "RequireLowercase": true,
+            "RequireUppercase": true,
+            "RequireNumbers": true,
+            "RequireSymbols": true
+          }
+        },
+        "AccountRecoverySetting": {
+          "RecoveryMechanisms": [
+            {
+              "Name": "verified_email",
+              "Priority": 1
+            }
+          ]
+        }
+      }
+    },
+    "Client": {
+      "Type": "AWS::Cognito::UserPoolClient",
+      "Properties": {
+        "UserPoolId": {
+          "Ref": "UserPool"
+        },
+        "ClientName": "Linform website",
+        "GenerateSecret": false,
+        "AllowedOAuthFlowsUserPoolClient": true,
+        "AllowedOAuthFlows": [
+          "code"
+        ],
+        "AllowedOAuthScopes": [
+          "openid"
+        ],
+        "SupportedIdentityProviders": [
+          "COGNITO"
+        ],
+        "CallbackURLs": [
+          {
+            "Fn::Sub": "${PrimaryOrigin}/"
+          }
+        ],
+        "LogoutURLs": [
+          {
+            "Fn::Sub": "${PrimaryOrigin}/"
+          }
+        ],
+        "PreventUserExistenceErrors": "ENABLED",
+        "EnableTokenRevocation": true,
+        "AccessTokenValidity": 15,
+        "IdTokenValidity": 15,
+        "TokenValidityUnits": {
+          "AccessToken": "minutes",
+          "IdToken": "minutes"
+        }
+      }
+    },
+    "Domain": {
+      "Type": "AWS::Cognito::UserPoolDomain",
+      "Properties": {
+        "UserPoolId": {
+          "Ref": "UserPool"
+        },
+        "Domain": {
+          "Ref": "DomainPrefix"
+        }
+      }
+    },
+    "ProgressTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "BillingMode": "PAY_PER_REQUEST",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "userId",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "lessonId",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "userId",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "lessonId",
+            "KeyType": "RANGE"
+          }
+        ],
+        "SSESpecification": {
+          "SSEEnabled": true
+        },
+        "PointInTimeRecoverySpecification": {
+          "PointInTimeRecoveryEnabled": true
+        }
+      }
+    },
+    "FunctionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "ProgressOnly",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:Query",
+                    "dynamodb:BatchWriteItem"
+                  ],
+                  "Resource": {
+                    "Fn::GetAtt": [
+                      "ProgressTable",
+                      "Arn"
+                    ]
+                  }
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": {
+                    "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-progress:*"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "LogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/${AWS::StackName}-progress"
+        },
+        "RetentionInDays": 14
+      }
+    },
+    "Function": {
+      "Type": "AWS::Lambda::Function",
+      "DependsOn": "LogGroup",
+      "Properties": {
+        "FunctionName": {
+          "Fn::Sub": "${AWS::StackName}-progress"
+        },
+        "Runtime": "python3.12",
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "FunctionRole",
+            "Arn"
+          ]
+        },
+        "MemorySize": 128,
+        "Timeout": 10,
+        "ReservedConcurrentExecutions": 5,
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "ProgressTable"
+            }
+          }
+        },
+        "Code": {
+          "ZipFile": "\"\"\"Lambda integration; API Gateway validates JWT signature/audience/scope first.\"\"\"\nimport base64\nimport json\nimport os\nimport re\n\nimport boto3\n\n_table = boto3.resource(\"dynamodb\").Table(os.environ[\"TABLE_NAME\"])\n_ID = re.compile(r\"[a-z][a-z0-9-]{0,79}\\Z\")\n_SUB = re.compile(r\"[a-zA-Z0-9-]{1,128}\\Z\")\n\n\ndef response(code, value):\n    return {\"statusCode\": code,\n            \"headers\": {\"content-type\": \"application/json\", \"cache-control\": \"no-store\"},\n            \"body\": json.dumps(value)}\n\n\ndef handler(event, context):\n    claims = event.get(\"requestContext\", {}).get(\"authorizer\", {}).get(\"jwt\", {}).get(\"claims\", {})\n    subject = claims.get(\"sub\", \"\")\n    if not isinstance(subject, str) or not _SUB.fullmatch(subject) or claims.get(\"token_use\") != \"access\":\n        return response(401, {\"error\": \"Authentication required\"})\n    method = event.get(\"requestContext\", {}).get(\"http\", {}).get(\"method\")\n    if method not in (\"GET\", \"PUT\"):\n        return response(405, {\"error\": \"Method not allowed\"})\n    try:\n        if method == \"PUT\":\n            raw = event.get(\"body\", \"\")\n            if not isinstance(raw, str) or len(raw) > 24000:\n                return response(400, {\"error\": \"Invalid progress data\"})\n            if event.get(\"isBase64Encoded\"):\n                raw = base64.b64decode(raw, validate=True).decode(\"utf-8\")\n            data = json.loads(raw)\n            ids = data.get(\"completed\") if isinstance(data, dict) else None\n            if (not isinstance(ids, list) or len(ids) > 200 or set(data) != {\"completed\"}\n                    or any(not isinstance(i, str) or not _ID.fullmatch(i) for i in ids)):\n                return response(400, {\"error\": \"Expected up to 200 valid lesson IDs\"})\n            # One immutable completion per lesson avoids lost updates from other devices.\n            with _table.batch_writer() as writer:\n                for lesson_id in set(ids):\n                    writer.put_item(Item={\"userId\": subject, \"lessonId\": lesson_id})\n            return response(200, {\"saved\": True})\n        result = []\n        args = {\"KeyConditionExpression\": \"userId = :u\", \"ExpressionAttributeValues\": {\":u\": subject},\n                \"ConsistentRead\": True, \"ProjectionExpression\": \"lessonId\"}\n        while True:\n            page = _table.query(**args)\n            result.extend(item[\"lessonId\"] for item in page.get(\"Items\", []))\n            if len(result) > 5000:\n                return response(413, {\"error\": \"Account progress is too large\"})\n            if \"LastEvaluatedKey\" not in page:\n                break\n            args[\"ExclusiveStartKey\"] = page[\"LastEvaluatedKey\"]\n        return response(200, {\"userId\": subject, \"completed\": result})\n    except (ValueError, UnicodeDecodeError, TypeError):\n        return response(400, {\"error\": \"Invalid progress data\"})\n    except Exception:\n        # Never log bearer tokens, emails, request bodies, or exception payloads.\n        return response(503, {\"error\": \"Progress service temporarily unavailable\"})\n"
+        }
+      }
+    },
+    "Api": {
+      "Type": "AWS::ApiGatewayV2::Api",
+      "Properties": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-api"
+        },
+        "ProtocolType": "HTTP",
+        "CorsConfiguration": {
+          "AllowOrigins": [
+            {
+              "Ref": "PrimaryOrigin"
+            }
+          ],
+          "AllowMethods": [
+            "GET",
+            "PUT",
+            "OPTIONS"
+          ],
+          "AllowHeaders": [
+            "authorization",
+            "content-type"
+          ],
+          "MaxAge": 300
+        }
+      }
+    },
+    "Authorizer": {
+      "Type": "AWS::ApiGatewayV2::Authorizer",
+      "Properties": {
+        "ApiId": {
+          "Ref": "Api"
+        },
+        "AuthorizerType": "JWT",
+        "Name": "Students",
+        "IdentitySource": [
+          "$request.header.Authorization"
+        ],
+        "JwtConfiguration": {
+          "Audience": [
+            {
+              "Ref": "Client"
+            }
+          ],
+          "Issuer": {
+            "Fn::Sub": "https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}"
+          }
+        }
+      }
+    },
+    "Integration": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "Api"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::GetAtt": [
+            "Function",
+            "Arn"
+          ]
+        },
+        "PayloadFormatVersion": "2.0"
+      }
+    },
+    "Stage": {
+      "Type": "AWS::ApiGatewayV2::Stage",
+      "Properties": {
+        "ApiId": {
+          "Ref": "Api"
+        },
+        "StageName": "$default",
+        "AutoDeploy": true,
+        "DefaultRouteSettings": {
+          "ThrottlingBurstLimit": 10,
+          "ThrottlingRateLimit": 5
+        }
+      }
+    },
+    "Permission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "Function"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Sub": "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*/*/progress"
+        }
+      }
+    },
+    "GETRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "Api"
+        },
+        "RouteKey": "GET /progress",
+        "Target": {
+          "Fn::Sub": "integrations/${Integration}"
+        },
+        "AuthorizationType": "JWT",
+        "AuthorizerId": {
+          "Ref": "Authorizer"
+        },
+        "AuthorizationScopes": [
+          "openid"
+        ]
+      }
+    },
+    "PUTRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "Api"
+        },
+        "RouteKey": "PUT /progress",
+        "Target": {
+          "Fn::Sub": "integrations/${Integration}"
+        },
+        "AuthorizationType": "JWT",
+        "AuthorizerId": {
+          "Ref": "Authorizer"
+        },
+        "AuthorizationScopes": [
+          "openid"
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "WebsiteAccountConfig": {
+      "Value": {
+        "Fn::Sub": "{\"domain\":\"https://${DomainPrefix}.auth.${AWS::Region}.amazoncognito.com\",\"clientId\":\"${Client}\",\"apiUrl\":\"https://${Api}.execute-api.${AWS::Region}.amazonaws.com\",\"origin\":\"${PrimaryOrigin}\"}"
+      }
+    },
+    "UserPoolId": {
+      "Value": {
+        "Ref": "UserPool"
+      }
+    },
+    "ProgressTableName": {
+      "Value": {
+        "Ref": "ProgressTable"
+      }
+    }
+  }
+}
