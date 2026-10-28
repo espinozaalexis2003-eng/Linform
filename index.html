@@ -493,7 +493,7 @@ summary { color: #c7d4ff; cursor: pointer; font-weight: 600; font-size: 13px; }
         <p>Start with Linux. Explore AWS and Azure. Bring the pieces together with Terraform.</p>
       </div>
       <div class="course-grid" id="course-grid"></div>
-      <p class="small-note">Guest progress stays in this browser. Practice in the browser lab below; cloud architecture exercises do not deploy paid resources.</p>
+      <p class="small-note">Guest progress stays in this browser. Open Practice for the browser lab. Cloud architecture exercises do not deploy paid resources.</p>
     </section>
 
     <section class="section practice-grid" id="commands">
@@ -1874,7 +1874,7 @@ cat welcome.txt</textarea>
     if (dialog.open) renderLesson();
   }
   function controls() {
-    login.hidden = !canonical || !!userId;
+    login.hidden = !configured || !!userId;
     logout.hidden = !userId;
     syncButton.hidden = !userId;
   }
@@ -1937,6 +1937,7 @@ cat welcome.txt</textarea>
     return btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   }
   login.addEventListener("click", async () => {
+    if (!canonical) { location.assign(cfg.origin + "/#account"); return; }
     login.disabled = true;
     try {
       const verifier = b64(crypto.getRandomValues(new Uint8Array(32)));
@@ -1998,6 +1999,133 @@ cat welcome.txt</textarea>
 })();
 </script>
 
+<style>
+  .site-view[hidden] { display:none !important; }
+  .site-header { display:grid; grid-template-columns:auto 1fr auto; gap:24px; }
+  .site-header nav { justify-content:center; gap:6px; flex-wrap:nowrap; }
+  .site-header nav a { padding:9px 12px; border-radius:7px; white-space:nowrap; }
+  .site-header nav a[aria-current="page"] { color:#edf2ff; background:#253252; }
+  .site-header .header-account { display:inline-flex; padding:10px 16px; font-size:13px; white-space:nowrap; }
+  .site-view { min-height:55vh; }
+  .site-view > .section:first-child { padding-top:40px; }
+  .home-links { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; padding:26px 0 50px; }
+  .home-link { padding:24px; background:#121d30; border:1px solid #2c3b57; border-radius:10px; }
+  .home-link:hover { border-color:#83b2ff; }
+  .home-link span { display:block; font-size:11px; color:#b09aff; letter-spacing:1.5px; text-transform:uppercase; }
+  .home-link h2 { font-size:20px; letter-spacing:-.5px; margin:12px 0 8px; }
+  .home-link p { font-size:13px; margin:0; }
+  .site-view #student-account { margin:35px 0; }
+  .site-view #student-account h2 { font-size:34px; }
+  .site-view #courses { border-bottom:0; }
+  @media(max-width:1000px) {
+    .site-header { grid-template-columns:1fr auto; gap:10px 16px; padding-top:16px; padding-bottom:16px; }
+    .site-header nav { grid-row:2; grid-column:1/-1; justify-content:flex-start; overflow-x:auto; max-width:100%; padding-bottom:3px; }
+    .site-header .header-account { grid-column:2; grid-row:1; }
+  }
+  @media(max-width:600px) {
+    .home-links { grid-template-columns:1fr; gap:12px; }
+    .home-link { padding:20px; }
+    .site-header nav { gap:2px; font-size:12px; }
+    .site-header nav a { padding:9px 10px; }
+    .site-header .header-account { font-size:12px; padding:9px 13px; }
+    .site-view > .section:first-child { padding-top:24px; }
+  }
+</style>
+<script>
+(() => {
+  const main = document.querySelector('main');
+  const header = document.querySelector('header');
+  const nav = document.querySelector('nav[aria-label="Main navigation"]');
+  header.classList.add('site-header');
+  const oldHeaderAction = header.querySelector(':scope > .button');
+  if (oldHeaderAction) oldHeaderAction.remove();
+  const accountLink = document.createElement('a');
+  accountLink.className = 'button header-account';
+  accountLink.href = '#account';
+  accountLink.textContent = 'Sign in ↗';
+  header.append(accountLink);
+  const views = {};
+  const names = {home:'Home',learn:'Learn',practice:'Practice',certifications:'Certifications',about:'About',contact:'Contact',account:'My account'};
+  for (const [key,name] of Object.entries(names)) {
+    const view = document.createElement('div');
+    view.id = 'view-' + key;
+    view.className = 'site-view';
+    view.setAttribute('role','region');
+    view.setAttribute('aria-label',name);
+    view.hidden = true;
+    views[key] = view;
+  }
+  views.home.append(document.querySelector('.hero'));
+  const homeLinks = document.createElement('div');
+  homeLinks.className = 'home-links';
+  for (const [route,eyebrow,title,description] of [
+    ['learn','Choose your path','Build your foundation ↗','Linux, AWS, Azure, and Terraform. One lesson at a time.'],
+    ['practice','Try a command','Open the browser lab ↗','A temporary shell for hands-on practice.'],
+    ['certifications','Test your reasoning','Explore exam foundations ↗','Mapped lessons and short practice quizzes.']
+  ]) {
+    const link = document.createElement('a'); link.href='#'+route; link.className='home-link';
+    const label=document.createElement('span'); label.textContent=eyebrow;
+    const heading=document.createElement('h2'); heading.textContent=title;
+    const text=document.createElement('p'); text.textContent=description;
+    link.append(label,heading,text); homeLinks.append(link);
+  }
+  views.home.append(homeLinks);
+  views.learn.append(document.getElementById('courses'));
+  views.practice.append(document.getElementById('linux-lab'),document.getElementById('commands'));
+  views.certifications.append(document.getElementById('certifications'));
+  views.about.append(document.getElementById('about'),document.querySelector('.case'));
+  views.contact.append(document.getElementById('contact'));
+  views.account.append(document.getElementById('student-account'));
+  main.replaceChildren(...Object.values(views));
+  nav.replaceChildren();
+  for (const key of ['home','learn','practice','certifications','about','contact']) {
+    const link=document.createElement('a'); link.href='#'+key; link.textContent=names[key];
+    link.dataset.view=key; nav.append(link);
+  }
+  const aliases = {courses:'learn',commands:'practice','linux-lab':'practice','student-account':'account'};
+  document.querySelector('.brand').href='#home';
+  for (const link of document.querySelectorAll('a[href^="#"]')) {
+    const target=link.getAttribute('href').slice(1);
+    if (aliases[target]) link.setAttribute('href','#'+aliases[target]);
+  }
+  let active;
+  function renderRoute(focus=false) {
+    let requested;
+    try { requested=decodeURIComponent(location.hash.slice(1)); } catch { requested='home'; }
+    const key=aliases[requested] || (views[requested] ? requested : 'home');
+    const changed=active!==key;
+    active=key;
+    for (const [name,view] of Object.entries(views)) view.hidden=name!==key;
+    for (const link of nav.children) {
+      if(link.dataset.view===key) link.setAttribute('aria-current','page');
+      else link.removeAttribute('aria-current');
+    }
+    document.title=key==='home' ? 'Linform | Learn by building' : names[key]+' | Linform';
+    if (changed && focus) {
+      const heading=views[key].querySelector('h1,h2');
+      if(heading) { heading.tabIndex=-1; heading.focus({preventScroll:true}); }
+      window.scrollTo({top:0,behavior:'auto'});
+    }
+  }
+  accountLink.addEventListener('click',event=>{
+    const login=document.getElementById('account-login');
+    const signedIn=!document.getElementById('account-logout').hidden;
+    if (!signedIn && login && !login.hidden && !login.disabled) {
+      event.preventDefault(); login.click();
+    }
+  });
+  const accountStatus=document.getElementById('account-status');
+  function updateAccountLabel() {
+    const signedIn=!document.getElementById('account-logout').hidden;
+    accountLink.textContent=signedIn?'My account ↗':'Sign in ↗';
+  }
+  new MutationObserver(updateAccountLabel).observe(accountStatus,{childList:true,subtree:true});
+  window.addEventListener('hashchange',()=>renderRoute(true));
+  renderRoute(); updateAccountLabel();
+})();
+</script>
+
 </body>
 </html>
+
 
