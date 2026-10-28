@@ -30,7 +30,7 @@ aws cloudformation describe-stacks \
   --output table
 ```
 
-If the domain prefix is taken, choose another unique lowercase prefix and retry. If your AWS account's Lambda quota prevents reserving five concurrent executions, request a quota increase or reduce/remove `ReservedConcurrentExecutions` after reviewing the capacity and cost implications.
+If the domain prefix is taken, choose another unique lowercase prefix and retry. The progress Lambda uses the account's unreserved concurrency so this stack also supports accounts with low Lambda concurrency quotas. API Gateway keeps its request throttles; these are not a hard spending cap.
 
 ## 2. Connect the website
 
@@ -60,7 +60,7 @@ Accounts use exactly the configured origin and `/` callback. If you visit `www.l
 
 - Cognito stores the email and password verifier for student accounts. DynamoDB stores only a user subject and completed lesson IDs. It does not store terminal input, passwords, emails, or quiz answers.
 - Guest and each account's completion cache are separate in browser storage. Signing in never automatically uploads guest history. Access tokens stay in memory, expire after 15 minutes, and are discarded on sign-out; refresh tokens returned by Cognito are discarded immediately.
-- The API validates token type and gets the user identity only from API Gateway's validated claims. Each lesson is an independent, monotonic record, preserving updates from multiple devices. Requests accept at most 200 IDs with strict length and character checks. API Gateway throttling and a Lambda concurrency limit reduce bursts.
+- The API validates token type and gets the user identity only from API Gateway's validated claims. Each lesson is an independent, monotonic record, preserving updates from multiple devices. Requests accept at most 200 IDs with strict length and character checks. API Gateway throttling reduces bursts; the Lambda shares the account's unreserved concurrency.
 - CORS is restricted to the canonical site, but CORS is not authentication; JWT authorization protects both API routes.
 - CloudFormation retains the user pool and progress table when the stack is deleted to prevent accidental loss of students' data. Retained storage continues to cost money until deliberately removed.
 - To honor account deletion requests, use Cognito's administrative user deletion and remove DynamoDB records for that user's `sub`. Do both; deleting a Cognito account alone does not erase progress. Publish a fuller privacy policy and a deletion contact before broad promotion.
