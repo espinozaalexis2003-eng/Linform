@@ -73,3 +73,15 @@ Accounts use exactly the configured origin and `/` callback. If you visit `www.l
 - [Cognito authorization code flow and PKCE](https://docs.aws.amazon.com/cognito/latest/developerguide/authorization-endpoint.html)
 - [Cognito token endpoint](https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html)
 - [HTTP API JWT authorizers](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-jwt-authorizer.html)
+
+## Training-save behavior
+
+Signed-in lesson completions save automatically to the student's Cognito identity. The save state appears across navigation views and inside the lesson dialog. Failed saves remain in a separate per-account browser cache, with manual retry and an automatic retry when the browser comes online. Page backgrounding also attempts a best-effort upload.
+
+An expired session keeps subsequent completions attached to that same account on the device; it never silently switches them into guest history. Sign in again with the same account to upload pending completions. Tokens stay in memory only, so signing in is required after a page reload. Previously synced completions remain in DynamoDB.
+
+Guest history is not automatically attached to an account. After signing in, an explicit button can add the guest lessons stored on that browser origin to the current account. This avoids accidentally assigning another learner's shared-device history to a new account. Guest caches on www and the canonical domain remain separate browser origins.
+
+Only completed lesson IDs are synced. Reading position, terminal files, and quiz answers/scores are not part of account progress. Test completion by selecting Mark complete, checking Saved to your account, and signing in on a different device.
+
+Run `node --test tests/account-progress.mjs` for the frontend regression suite, in addition to the existing site and backend checks. Live cross-device acceptance still requires two real authenticated sessions.

@@ -49,6 +49,7 @@ jobs:
       - name: Check learning platform
         run: |
           node tests/validate-site.mjs
+          node --test tests/account-progress.mjs
           python -m unittest discover -s infra -p 'test_*.py' -v
 
       - name: Authenticate to AWS with OIDC
