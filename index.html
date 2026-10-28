@@ -407,6 +407,11 @@ summary { color: #c7d4ff; cursor: pointer; font-weight: 600; font-size: 13px; }
   html { scroll-behavior: auto; }
 }
 </style>
+<style>
+.training-save-banner { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px 16px; padding:10px 14px; margin:0 0 18px; border:1px solid #2c3b57; border-radius:8px; color:#b7c9e6; background:#111c2e; font-size:12px; }
+.training-save-banner a { color:#b9c8ff; text-decoration:underline; text-underline-offset:3px; }
+.training-save-banner [hidden] { display:none; }
+</style>
 </head>
 
 <body>
@@ -1040,7 +1045,7 @@ function renderLessonNavigation() {
 
   const completed = course.lessons.filter(lesson => isComplete(lesson.id)).length;
   document.getElementById("sidebar-progress").textContent =
-    `${completed} of ${course.lessons.length} completed · Saved in this browser`;
+    `${completed} of ${course.lessons.length} completed · Your training progress`;
 }
 
 function renderLesson() {
@@ -1840,160 +1845,242 @@ cat welcome.txt</textarea>
     <button class="button secondary" id="account-sync" type="button" hidden>Sync progress</button>
     <button class="button secondary" id="account-logout" type="button" hidden>Sign out</button>
   </div>
-  <p class="small-note" id="account-privacy">Guest lessons need no account. When you create an account, AWS Cognito stores your email and credentials; Linform stores completed lesson IDs linked to your account. Your guest history stays separate.</p>
-  <details><summary>Student data and privacy</summary><p class="small-note">Linform is operated by Alexis Espinosa. Guest progress and per-account progress caches stay in this browser until you clear its site data. When accounts are available, Cognito manages sign-in and password recovery; completed lesson IDs are stored in Linform's AWS account to provide sync. Terminal files and quiz answers are not sent to the progress service. Sign-in tokens stay in memory and are discarded on reload or sign-out. Contact alexise2003@outlook.com to request account and progress deletion. Form inquiries use FormSubmit, which processes the information you submit. Do not enter passwords or private information into the practice lab.</p></details>
+  <p class="small-note" id="account-privacy">Guest lessons need no account. When you create an account, AWS Cognito stores your email and credentials; Linform stores completed lesson IDs linked to your account. Guest history stays separate unless you choose to add it to your account.</p>
+  <details><summary>Student data and privacy</summary><p class="small-note">Linform is operated by Alexis Espinosa. Guest progress and per-account progress caches stay in this browser until you clear its site data. Cognito manages sign-in and password recovery; completed lesson IDs are stored in Linform's AWS account to provide sync. Terminal files and quiz answers are not sent to the progress service. Sign-in tokens stay in memory and are discarded on reload or sign-out. Contact alexise2003@outlook.com to request account and progress deletion. Form inquiries use FormSubmit, which processes the information you submit. Do not enter passwords or private information into the practice lab.</p></details>
 </section>
 <script>
 (() => {
-  // Public identifiers only. Paste WebsiteAccountConfig here after deploying infra/accounts.template.json.
   const ACCOUNT_CONFIG = {"domain":"https://linform-students-461729034360.auth.us-east-2.amazoncognito.com","clientId":"74d5juhq61h28f2fc086jlgq5o","apiUrl":"https://i4e7b9godf.execute-api.us-east-2.amazonaws.com","origin":"https://linformcloud.com"};
   const cfg = ACCOUNT_CONFIG;
-  const panel = document.getElementById("student-account");
-  document.getElementById("courses").before(panel);
-  const status = document.getElementById("account-status");
-  const login = document.getElementById("account-login");
-  const syncButton = document.getElementById("account-sync");
-  const logout = document.getElementById("account-logout");
+  const panel = document.getElementById('student-account');
+  document.getElementById('courses').before(panel);
+  const status = document.getElementById('account-status');
+  const login = document.getElementById('account-login');
+  const syncButton = document.getElementById('account-sync');
+  const logout = document.getElementById('account-logout');
+  const importButton = document.createElement('button');
+  importButton.type = 'button'; importButton.className = 'button secondary'; importButton.hidden = true;
+  importButton.id = 'account-import'; logout.after(importButton);
+  const banner = document.createElement('div');
+  banner.className = 'training-save-banner';
+  banner.innerHTML = '<span id="training-save-text" role="status"></span><a href="#account" id="training-save-action" hidden>View account ↗</a>';
+  document.querySelector('header').after(banner);
+  const bannerText = document.getElementById('training-save-text');
+  const bannerAction = document.getElementById('training-save-action');
+  const lessonSave = document.createElement('p');
+  lessonSave.id = 'lesson-save-status'; lessonSave.className = 'small-note';
+  document.querySelector('.lesson-content').append(lessonSave);
   const configured = !!(cfg.domain && cfg.clientId && cfg.apiUrl && cfg.origin);
   const canonical = configured && location.origin === cfg.origin;
   const guestSave = saveProgress;
   let token = null, userId = null, expiresAt = 0, generation = 0;
-  let timer, syncTimer, syncing = false;
-  const callback = () => cfg.origin + "/";
-  const cacheKey = id => "linform-account-progress-v1:" + id;
-  const completedIds = value => Object.keys(value).filter(id => value[id] === true && /^[a-z][a-z0-9-]{0,79}$/.test(id));
-
+  let timer, syncTimer, syncing = false, revision = 0;
+  const callback = () => cfg.origin + '/';
+  const cacheKey = id => 'linform-account-progress-v1:' + id;
+  const validId = id => /^[a-z][a-z0-9-]{0,79}$/.test(id);
+  const completedIds = value => Object.keys(value).filter(id => value[id] === true && validId(id));
   function readStored(key) {
     try {
-      const v = JSON.parse(localStorage.getItem(key) || "{}");
-      return v && typeof v === "object" && !Array.isArray(v) ? v : {};
+      const value = JSON.parse(localStorage.getItem(key) || '{}');
+      const clean = {};
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        for (const id of completedIds(value)) clean[id] = true;
+      }
+      return clean;
     } catch { return {}; }
+  }
+  function cacheAccount() {
+    try { localStorage.setItem(cacheKey(userId), JSON.stringify(progress)); return true; }
+    catch { return false; }
+  }
+  function authenticated() { return !!(userId && token && Date.now() < expiresAt); }
+  function say(message, action = '') {
+    status.textContent = message;
+    bannerText.textContent = message;
+    lessonSave.textContent = message;
+    bannerAction.hidden = !action;
+    bannerAction.textContent = action || 'View account ↗';
   }
   function paintProgress() {
     renderCourses();
     if (dialog.open) renderLesson();
   }
   function controls() {
-    login.hidden = !configured || !!userId;
+    login.hidden = !configured || authenticated();
+    login.disabled = false;
+    login.textContent = userId ? 'Sign in again ↗' : 'Sign in / Create account ↗';
     logout.hidden = !userId;
     syncButton.hidden = !userId;
+    syncButton.disabled = !authenticated() || syncing;
+    const count = completedIds(readStored(STORAGE_KEY)).filter(id => !isComplete(id)).length;
+    importButton.hidden = !authenticated() || !count;
+    importButton.textContent = `Add ${count} guest ${count === 1 ? 'lesson' : 'lessons'} from this browser to my account`;
   }
   function leave(message) {
-    generation++;
-    clearTimeout(timer);
-    clearTimeout(syncTimer);
-    token = null; userId = null; expiresAt = 0; syncing = false;
+    generation++; clearTimeout(timer); clearTimeout(syncTimer);
+    token = null; userId = null; expiresAt = 0; syncing = false; revision = 0;
     progress = readStored(STORAGE_KEY);
-    paintProgress(); controls(); status.textContent = message;
+    paintProgress(); controls(); say(message, 'Sign in to save across devices ↗');
   }
-  async function request(method, value) {
-    if (!token || Date.now() >= expiresAt) throw new Error("Session expired. Sign in again to sync.");
-    const res = await fetch(cfg.apiUrl + "/progress", {
-      method, cache: "no-store", credentials: "omit",
-      headers: {Authorization: "Bearer " + token, ...(value ? {"Content-Type": "application/json"} : {})},
-      ...(value ? {body: JSON.stringify(value)} : {}), signal: AbortSignal.timeout(15000)
+  function expireSession() {
+    // Keep ownership of new completions; never silently save them as guest work.
+    token = null; expiresAt = 0; clearTimeout(timer); clearTimeout(syncTimer);
+    controls();
+    say('Session expired · Your account progress stays on this device. Sign in again to sync new lessons.', 'Sign in again ↗');
+  }
+  function session() { return { token, userId, expiresAt }; }
+  async function request(method, value, auth = session()) {
+    if (!auth.token || Date.now() >= auth.expiresAt) {
+      const error = new Error('Session expired'); error.sessionExpired = true; throw error;
+    }
+    const res = await fetch(cfg.apiUrl + '/progress', {
+      method, cache:'no-store', credentials:'omit',
+      headers:{Authorization:'Bearer ' + auth.token, ...(value ? {'Content-Type':'application/json'} : {})},
+      ...(value ? {body:JSON.stringify(value)} : {}), signal:AbortSignal.timeout(15000)
     });
-    if (res.status === 401 || res.status === 403) throw new Error("Session expired. Sign out, then sign in again.");
-    if (!res.ok) throw new Error("Sync unavailable. Progress is saved in this browser; try Sync progress again.");
+    if (res.status === 401 || res.status === 403) {
+      const error = new Error('Session expired'); error.sessionExpired = true; throw error;
+    }
+    if (!res.ok) throw new Error('Progress sync unavailable');
     return res.json();
+  }
+  function mergeRemote(remote, expectedUser) {
+    if (remote.userId !== expectedUser || !Array.isArray(remote.completed)) throw new Error('Unexpected account response');
+    for (const id of remote.completed) if (typeof id === 'string' && validId(id)) progress[id] = true;
   }
   async function sync() {
     if (!userId || syncing) return;
-    const current = generation;
-    syncing = true; syncButton.disabled = true;
-    status.textContent = "Syncing account progress…";
+    if (!authenticated()) { expireSession(); return; }
+    const current = generation, snapshot = revision, auth = session();
+    syncing = true; controls(); say('Saving your training progress to your account…');
     try {
       const ids = completedIds(progress);
-      for (let i = 0; i < ids.length; i += 200) await request("PUT", {completed: ids.slice(i, i + 200)});
-      const remote = await request("GET");
+      for (let i = 0; i < ids.length; i += 200) {
+        if (current !== generation) return;
+        await request('PUT', {completed:ids.slice(i, i + 200)}, auth);
+      }
+      const remote = await request('GET', undefined, auth);
       if (current !== generation) return;
-      if (remote.userId !== userId || !Array.isArray(remote.completed)) throw new Error("Unexpected sync response.");
-      for (const id of remote.completed) if (typeof id === "string" && /^[a-z][a-z0-9-]{0,79}$/.test(id)) progress[id] = true;
-      try { localStorage.setItem(cacheKey(userId), JSON.stringify(progress)); } catch {}
-      // Do not rebuild an open lesson while a learner is reading or answering a quiz.
-      renderCourses();
-      if (dialog.open) renderLessonNavigation();
-      status.textContent = "Signed in · Progress synced across your devices.";
-      // If a lesson was completed during the request, queue another upload.
-      if (completedIds(progress).some(id => !ids.includes(id) && !remote.completed.includes(id))) {
-        syncTimer = setTimeout(sync, 400);
+      mergeRemote(remote, auth.userId); cacheAccount();
+      renderCourses(); if (dialog.open) renderLessonNavigation();
+      if (revision !== snapshot) {
+        say('Saving your latest lesson…');
+        clearTimeout(syncTimer); syncTimer = setTimeout(sync, 0);
+      } else {
+        say('Saved to your account · Sign in on another device to continue.', 'View my training ↗');
       }
     } catch (error) {
-      if (current === generation) status.textContent = error.message;
+      if (current !== generation) return;
+      if (error.sessionExpired) expireSession();
+      else say('Not synced yet · Progress stays on this device. Retry from Account.', 'Retry sync ↗');
     } finally {
-      if (current === generation) { syncing = false; syncButton.disabled = false; }
+      if (current === generation) { syncing = false; controls(); }
     }
   }
   saveProgress = function () {
-    if (!userId) return guestSave();
-    let saved = true;
-    try { localStorage.setItem(cacheKey(userId), JSON.stringify(progress)); } catch { saved = false; }
-    clearTimeout(syncTimer);
-    syncTimer = setTimeout(sync, 400);
-    status.textContent = saved ? "Progress saved on this device · Sync pending…" : "Progress is in memory · Sync pending…";
+    if (!userId) {
+      const saved = guestSave();
+      say(saved ? 'Guest progress saved on this device.' : 'Browser storage unavailable · Progress lasts for this visit.', 'Sign in to save across devices ↗');
+      return saved;
+    }
+    revision++;
+    const saved = cacheAccount();
+    controls();
+    if (!authenticated()) expireSession();
+    else {
+      say(saved ? 'Lesson saved on this device · Saving to your account…' : 'Saving to your account · Browser storage is unavailable…');
+      clearTimeout(syncTimer); syncTimer = setTimeout(sync, 0);
+    }
     return saved;
   };
-  function b64(bytes) {
-    return btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  function flushOnLeave() {
+    if (!authenticated()) return;
+    const ids = completedIds(progress);
+    for (let i=0; i<ids.length; i+=200) {
+      // A best-effort last upload. Local per-account cache is the retry source.
+      fetch(cfg.apiUrl + '/progress', {
+        method:'PUT', keepalive:true, credentials:'omit', cache:'no-store',
+        headers:{Authorization:'Bearer ' + token,'Content-Type':'application/json'},
+        body:JSON.stringify({completed:ids.slice(i,i+200)})
+      }).catch(()=>{});
+    }
   }
-  login.addEventListener("click", async () => {
-    if (!canonical) { location.assign(cfg.origin + "/#account"); return; }
-    login.disabled = true;
+  importButton.addEventListener('click', () => {
+    if (!authenticated()) return;
+    for (const id of completedIds(readStored(STORAGE_KEY))) progress[id] = true;
+    saveProgress(); paintProgress(); controls();
+  });
+  function b64(bytes) {
+    return btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }
+  login.addEventListener('click', async () => {
+    if (!canonical) { location.assign(cfg.origin + '/#account'); return; }
+    flushOnLeave(); login.disabled = true;
     try {
       const verifier = b64(crypto.getRandomValues(new Uint8Array(32)));
       const state = b64(crypto.getRandomValues(new Uint8Array(32)));
-      const challenge = b64(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier))));
-      sessionStorage.setItem("linform-oauth", JSON.stringify({verifier, state, at: Date.now()}));
-      const url = new URL("/oauth2/authorize", cfg.domain);
-      url.search = new URLSearchParams({client_id: cfg.clientId, response_type: "code", scope: "openid", redirect_uri: callback(), state, code_challenge: challenge, code_challenge_method: "S256"});
+      const challenge = b64(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier))));
+      sessionStorage.setItem('linform-oauth',JSON.stringify({verifier,state,at:Date.now()}));
+      const url = new URL('/oauth2/authorize',cfg.domain);
+      url.search = new URLSearchParams({client_id:cfg.clientId,response_type:'code',scope:'openid',redirect_uri:callback(),state,code_challenge:challenge,code_challenge_method:'S256'});
       location.assign(url.href);
-    } catch { status.textContent = "Sign-in needs secure browser storage. Guest lessons are still available."; login.disabled = false; }
+    } catch {
+      login.disabled = false;
+      say('Sign-in needs secure browser storage. Your current progress stays on this device.', 'View account ↗');
+    }
   });
-  logout.addEventListener("click", () => {
-    leave("Signed out · Your separate guest progress is restored.");
-    const url = new URL("/logout", cfg.domain);
-    url.search = new URLSearchParams({client_id: cfg.clientId, logout_uri: callback()});
+  logout.addEventListener('click', () => {
+    flushOnLeave(); leave('Signed out · Your separate guest progress is restored.');
+    const url = new URL('/logout',cfg.domain);
+    url.search = new URLSearchParams({client_id:cfg.clientId,logout_uri:callback()});
     location.assign(url.href);
   });
-  syncButton.addEventListener("click", sync);
+  syncButton.addEventListener('click',sync);
+  window.addEventListener('online',()=>{ if(authenticated()) sync(); });
+  window.addEventListener('pagehide',flushOnLeave);
+  document.addEventListener('visibilitychange',()=>{
+    if (document.visibilityState === 'hidden') flushOnLeave();
+    else if (authenticated()) sync();
+  });
   controls();
-  if (!configured) status.textContent = "Guest mode · Progress saves in this browser. Student accounts are not available yet.";
-  else if (!canonical) status.textContent = "Guest mode · To sign in, open " + cfg.origin + ". Your progress here stays in this browser.";
-
+  say('Guest progress saves on this device.', 'Sign in to save across devices ↗');
+  if (!configured) say('Guest mode · Student accounts are not available yet.');
+  else if (!canonical) say('Guest mode · Sign in at linformcloud.com to save across devices.', 'Open account ↗');
   async function finishLogin() {
     const url = new URL(location.href);
-    if (!url.searchParams.has("code") && !url.searchParams.has("error")) return;
-    const code = url.searchParams.get("code"), state = url.searchParams.get("state"), failed = url.searchParams.has("error");
-    for (const key of ["code", "state", "error", "error_description"]) url.searchParams.delete(key);
-    history.replaceState(null, "", url.pathname + url.search + url.hash);
+    if (!url.searchParams.has('code') && !url.searchParams.has('error')) return;
+    const code = url.searchParams.get('code'), state = url.searchParams.get('state'), failed = url.searchParams.has('error');
+    for (const key of ['code','state','error','error_description']) url.searchParams.delete(key);
+    history.replaceState(null,'',url.pathname + url.search + '#account');
     if (!canonical) return;
     let pending;
-    try { pending = JSON.parse(sessionStorage.getItem("linform-oauth") || "null"); } catch {}
-    sessionStorage.removeItem("linform-oauth");
-    if (failed || !code || !pending || state !== pending.state || Date.now() - pending.at > 600000 || Date.now() < pending.at) {
-      status.textContent = "Sign-in was cancelled or expired. Please try again."; return;
+    try { pending = JSON.parse(sessionStorage.getItem('linform-oauth') || 'null'); } catch {}
+    sessionStorage.removeItem('linform-oauth');
+    if (failed || !code || !pending || state !== pending.state || Date.now()-pending.at>600000 || Date.now()<pending.at) {
+      say('Sign-in was cancelled or expired. Please try again.', 'View account ↗'); return;
     }
     try {
-      status.textContent = "Signing in…";
-      const res = await fetch(new URL("/oauth2/token", cfg.domain), {
-        method: "POST", credentials: "omit", cache: "no-store", headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: new URLSearchParams({grant_type: "authorization_code", client_id: cfg.clientId, redirect_uri: callback(), code, code_verifier: pending.verifier}),
-        signal: AbortSignal.timeout(15000)
+      say('Signing in and restoring your training…');
+      const res = await fetch(new URL('/oauth2/token',cfg.domain), {
+        method:'POST',credentials:'omit',cache:'no-store',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:new URLSearchParams({grant_type:'authorization_code',client_id:cfg.clientId,redirect_uri:callback(),code,code_verifier:pending.verifier}),
+        signal:AbortSignal.timeout(15000)
       });
-      if (!res.ok) throw new Error("Sign-in failed. Please try again.");
+      if (!res.ok) throw new Error('Sign-in failed');
       const result = await res.json();
-      if (typeof result.access_token !== "string" || !Number.isFinite(result.expires_in) || result.expires_in <= 0) throw new Error("Invalid sign-in response.");
-      // Tokens stay in memory only. The refresh and ID tokens are deliberately discarded.
-      token = result.access_token; expiresAt = Date.now() + Math.min(result.expires_in, 900) * 1000 - 10000;
-      const remote = await request("GET");
-      if (typeof remote.userId !== "string" || !/^[a-zA-Z0-9-]{1,128}$/.test(remote.userId) || !Array.isArray(remote.completed)) throw new Error("Invalid account response.");
-      userId = remote.userId; generation++;
-      progress = readStored(cacheKey(userId));
-      for (const id of remote.completed) if (typeof id === "string" && /^[a-z][a-z0-9-]{0,79}$/.test(id)) progress[id] = true;
+      if (typeof result.access_token !== 'string' || !Number.isFinite(result.expires_in) || result.expires_in <= 0) throw new Error('Invalid sign-in response');
+      // Never persist access, refresh, or ID tokens in browser storage.
+      token = result.access_token; expiresAt = Date.now() + Math.min(result.expires_in,900)*1000-10000;
+      const remote = await request('GET');
+      if (typeof remote.userId !== 'string' || !/^[a-zA-Z0-9-]{1,128}$/.test(remote.userId) || !Array.isArray(remote.completed)) throw new Error('Invalid account response');
+      userId = remote.userId; generation++; revision = 0;
+      progress = readStored(cacheKey(userId)); mergeRemote(remote,userId); cacheAccount();
       paintProgress(); controls();
-      timer = setTimeout(() => leave("Session expired · Sign in again to restore your account progress."), Math.max(0, expiresAt - Date.now()));
+      timer = setTimeout(expireSession,Math.max(0,expiresAt-Date.now()));
       await sync();
-    } catch (error) { leave(error.message || "Sign-in unavailable. Please try again."); }
+    } catch {
+      leave('Could not restore your account. Sign in again; previously synced lessons remain saved.');
+    }
   }
   finishLogin();
 })();
@@ -2109,14 +2196,14 @@ cat welcome.txt</textarea>
   }
   accountLink.addEventListener('click',event=>{
     const login=document.getElementById('account-login');
-    const signedIn=!document.getElementById('account-logout').hidden;
+    const signedIn=!document.getElementById('account-logout').hidden && document.getElementById('account-login').hidden;
     if (!signedIn && login && !login.hidden && !login.disabled) {
       event.preventDefault(); login.click();
     }
   });
   const accountStatus=document.getElementById('account-status');
   function updateAccountLabel() {
-    const signedIn=!document.getElementById('account-logout').hidden;
+    const signedIn=!document.getElementById('account-logout').hidden && document.getElementById('account-login').hidden;
     accountLink.textContent=signedIn?'My account ↗':'Sign in ↗';
   }
   new MutationObserver(updateAccountLabel).observe(accountStatus,{childList:true,subtree:true});
@@ -2127,5 +2214,6 @@ cat welcome.txt</textarea>
 
 </body>
 </html>
+
 
 
