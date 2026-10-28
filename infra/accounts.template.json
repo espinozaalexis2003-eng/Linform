@@ -211,7 +211,6 @@
         },
         "MemorySize": 128,
         "Timeout": 10,
-        "ReservedConcurrentExecutions": 5,
         "Environment": {
           "Variables": {
             "TABLE_NAME": {
