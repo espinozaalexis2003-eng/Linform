@@ -33,7 +33,7 @@ resources = {
  "LogGroup": {"Type": "AWS::Logs::LogGroup", "Properties": {"LogGroupName": sub("/aws/lambda/${AWS::StackName}-progress"), "RetentionInDays": 14}},
  "Function": {"Type": "AWS::Lambda::Function", "DependsOn": "LogGroup", "Properties": {
    "FunctionName": sub("${AWS::StackName}-progress"), "Runtime": "python3.12", "Handler": "index.handler", "Role": get("FunctionRole", "Arn"),
-   "MemorySize": 128, "Timeout": 10, "ReservedConcurrentExecutions": 5,
+   "MemorySize": 128, "Timeout": 10, 
    "Environment": {"Variables": {"TABLE_NAME": ref("ProgressTable")}}, "Code": {"ZipFile": (root / "progress.py").read_text()}}},
  "Api": {"Type": "AWS::ApiGatewayV2::Api", "Properties": {"Name": sub("${AWS::StackName}-api"), "ProtocolType": "HTTP",
    "CorsConfiguration": {"AllowOrigins": [ref("PrimaryOrigin")], "AllowMethods": ["GET", "PUT", "OPTIONS"], "AllowHeaders": ["authorization", "content-type"], "MaxAge": 300}}},
