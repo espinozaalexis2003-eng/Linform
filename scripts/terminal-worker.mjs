@@ -1,7 +1,9 @@
 import { run } from 'wasi-sh/run';
 import { memoryFs, isDir } from 'wasi-sh/fs';
+import {createLinuxBuiltins} from './linux-builtins.mjs';
 
-let module, store, cwd, environment, lastExit = 0;
+let module, store, cwd, environment, system, lastExit = 0;
+const linuxBuiltins=createLinuxBuiltins(()=>store,()=>system);
 const HOME = '/home/learner';
 const defaults = () => ({HOME,USER:'learner',LOGNAME:'learner',PATH:'/',TERM:'dumb',LANG:'C.UTF-8'});
 const quote = value => "'" + value.replace(/'/g,"'\\''") + "'";
@@ -17,23 +19,26 @@ function snapshot() {
     const data=directory?null:readFile(path);
     total+=data?.byteLength||0;
     if(total>8*1024*1024)throw new Error('Practice workspace limit: 8 MB.');
-    entries.push({path,directory,mode:stat.mode,data});
+    entries.push({path,directory,mode:stat.mode,uid:stat.uid,gid:stat.gid,data});
     if(directory)for(const name of store.readdirSync(path))visit(path==='/'?'/'+name:path+'/'+name);
   }
   visit('/');
-  return {entries,cwd,environment,lastExit};
+  return {entries,cwd,environment,system,lastExit};
 }
 function reset(saved) {
   cwd=HOME;environment=defaults();lastExit=0;
+  system=saved?.system||{users:{root:0,learner:1000},processes:{101:'nginx',102:'worker'},services:{nginx:'stopped'},packages:{busybox:true},firewall:false,rules:[],mounts:['linform on / type memory (browser-only)']};
   const files=saved?Object.fromEntries(saved.entries.filter(e=>!e.directory).map(e=>[e.path,e.data])):{[HOME+'/welcome.txt']:'Welcome to Linform.\nLinux\nAWS\nAzure\nTerraform\n'};
   store=memoryFs(files);
   if(saved) {
     for(const e of saved.entries.filter(e=>e.directory).sort((a,b)=>a.path.length-b.path.length)){
       try{store.mkdirSync(e.path,{mode:e.mode,uid:0,gid:0});}catch{}
     }
-    for(const e of saved.entries)store.touchSync(e.path,{mode:e.mode});
+    for(const e of saved.entries)store.touchSync(e.path,{mode:e.mode,uid:e.uid??1000,gid:e.gid??1000});
     cwd=saved.cwd;environment={...defaults(),...saved.environment};lastExit=saved.lastExit||0;
   }
+  if(!saved){store.touchSync(HOME,{uid:1000,gid:1000});store.touchSync(HOME+'/welcome.txt',{uid:1000,gid:1000});}
+  for(const name of ['createFileSync','mkdirSync']){const method=store[name].bind(store);store[name]=(path,options={})=>method(path,{...options,uid:1000,gid:1000});}
   const write=store.writeSync.bind(store);
   store.writeSync=(path,buffer,offset)=>{
     if(offset+buffer.length>1024*1024)throw new Error('Practice file limit: 1 MB.');
@@ -45,7 +50,6 @@ const checks={
   text:"grep -q 'Azure' /home/learner/cloud-lab/notes.txt",
   pipeline:"test -f /home/learner/cloud-lab/matches.txt && grep -q 'ERROR' /home/learner/cloud-lab/matches.txt && ! grep -q 'INFO' /home/learner/cloud-lab/matches.txt"
 };
-const help='Linform practice terminal\n\npwd             Show your current folder\nls -la          List files, including hidden files\ncd folder       Move into a folder (cd .. goes back)\nmkdir -p folder Create a folder\ntouch file      Create an empty file\ncat file        Read a file\nprintf          Write text; use > or >> to save it\ngrep text file  Find matching lines\nhead / tail     Read the beginning or end of a file\ncp / mv / rm    Copy, move, or remove practice files\nclear           Clear the screen (keeps files)\nhelp            Show this guide\n\nPipes and redirection work. Try: cat welcome.txt | grep Azure\nFiles, folders and exported variables persist until reset or reload.\nThis is BusyBox ash, not AWS CloudShell: no cloud credentials, AWS CLI,\nTerraform, systemd, or Bash. Some full Linux utilities are unavailable.\n';
 self.onmessage=async({data})=>{
   const id=data.id;
   try {
@@ -60,11 +64,6 @@ self.onmessage=async({data})=>{
     if(!['run','check'].includes(data.type))throw new Error('Unknown terminal request.');
     const command=data.type==='check'?checks[data.check]:data.command;
     if(typeof command!=='string'||command.length>12000)throw new Error('Use a command or script shorter than 12,000 characters.');
-    if(data.type==='run'&&command.trim()==='help'){
-      lastExit=0;
-      self.postMessage({type:'output',id,channel:'stdout',bytes:new TextEncoder().encode(help)});
-      self.postMessage({type:'result',id,cwd,exitCode:0,snapshot:snapshot()});return;
-    }
     let count=0;
     const capture=data.type==='run';
     let nextCwd=cwd,nextEnv=environment;
@@ -72,10 +71,16 @@ self.onmessage=async({data})=>{
       wasm:module,inline:true,fs:store,
       env:environment,
       builtins:{
+        ...linuxBuiltins,
+        help:linuxBuiltins.__linform_manuals,
         __linform_capture(ctx){nextCwd=ctx.cwd;nextEnv={...ctx.env};return 0;},
         __linform_previous(){return lastExit;}
       },
-      command:'cd '+quote(cwd)+' || exit 1\n'+(capture?"trap '__linform_capture' EXIT\n__linform_previous\n":'')+command,
+      command:'cd '+quote(cwd)+' || exit 1\n'+
+        'sudo() { printf "[practice sudo: no real privileges are elevated]\\n" >&2; "$@"; }\n'+
+        'ls() { __linform_ls "$@"; }\n'+
+        'kill() { __linform_kill "$@"; }\n'+
+        (capture?"if [ -f /.linform-aliases ]; then . /.linform-aliases; fi\ntrap 'alias | sed \"s/^/alias /\" > /.linform-aliases; __linform_capture' EXIT\n__linform_previous\n":'')+command,
       onOutput(bytes,channel){
         count+=bytes.length;
         if(count>65536)throw new Error('Output limit reached. Use head to show fewer lines.');
