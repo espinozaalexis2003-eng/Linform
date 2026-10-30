@@ -76,3 +76,33 @@ test('reset removes practice files and restores the initial home folder',async()
     assert.match((await t.run('cat welcome.txt')).output,/Welcome to Linform/);
   }finally{await t.close();}
 });
+test('extended file tools work on real virtual files and metadata',async()=>{
+ const t=await terminal();try{
+  assert.match((await t.run('whoami; id')).output,/learner/);
+  await t.run("printf 'alpha\\nbeta\\n' > a.txt; cp a.txt b.txt; chmod 600 a.txt");
+  assert.match((await t.run('ls -l a.txt')).output,/-rw-------/);
+  assert.equal((await t.run('cmp a.txt b.txt')).exitCode,0);
+  await t.run("echo gamma >> b.txt");assert.equal((await t.run('diff a.txt b.txt')).exitCode,1);
+  assert.match((await t.run('less a.txt')).output,/alpha/);
+  assert.equal((await t.run('ln a.txt linked.txt; cat linked.txt')).output,'alpha\nbeta\n');
+  await t.run('tar -cf notes.tar a.txt b.txt; mkdir unpack; cd unpack; tar -xf ../notes.tar');
+  assert.equal((await t.run('cat a.txt')).output,'alpha\nbeta\n');
+  assert.equal((await t.run('dd if=a.txt of=copy.txt bs=1 count=5; cat copy.txt')).output.includes('alpha'),true);
+ }finally{await t.close();}
+});
+test('aliases persist and system simulations change only practice state',async()=>{
+ const t=await terminal();let saved;try{
+  await t.run("alias hi='echo hello'");assert.equal((await t.run('hi')).output,'hello\n');
+  assert.match((await t.run('service nginx start')).output,/simulation/);
+  assert.match((await t.run('service nginx status')).output,/running/);
+  await t.run('useradd student; touch owned.txt; chown student owned.txt');
+  saved=(await t.run('ufw enable')).snapshot;
+  assert.match((await t.run('ufw status')).output,/active/);
+  assert.match((await t.run('wget https://example.com')).output,/disabled|unavailable|network/i);
+ }finally{await t.close();}
+ const restored=await terminal(saved);try{
+  assert.match((await restored.run('service nginx status')).output,/running/);
+  assert.match((await restored.run('ufw status')).output,/active/);
+  assert.equal((await restored.run('hi')).output,'hello\n');
+ }finally{await restored.close();}
+});
