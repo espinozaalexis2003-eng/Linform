@@ -10,18 +10,22 @@ The live website stays a single `index.html`, compatible with the existing restr
 - A real BusyBox ash shell compiled to WebAssembly, with an in-memory filesystem running in a dedicated Web Worker. Launch is opt-in. The student downloads a pinned binary from jsDelivr; SHA-256 integrity is checked. Lab commands are never sent to Linform's backend or cloud services.
 - Prepared AWS Cognito account integration and a CloudFormation backend. Accounts stay unavailable until deployed and configured; follow [account setup](account-setup.md).
 
-## Browser lab limitations
+## Browser terminal
 
-This runtime is a POSIX-style command environment, not a full Linux installation or Bash. `mkdir`, `touch`, `cat`, `printf`, `grep`, pipes, redirection, and many text tools are available. Some commands from the full Linux lessons, including `chmod`, `id`, `whoami`, `df`, `ps`, and services such as systemd, are not included. Students should use WSL or a full Linux environment for those lessons. AWS CLI, Azure CLI, Terraform, real cloud API access, and networking are unavailable in the browser lab.
+Practice uses a CloudShell-style terminal interface: Enter runs a command, output streams into a transcript, and the prompt reflects the current directory. Up/Down recall command history; Tab completes command names; Shift+Enter supports multiline scripts. Clear keeps files. Expand enlarges the terminal. A guide and file-based challenge checks sit alongside it.
 
-Each Run begins in `/home/learner`; files persist between runs until Reset, Stop, timeout, or page reload. Shell variables and current-directory changes do not persist across separate runs. Run multiline scripts together. The lab uses 8-second execution, 64 KB output, and 1 MB per-write/file-growth limits. It is designed for small examples, not unrestricted workloads or persistent storage.
+The runtime is real BusyBox ash compiled to WebAssembly, not a full Linux installation or AWS CloudShell. Files, directories, exported environment variables and the previous exit status persist between submissions. Ordinary unexported variables, functions, shell options and interactive programs do not persist or behave as a full TTY. Tools such as chmod, whoami, id, df, ps, Bash, systemd, package managers, AWS/Azure CLI and Terraform are unavailable. Use WSL or a full Linux environment for those lessons.
 
-Terminal files and quiz answers are not synced. Account sync stores completed lesson IDs only. Lesson completion is self-reported.
+Stop, Ctrl+C, or an 8-second execution timeout restarts the worker from its last completed-command snapshot. A partly completed command may lose its own changes, while the earlier workspace is restored. Reset files or page reload clears the session. Output is limited to 64 KB per command, files to 1 MB, and saved snapshots to 8 MB / 512 entries. The UI retains recent transcript entries and up to 100 commands of history in this tab.
+
+Lab files and terminal history stay in browser memory and do not sync to student accounts. Lesson-completion syncing is separate and unchanged. Starting a session downloads the pinned integrity-checked WASM binary; commands have no cloud credentials or network socket bridge.
 
 ## Checks
 
 ```bash
 node tests/validate-site.mjs
+node --test tests/account-progress.mjs
+node --test tests/terminal.mjs
 python -m unittest discover -s infra -p 'test_*.py' -v
 ```
 
@@ -46,3 +50,9 @@ Pinned binary SHA-256: `195b770af8fad458de09144abd3cc3e688a9a83907ca90f7938a2532
 ## Deployment
 
 GitHub Actions validates the HTML/curriculum and backend tests, then uploads only index.html and invalidates CloudFront. Infrastructure changes are not automatically applied and the website deploy role receives no new AWS permissions.
+
+## Terminal regression checks
+
+Six real-WASM tests cover current-directory persistence, files, exported variables, previous exit codes, stdout/stderr, missing commands, pipes, challenge checks, workspace recovery and reset. The test downloads the same pinned binary as the application and checks SHA-256. To run offline, set LINFORM_WASM_PATH to a local copy of that exact binary.
+
+Readable worker source is in scripts/terminal-worker.mjs; the deployed bundle is embedded in index.html under linform-lab-worker. It was bundled with esbuild 0.25.12 against wasi-sh 0.11.0. Preserve the ISC license notice and the pinned binary integrity when updating the bundle. The deployment continues to upload only index.html and requires no AWS IAM or infrastructure changes.

@@ -50,6 +50,7 @@ jobs:
         run: |
           node tests/validate-site.mjs
           node --test tests/account-progress.mjs
+          node --test tests/terminal.mjs
           python -m unittest discover -s infra -p 'test_*.py' -v
 
       - name: Authenticate to AWS with OIDC
