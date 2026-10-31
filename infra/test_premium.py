@@ -66,6 +66,9 @@ class PremiumTests(unittest.TestCase):
    if resource['Type']=='AWS::ApiGatewayV2::Route' and 'webhook' not in resource['Properties']['RouteKey']:self.assertEqual(resource['Properties']['AuthorizationType'],'JWT')
   self.assertNotIn('ReservedConcurrentExecutions',r['Function']['Properties'])
 
+ def test_stage_waits_for_all_route_setting_targets(self):
+  r=json.loads(Path(__file__).with_name('premium.template.json').read_text())['Resources'];stage=r['Stage'];routes={v['Properties']['RouteKey']:k for k,v in r.items() if v['Type']=='AWS::ApiGatewayV2::Route'}
+  for key in stage['Properties'].get('RouteSettings',{}):self.assertIn(routes[key],stage.get('DependsOn',[]))
  def mentoring_data(self):return {'topic':'project-feedback','message':'Could you review my architecture and explain the access boundaries?','replyEmail':'student@example.com','projectUrl':'https://github.com/example/project','consent':True}
  def test_mentoring_requires_payment_and_binds_to_authenticated_user(self):
   e=self.event('/premium/mentoring','POST',body=json.dumps(self.mentoring_data()))
