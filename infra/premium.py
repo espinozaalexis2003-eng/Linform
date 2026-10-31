@@ -117,6 +117,35 @@ def webhook(event,client,signing_secret):
             if reverse:paid_order(client,reverse['sessionId'],reverse['subject'])
     return respond(200,{'received':True})
 
+
+def save_mentoring(event,client,subject):
+    headers={k.lower():v for k,v in event.get('headers',{}).items()}
+    if headers.get('origin')!=ORIGIN:return respond(403,{'error':'Invalid origin'})
+    if not entitled(client,subject):return respond(403,{'error':'A verified Premium purchase is required'})
+    raw=event.get('body','')
+    if not isinstance(raw,str) or len(raw)>16000:return respond(400,{'error':'Invalid mentoring request'})
+    try:
+        if event.get('isBase64Encoded'):raw=base64.b64decode(raw,validate=True).decode('utf-8')
+        data=json.loads(raw)
+    except (ValueError,UnicodeError):return respond(400,{'error':'Invalid mentoring request'})
+    fields={'topic','message','replyEmail','projectUrl','consent'}
+    if not isinstance(data,dict) or set(data)!=fields or data.get('consent') is not True:return respond(400,{'error':'Consent and request fields are required'})
+    if data.get('topic') not in ('study-question','project-feedback','learning-plan'):return respond(400,{'error':'Choose a mentoring topic'})
+    message=data.get('message');email=data.get('replyEmail');url=data.get('projectUrl')
+    if not isinstance(message,str) or not 20<=len(message.strip())<=3000:return respond(400,{'error':'Use 20 to 3000 characters for your question'})
+    if not isinstance(email,str) or len(email)>254 or not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+',email):return respond(400,{'error':'Enter a reply email'})
+    if not isinstance(url,str) or len(url)>300 or (url and not re.fullmatch(r'https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+',url)):return respond(400,{'error':'Use an optional public GitHub repository URL'})
+    now=int(time.time());count=0
+    args={'KeyConditionExpression':'pk = :u AND begins_with(sk, :m)','ExpressionAttributeValues':{':u':'USER#'+subject,':m':'MENTOR#'},'ConsistentRead':True}
+    while True:
+        page=table.query(**args);count+=sum(row.get('created',0)>=now-86400 for row in page.get('Items',[]))
+        if count>=5:return respond(429,{'error':'Please wait before sending more mentoring requests'})
+        if 'LastEvaluatedKey' not in page:break
+        args['ExclusiveStartKey']=page['LastEvaluatedKey']
+    request_id=str(now)+'-'+secrets.token_hex(8)
+    table.put_item(Item={'pk':'USER#'+subject,'sk':'MENTOR#'+request_id,'requestId':request_id,'created':now,'status':'requested','topic':data['topic'],'message':message.strip(),'replyEmail':email,'projectUrl':url,'consent':True})
+    return respond(201,{'requestId':request_id,'status':'requested','message':'Saved for Alexis to review. Reply timing and availability are confirmed individually.'})
+
 def handler(event,context):
     path=event.get('rawPath','');method=event.get('requestContext',{}).get('http',{}).get('method')
     try:
@@ -148,6 +177,7 @@ def handler(event,context):
             url=session.get('url','')
             if not url.startswith('https://checkout.stripe.com/'):raise ValueError('Unexpected checkout URL')
             return respond(200,{'url':url})
+        if path=='/premium/mentoring' and method=='POST':return save_mentoring(event,client,subject)
         if method=='GET' and (path=='/premium/catalog' or path.startswith('/premium/content/')):
             if not entitled(client,subject):return respond(403,{'error':'A verified Premium purchase is required'})
             if path=='/premium/catalog':return respond(200,content_object('catalog.json'))

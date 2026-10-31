@@ -20,7 +20,7 @@ resources={
 'Integration':{'Type':'AWS::ApiGatewayV2::Integration','Properties':{'ApiId':ref('Api'),'IntegrationType':'AWS_PROXY','IntegrationUri':get('Function','Arn'),'PayloadFormatVersion':'2.0'}},
 'Stage':{'Type':'AWS::ApiGatewayV2::Stage','Properties':{'ApiId':ref('Api'),'StageName':'$default','AutoDeploy':True,'DefaultRouteSettings':{'ThrottlingBurstLimit':10,'ThrottlingRateLimit':3},'RouteSettings':{'POST /premium/checkout':{'ThrottlingBurstLimit':2,'ThrottlingRateLimit':1}}}},
 'Permission':{'Type':'AWS::Lambda::Permission','Properties':{'FunctionName':ref('Function'),'Action':'lambda:InvokeFunction','Principal':'apigateway.amazonaws.com','SourceArn':sub('arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*/*/*')}}}
-for i,route in enumerate(['GET /premium/access','POST /premium/checkout','GET /premium/catalog','GET /premium/content/{id}','POST /stripe/webhook']):
+for i,route in enumerate(['GET /premium/access','POST /premium/checkout','GET /premium/catalog','GET /premium/content/{id}','POST /stripe/webhook','POST /premium/mentoring']):
  p={'ApiId':ref('Api'),'RouteKey':route,'Target':sub('integrations/${Integration}')}
  if 'webhook' not in route:p.update({'AuthorizationType':'JWT','AuthorizerId':ref('Authorizer'),'AuthorizationScopes':['openid']})
  resources['Route'+str(i)]={'Type':'AWS::ApiGatewayV2::Route','Properties':p}

@@ -5,7 +5,7 @@ class Table:
  def __init__(self):self.items={}
  def put_item(self,Item):self.items[(Item['pk'],Item['sk'])]=copy.deepcopy(Item)
  def get_item(self,Key,**kw):return {'Item':self.items.get((Key['pk'],Key['sk']))}
- def query(self,**kw):return {'Items':[copy.deepcopy(v) for (pk,sk),v in self.items.items() if pk==kw['ExpressionAttributeValues'][':u'] and sk.startswith('ORDER#')]}
+ def query(self,**kw):return {'Items':[copy.deepcopy(v) for (pk,sk),v in self.items.items() if pk==kw['ExpressionAttributeValues'][':u'] and sk.startswith(kw['ExpressionAttributeValues'].get(':m','ORDER#'))]}
 table=Table();reads=[]
 def object_read(**kw):
  reads.append(kw);return {'Body':io.BytesIO(json.dumps({'items':[{'id':'aws-guide'}]} if kw['Key']=='catalog.json' else {'title':'private fixture'}).encode())}
@@ -65,4 +65,19 @@ class PremiumTests(unittest.TestCase):
   for resource in r.values():
    if resource['Type']=='AWS::ApiGatewayV2::Route' and 'webhook' not in resource['Properties']['RouteKey']:self.assertEqual(resource['Properties']['AuthorizationType'],'JWT')
   self.assertNotIn('ReservedConcurrentExecutions',r['Function']['Properties'])
+
+ def mentoring_data(self):return {'topic':'project-feedback','message':'Could you review my architecture and explain the access boundaries?','replyEmail':'student@example.com','projectUrl':'https://github.com/example/project','consent':True}
+ def test_mentoring_requires_payment_and_binds_to_authenticated_user(self):
+  e=self.event('/premium/mentoring','POST',body=json.dumps(self.mentoring_data()))
+  self.assertEqual(self.call(e)[0],403);self.grant();code,data=self.call(e);self.assertEqual(code,201)
+  row=next(v for k,v in table.items.items() if k[1].startswith('MENTOR#'));self.assertEqual(row['pk'],'USER#student-a');self.assertEqual(row['status'],'requested')
+  e['requestContext']['authorizer']['jwt']['claims']['sub']='student-b';self.assertEqual(self.call(e)[0],403)
+ def test_mentoring_input_origin_and_daily_limit(self):
+  self.grant();data=self.mentoring_data();data['userId']='victim';self.assertEqual(self.call(self.event('/premium/mentoring','POST',body=json.dumps(data)))[0],400)
+  for field,value in [('consent',False),('message','short'),('replyEmail','not-email'),('projectUrl','https://evil.example/a')]:
+   data=self.mentoring_data();data[field]=value;self.assertEqual(self.call(self.event('/premium/mentoring','POST',body=json.dumps(data)))[0],400)
+  e=self.event('/premium/mentoring','POST',body=json.dumps(self.mentoring_data()));e['headers']['origin']='https://evil.example';self.assertEqual(self.call(e)[0],403)
+  for i in range(5):self.assertEqual(self.call(self.event('/premium/mentoring','POST',body=json.dumps(self.mentoring_data())))[0],201)
+  self.assertEqual(self.call(self.event('/premium/mentoring','POST',body=json.dumps(self.mentoring_data())))[0],429)
+
 if __name__=='__main__':unittest.main()
