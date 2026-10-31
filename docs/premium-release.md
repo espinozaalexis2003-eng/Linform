@@ -5,7 +5,7 @@ The public Premium page is safe to deploy with checkout closed. It is not a comp
 - Price: $15 USD, one-time purchase for this edition. No subscription.
 - Live Stripe product: linform_premium_v1 (inactive).
 - Live Price ID: price_1UWiNeR3GqiWlMaKPqUEeA9Q.
-- Private draft: 39 chapters across CLF-C02, AZ-900 and Terraform Associate 004, plus three project guides. Paid content is deliberately NOT in this public repository.
+- Private draft: 39 chapters across CLF-C02, AZ-900 and Terraform Associate 004, plus six project guides and member mentoring requests. Paid content is deliberately NOT in this public repository.
 - The private delivery ZIP contains the guides, an owner-review Markdown manuscript and the same backend/template/setup script. Never commit the ZIP or private-content directory to this public repository.
 
 ## Architecture
@@ -35,3 +35,13 @@ Run `node tests/validate-site.mjs`, `node --test tests/account-progress.mjs test
 ## Operational limits
 
 Payment-state reads are verified with Stripe on content requests, favoring prompt revocation over availability. A Stripe outage temporarily locks the library. Monitor API/Lambda failures and Stripe webhook delivery. Retained paid content/versioned objects and entitlement data need explicit lifecycle and account-deletion procedures. Purchased users can copy what they can view; purchase authorization prevents unpaid API access, not redistribution by a customer. Content currently remains a review draft and checkout is closed.
+
+## Mentoring included in Premium
+
+Alexis Espinosa is presented as a cloud engineer and founder. Members can request study help, project feedback or learning-plan guidance. This is an asynchronous request workflow, not automatic calendar booking, a promise of unlimited calls or a guaranteed response deadline. Timing and availability are confirmed individually. The public page also states that more projects, study material and mentoring resources are planned.
+
+POST /premium/mentoring requires a valid student access token, a currently verified purchase, a valid reply email, a focused 20–3000 character message, a supported topic and explicit consent. An optional link must be a public GitHub repository URL. Requests are limited to approximately five per account per 24-hour window. The authenticated subject, not an input userId, owns the request. Requests are stored as MENTOR# records in the existing private Premium DynamoDB table; no automatic email notification or appointment is sent. The site acknowledges storage only.
+
+Owner review: open the Premium stack in CloudFormation, locate its Entitlements DynamoDB table, and filter records whose sk begins with MENTOR#. Review status=requested entries and reply using the student's provided replyEmail. Treat all links and messages as untrusted student input. Record follow-up status in the table. Access is through your AWS administrative account, not a public website endpoint. Review the queue regularly after launch. No bank details, credentials or confidential customer data should be requested through this form. Include mentoring requests in your account-data deletion process.
+
+The new projects are: an AWS authenticated support-ticket API, an Azure Linux operations/recovery lab, and a Terraform change-review/team-handoff exercise. They supplement the original three projects. Cloud usage is separate; the local Terraform examples use built-in terraform_data without provisioning cloud services.
