@@ -2000,7 +2000,7 @@ No installation or cloud account needed.</pre></div>
 (() => {
   const ACCOUNT_CONFIG = {"domain":"https://linform-students-461729034360.auth.us-east-2.amazoncognito.com","clientId":"74d5juhq61h28f2fc086jlgq5o","apiUrl":"https://i4e7b9godf.execute-api.us-east-2.amazonaws.com","origin":"https://linformcloud.com"};
   const cfg = ACCOUNT_CONFIG;
-  const PREMIUM_API_URL = "";
+  const PREMIUM_API_URL = "https://le0sa6j8m0.execute-api.us-east-2.amazonaws.com";
   window.LinformAccount = Object.freeze({
     identity: () => authenticated() ? userId : null,
     configured: () => /^https:\/\/[a-z0-9]+\.execute-api\.us-east-2\.amazonaws\.com$/.test(PREMIUM_API_URL),
