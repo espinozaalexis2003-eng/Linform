@@ -348,7 +348,15 @@
             "ThrottlingRateLimit": 1
           }
         }
-      }
+      },
+      "DependsOn": [
+        "Route0",
+        "Route1",
+        "Route2",
+        "Route3",
+        "Route4",
+        "Route5"
+      ]
     },
     "Permission": {
       "Type": "AWS::Lambda::Permission",
