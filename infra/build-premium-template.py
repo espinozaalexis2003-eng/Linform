@@ -24,6 +24,8 @@ for i,route in enumerate(['GET /premium/access','POST /premium/checkout','GET /p
  p={'ApiId':ref('Api'),'RouteKey':route,'Target':sub('integrations/${Integration}')}
  if 'webhook' not in route:p.update({'AuthorizationType':'JWT','AuthorizerId':ref('Authorizer'),'AuthorizationScopes':['openid']})
  resources['Route'+str(i)]={'Type':'AWS::ApiGatewayV2::Route','Properties':p}
+# RouteSettings uses literal route keys, so CloudFormation cannot infer this dependency.
+resources['Stage']['DependsOn']=[name for name,value in resources.items() if value['Type']=='AWS::ApiGatewayV2::Route']
 template={'AWSTemplateFormatVersion':'2010-09-09','Description':'Linform Premium purchase authorization and private content; separate from existing student accounts. Sales disabled by default. Creates billable AWS resources.','Parameters':{
 'StripeSecretArn':{'Type':'String','AllowedPattern':'arn:aws:secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:.+'},
 'PriceId':{'Type':'String','Default':'price_1UWiNeR3GqiWlMaKPqUEeA9Q','AllowedPattern':'price_[a-zA-Z0-9]+'},
