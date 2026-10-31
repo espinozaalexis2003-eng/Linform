@@ -467,7 +467,7 @@ summary { color: #c7d4ff; cursor: pointer; font-weight: 600; font-size: 13px; }
 
   <section class="section case" aria-labelledby="case-title">
     <div>
-      <span class="kicker">Built by your instructor</span>
+      <span class="kicker">Built by a cloud engineer</span>
       <h2 id="case-title">FinanceCorp.<br>Learning, put to work.</h2>
       <span class="badge">Personal AWS lab</span>
       <span class="badge">Terraform rebuild in progress</span>
@@ -519,9 +519,9 @@ summary { color: #c7d4ff; cursor: pointer; font-weight: 600; font-size: 13px; }
     <section class="section about-grid" id="about">
       <div class="monogram" aria-hidden="true">li.</div>
       <div>
-        <span class="kicker">03 / Meet your instructor</span>
+        <span class="kicker">03 / Meet the founder</span>
         <h2>Hi, I’m Alexis Espinosa.</h2>
-        <p>I created Linform to make Linux, AWS, Azure, and Terraform easier to understand through hands-on learning.</p>
+        <p>I’m a cloud engineer and the founder of Linform. I created this platform to make Linux, AWS, Azure, and Terraform easier to understand through hands-on learning.</p>
         <p>My approach: explain the concept, show the steps, and connect it to something you can build.</p>
         <span class="badge">Dallas–Fort Worth</span>
         <span class="badge">English & Spanish</span>
@@ -2658,6 +2658,35 @@ output "project_name" {
   function choose(focus=false){const tf=location.hash==='#terraform';section.hidden=!tf;el('linux-lab').hidden=tf;el('commands').hidden=tf;linuxButton.setAttribute('aria-pressed',String(!tf));tfButton.setAttribute('aria-pressed',String(tf));if(focus){const heading=(tf?section:el('linux-lab')).querySelector('h2');heading.tabIndex=-1;heading.focus({preventScroll:true});}}
   linuxButton.addEventListener('click',()=>{location.hash='practice';});tfButton.addEventListener('click',()=>{location.hash='terraform';});
   window.addEventListener('hashchange',()=>choose(true));choose();
+})();
+</script>
+
+<style>
+  .linform-action-icon {display:inline-block;width:1em;height:1em;flex:none;margin-left:.3em;vertical-align:-.13em;color:inherit;pointer-events:none;}
+  .linform-action-icon svg {display:block;width:100%;height:100%;overflow:visible;}
+</style>
+<script id="linform-action-icons">
+(() => {
+  'use strict';
+  // Keep action icons consistent, including controls refreshed by account and lesson UI.
+  const namespace='http://www.w3.org/2000/svg';
+  function icon(returnKey) {
+    const span=document.createElement('span');span.className='linform-action-icon';span.setAttribute('aria-hidden','true');
+    const svg=document.createElementNS(namespace,'svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','none');svg.setAttribute('focusable','false');
+    const path=document.createElementNS(namespace,'path');path.setAttribute('d',returnKey?'M19 5v8H5m5-5-5 5 5 5':'M4 19v-2C4 10 10 7 19 7m-5-4 5 4-5 4');path.setAttribute('stroke','currentColor');path.setAttribute('stroke-width','1.8');path.setAttribute('stroke-linecap','round');path.setAttribute('stroke-linejoin','round');svg.append(path);span.append(svg);return span;
+  }
+  function decorate(node) {
+    if(node.nodeType===Node.TEXT_NODE){
+      if(!/[↗↵]/.test(node.data)||!node.parentElement?.closest('a,button'))return;
+      const fragment=document.createDocumentFragment();
+      for(const part of node.data.split(/([↗↵])/))fragment.append(part==='↗'||part==='↵'?icon(part==='↵'):document.createTextNode(part));
+      node.replaceWith(fragment);return;
+    }
+    if(node.nodeType!==Node.ELEMENT_NODE||node.matches('script,style,svg,.linform-action-icon'))return;
+    for(const child of [...node.childNodes])decorate(child);
+  }
+  decorate(document.body);
+  new MutationObserver(records=>{for(const record of records){if(record.type==='characterData')decorate(record.target);else for(const node of record.addedNodes)decorate(node);}}).observe(document.body,{childList:true,subtree:true,characterData:true});
 })();
 </script>
 
