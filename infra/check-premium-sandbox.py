@@ -61,6 +61,13 @@ def setup(price_id):
     for name in ('Content','Entitlements'):
         template['Resources'][name].pop('DeletionPolicy',None);template['Resources'][name].pop('UpdateReplacePolicy',None)
     template['Resources']['Content']['Properties'].pop('VersioningConfiguration',None)
+    # Sandbox redirects must not send test session IDs to the live Premium API.
+    code=template['Resources']['Function']['Properties']['Code']['ZipFile']
+    old_return="ORIGIN+'/?premium_session={CHECKOUT_SESSION_ID}#premium'"
+    old_result="return respond(200,{'url':url})"
+    if old_return not in code or old_result not in code:raise CheckError('Unexpected test source shape; no checkout was opened.')
+    code=code.replace(old_return,"ORIGIN+'/#premium'").replace(old_result,"return respond(200,{'url':url,'sessionId':session['id']})")
+    template['Resources']['Function']['Properties']['Code']['ZipFile']=code
     template['Description']='Disposable Linform sandbox payment checks. No paid guides or live payments.'
     path=Path('infra/premium-sandbox-check.template.json');path.write_text(json.dumps(template,indent=2))
     print('Deploying isolated test resources. Normal AWS usage charges apply; Stripe payments are simulated.',flush=True)
@@ -83,7 +90,7 @@ def start():
     code,response=invoke(STACK,'POST','/premium/checkout',state['subjectA'])
     if code!=200:raise CheckError('Sandbox checkout creation failed: HTTP '+str(code))
     from urllib.parse import urlparse
-    url=response['url'];session_id=urlparse(url).path.rsplit('/',1)[-1]
+    url=response['url'];session_id=response.get('sessionId','')
     if urlparse(url).netloc!='checkout.stripe.com' or not session_id.startswith('cs_test_'):raise CheckError('Expected a Stripe TEST Checkout Session; stopping.')
     state.update({'sessionId':session_id,'checkoutUrl':url});save(state)
     print(json.dumps({'SandboxCheckoutUrl':url},indent=2))
