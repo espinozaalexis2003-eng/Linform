@@ -2000,6 +2000,20 @@ No installation or cloud account needed.</pre></div>
 (() => {
   const ACCOUNT_CONFIG = {"domain":"https://linform-students-461729034360.auth.us-east-2.amazoncognito.com","clientId":"74d5juhq61h28f2fc086jlgq5o","apiUrl":"https://i4e7b9godf.execute-api.us-east-2.amazonaws.com","origin":"https://linformcloud.com"};
   const cfg = ACCOUNT_CONFIG;
+  const PREMIUM_API_URL = "";
+  window.LinformAccount = Object.freeze({
+    identity: () => authenticated() ? userId : null,
+    configured: () => /^https:\/\/[a-z0-9]+\.execute-api\.us-east-2\.amazonaws\.com$/.test(PREMIUM_API_URL),
+    async request(path,method='GET') {
+      if(!canonical || !this.configured() || !authenticated()) {const error=new Error('Sign in required');error.status=401;throw error;}
+      if(!['GET','POST'].includes(method)||!/^\/premium\/(?:access(?:\?session_id=[A-Za-z0-9_%.-]+)?|catalog|checkout|content\/[a-z][a-z0-9-]{0,79})$/.test(path))throw new Error('Invalid Premium request');
+      const auth=session(),version=generation;
+      const res=await fetch(PREMIUM_API_URL+path,{method,headers:{Authorization:'Bearer '+auth.token,...(method==='POST'?{'Content-Type':'application/json'}:{})},...(method==='POST'?{body:'{}'}:{}),credentials:'omit',cache:'no-store',signal:AbortSignal.timeout(25000)});
+      if(version!==generation||auth.userId!==userId||!authenticated())throw new Error('Account changed');
+      if(!res.ok){const error=new Error('Premium request failed');error.status=res.status;throw error;}
+      return res.json();
+    }
+  });
   const panel = document.getElementById('student-account');
   document.getElementById('courses').before(panel);
   const status = document.getElementById('account-status');
@@ -2054,6 +2068,7 @@ No installation or cloud account needed.</pre></div>
     if (dialog.open) renderLesson();
   }
   function controls() {
+    if(window.dispatchEvent && typeof CustomEvent === "function") window.dispatchEvent(new CustomEvent("linform-auth-change"));
     login.hidden = !configured || authenticated();
     login.disabled = false;
     login.textContent = userId ? 'Sign in again ↗' : 'Sign in / Create account ↗';
@@ -2226,6 +2241,7 @@ No installation or cloud account needed.</pre></div>
       paintProgress(); controls();
       timer = setTimeout(expireSession,Math.max(0,expiresAt-Date.now()));
       await sync();
+      if(sessionStorage.getItem("linform-premium-return")){sessionStorage.removeItem("linform-premium-return");location.hash="premium";}
     } catch {
       leave('Could not restore your account. Sign in again; previously synced lessons remain saved.');
     }
@@ -2280,7 +2296,7 @@ No installation or cloud account needed.</pre></div>
   accountLink.textContent = 'Sign in ↗';
   header.append(accountLink);
   const views = {};
-  const names = {home:'Home',learn:'Learn',practice:'Practice',certifications:'Certifications',about:'About',contact:'Contact',account:'My account'};
+  const names = {home:'Home',learn:'Learn',practice:'Practice',certifications:'Certifications',about:'About',contact:'Contact',premium:'Premium',account:'My account'};
   for (const [key,name] of Object.entries(names)) {
     const view = document.createElement('div');
     view.id = 'view-' + key;
@@ -2313,7 +2329,7 @@ No installation or cloud account needed.</pre></div>
   views.account.append(document.getElementById('student-account'));
   main.replaceChildren(...Object.values(views));
   nav.replaceChildren();
-  for (const key of ['home','learn','practice','certifications','about','contact']) {
+  for (const key of ['home','learn','practice','certifications','premium','about','contact']) {
     const link=document.createElement('a'); link.href='#'+key; link.textContent=names[key];
     link.dataset.view=key; nav.append(link);
   }
@@ -2330,6 +2346,7 @@ No installation or cloud account needed.</pre></div>
     const key=aliases[requested] || (views[requested] ? requested : 'home');
     const changed=active!==key;
     active=key;
+    document.body.classList.toggle("premium-mode",key==="premium");
     for (const [name,view] of Object.entries(views)) view.hidden=name!==key;
     for (const link of nav.children) {
       if(link.dataset.view===key) link.setAttribute('aria-current','page');
@@ -2687,6 +2704,122 @@ output "project_name" {
   }
   decorate(document.body);
   new MutationObserver(records=>{for(const record of records){if(record.type==='characterData')decorate(record.target);else for(const node of record.addedNodes)decorate(node);}}).observe(document.body,{childList:true,subtree:true,characterData:true});
+})();
+</script>
+
+<style>
+ .premium-mode {--accent:#5288ff;--purple:#4680ff;background:radial-gradient(ellipse at 88% 0%,#10275b 0,transparent 45%),#090f20;}
+ .premium-mode .button,.premium-mode .header-account {background:linear-gradient(120deg,#1f57d7,#377bf6);color:#fff;}
+ .premium-mode .button.secondary {background:#101e3d;border-color:#456aa9;color:#e6efff;}
+ .premium-mode .site-header {border-color:#28436d;}
+ nav a[data-view="premium"] {color:#8db5ff;}
+ #view-premium {--premium-blue:#76a9ff;}
+ .premium-hero {padding:55px 40px;border:1px solid #31568f;background:radial-gradient(ellipse at top right,#15366f 0,transparent 66%),#0d1b36;border-radius:18px;margin-top:28px;}
+ .premium-topline {display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+ .premium-badge {display:inline-flex;align-items:center;gap:8px;color:#dceaff;border:1px solid #5a8aee;background:#163773;border-radius:30px;padding:7px 14px;font-size:12px;letter-spacing:.12em;font-weight:800;}
+ .premium-badge svg {width:17px;height:17px;}
+ .premium-hero h1 {max-width:850px;font-size:clamp(36px,5vw,64px);line-height:1.08;margin:26px 0 20px;letter-spacing:-.045em;}
+ .premium-hero h1 span {color:#8cbbff;}
+ .premium-hero p {max-width:720px;}
+ .premium-purchase {display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin:28px 0 16px;}
+ .premium-price {font-size:42px;line-height:1;font-weight:800;color:#fff;}
+ .premium-price small {display:block;font-size:12px;font-weight:400;color:#bbd0ef;margin-top:9px;}
+ #premium-status {color:#c8dcff;}
+ .premium-catalog {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:26px 0;}
+ .premium-card {border:1px solid #2c4774;background:#0e1c35;border-radius:13px;padding:25px;}
+ .premium-card .kicker {color:#80afff;}
+ .premium-card h3 {color:#eef5ff;font-size:21px;line-height:1.35;margin:15px 0;}
+ .premium-card p {font-size:14px;}
+ .premium-card ul {padding-left:20px;color:#b7c9e5;line-height:1.9;font-size:13px;}
+ .premium-section-title {margin-top:48px;}
+ .premium-section-title .kicker {color:#80afff;}
+ .premium-library {border-top:1px solid #365c97;padding-top:30px;margin-top:45px;}
+ .premium-reader {background:#0b162b;border:1px solid #345b96;border-radius:14px;padding:30px;margin-top:24px;}
+ .premium-reader p {max-width:85ch;}
+ .premium-reader details {border-top:1px solid #2d4265;margin-top:18px;padding:15px 0;}
+ .premium-reader summary {font-weight:700;color:#d6e6ff;cursor:pointer;line-height:1.6;}
+ .premium-reader h3 {color:#fff;margin-top:30px;}
+ .premium-reader .checkpoint {background:#10264a;border-radius:10px;padding:18px;margin:22px 0;}
+ .premium-reader pre {white-space:pre-wrap;overflow-wrap:anywhere;}
+ .premium-reader li {color:#c1d0e8;line-height:1.9;}
+ .premium-disclosure {border:1px solid #2d4671;background:#0b162a;border-radius:10px;padding:20px;margin:28px 0;color:#afc4e4;font-size:13px;line-height:1.8;}
+ #premium-private[hidden],#premium-public[hidden],#premium-reader[hidden] {display:none!important;}
+ @media(max-width:850px){.premium-catalog{grid-template-columns:1fr;}.premium-hero{padding:30px 24px;}.premium-reader{padding:22px;}}
+</style>
+<script id="linform-premium-ui">
+(() => {
+ const view=document.getElementById('view-premium');
+ view.innerHTML=`<section class="premium-hero" aria-labelledby="premium-title">
+ <div class="premium-topline"><span class="premium-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m3 7 5 4 4-7 4 7 5-4-2 12H5L3 7Z"/></svg>LINFORM PREMIUM</span><span class="small-note" id="premium-access-label">Private learning library</span></div>
+ <h1 id="premium-title">Go deeper.<br><span>Build your cloud portfolio.</span></h1>
+ <p>Three certification study guides. Three guided portfolio projects. One place to connect what you learn with work you can explain.</p>
+ <div class="premium-purchase"><div class="premium-price">$15<small>USD · One-time bundle · No subscription</small></div><button class="button" type="button" id="premium-buy" disabled>Checkout not open yet</button><a class="text-link" href="#account" id="premium-signin">Sign in / Create account ↗</a></div>
+ <p class="small-note" id="premium-status" role="status">Premium is in preparation. Purchases are not available yet.</p></section>
+ <div id="premium-public"><div class="premium-section-title"><span class="kicker">THE STUDY BUNDLE</span><h2>Prepare with purpose.</h2><p>Planned curriculum, with original explanations, practical checkpoints and links to official objectives.</p></div>
+ <div class="premium-catalog"><article class="premium-card"><span class="kicker">AWS · CLF-C02</span><h3>Cloud Practitioner</h3><p>Connect cloud concepts with architecture decisions.</p><ul><li>Cloud value and resilience</li><li>Security and responsibility</li><li>Services and workload choices</li><li>Pricing, governance and support</li></ul></article><article class="premium-card"><span class="kicker">AZURE · AZ-900</span><h3>Azure Fundamentals</h3><p>Understand the platform, identity and operations.</p><ul><li>Cloud concepts</li><li>Compute, networking and storage</li><li>Identity and access</li><li>Management and governance</li></ul></article><article class="premium-card"><span class="kicker">TERRAFORM · ASSOCIATE 004</span><h3>Infrastructure as code</h3><p>Learn the workflow and the reasoning behind it.</p><ul><li>Configuration and modules</li><li>Plans, applies and state</li><li>Secrets and lifecycle rules</li><li>Team workflows and HCP Terraform</li></ul></article></div>
+ <div class="premium-section-title"><span class="kicker">TURN KNOWLEDGE INTO EVIDENCE</span><h2>Projects you can talk through.</h2></div><div class="premium-catalog"><article class="premium-card"><span class="kicker">01 / AWS DELIVERY</span><h3>A secure site, delivered with CI/CD.</h3><p>Document a private origin, HTTPS delivery, short-lived deployment credentials, validation and rollback.</p></article><article class="premium-card"><span class="kicker">02 / AZURE OPERATIONS</span><h3>A governed application environment.</h3><p>Work through identity, access, governance, monitoring and an incident runbook.</p></article><article class="premium-card"><span class="kicker">03 / TERRAFORM WORKFLOW</span><h3>From local configuration to reusable modules.</h3><p>Run a local project without cloud credentials, then document state, reviews and recovery.</p></article></div>
+ <div class="premium-disclosure"><strong>What the bundle covers</strong><br>Digital guides and project instructions for the purchased edition, accessed through your Linform account. Exam fees, cloud usage, personal feedback and job placement are not included. Optional cloud deployments can incur charges. A purchase does not guarantee passing an exam or getting hired. Final launch details will appear before checkout opens.</div></div>
+ <section id="premium-private" class="premium-library" hidden aria-labelledby="premium-library-title"><span class="premium-badge">PREMIUM MEMBER LIBRARY</span><h2 id="premium-library-title">Your next chapter starts here.</h2><p id="premium-library-note"></p><div class="premium-catalog" id="premium-library-cards"></div><article class="premium-reader" id="premium-reader" hidden aria-live="polite"></article></section>`;
+ const el=id=>document.getElementById(id),account=window.LinformAccount;
+ let owner=null,generation=0,checking=false,purchased=false;
+ const say=text=>el('premium-status').textContent=text;
+ const node=(tag,text,className)=>{const e=document.createElement(tag);if(text)e.textContent=text;if(className)e.className=className;return e;};
+ function clearPrivate(){purchased=false;el('premium-access-label').textContent='Private learning library';el('premium-signin').hidden=!!account?.identity();el('premium-buy').textContent='Checkout not open yet';el('premium-buy').disabled=true;el('premium-private').hidden=true;el('premium-public').hidden=false;el('premium-reader').replaceChildren();el('premium-reader').hidden=true;el('premium-library-cards').replaceChildren();}
+ async function loadContent(id){
+  const before=generation;const reader=el('premium-reader');reader.hidden=false;reader.replaceChildren(node('p','Loading your private content…'));
+  try{
+   const data=await account.request('/premium/content/'+encodeURIComponent(id));if(before!==generation)return;
+   reader.replaceChildren(node('span',data.exam,'kicker'),node('h2',data.title),node('p',data.revision||''));
+   if(data.kind==='guide'){
+    reader.append(node('p',data.intro));const plan=node('ol');for(const step of data.studyPlan)plan.append(node('li',step));reader.append(plan);
+    for(const chapter of data.chapters){
+     const details=node('details'),summary=node('summary',chapter.title),body=node('div');details.append(summary,body);body.append(node('p',chapter.domain,'kicker'),node('p',chapter.explanation),node('h3','Practice it'),node('p',chapter.practice),node('h3','Common mistake'),node('p',chapter.pitfall));
+     const check=node('div',null,'checkpoint');check.append(node('h3','Explain it without notes'),node('p',chapter.checkpoint.question));const answer=node('details');answer.append(node('summary','Reveal the explanation'),node('p',chapter.checkpoint.answer));check.append(answer);body.append(check);
+     const mark=node('button',isComplete(chapter.id)?'Completed ✓':'Mark chapter complete','button secondary');mark.type='button';mark.addEventListener('click',()=>{if(before!==generation||!purchased)return;progress[chapter.id]=true;saveProgress();mark.textContent='Completed ✓';});body.append(mark);reader.append(details);
+    }
+    const source=node('a','Compare with the official exam outline ↗','text-link');source.href=data.reference;source.target='_blank';source.rel='noopener noreferrer';reader.append(source);
+   }else{
+    reader.append(node('p',data.summary));for(const [index,step]of data.steps.entries())reader.append(node('h3',(index+1)+'. '+step[0]),node('p',step[1]),node('p',step[2],'small-note'));
+    reader.append(node('h3','Starter / read-only checks'),makeCodeBlock(data.commands,'Project reference'),node('h3','Portfolio deliverables'));const list=node('ul');for(const item of data.deliverables)list.append(node('li',item));reader.append(list,node('h3','Interview rehearsal'));const questions=node('ol');for(const item of data.interview)questions.append(node('li',item));reader.append(questions);
+   }
+   reader.scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(error){if(before!==generation)return;clearPrivate();say(error.status===403?'Your purchase could not be verified. Refresh access or contact Linform.':'Could not load private content. Please retry.');}
+ }
+ async function catalog(){
+  const before=generation,data=await account.request('/premium/catalog');if(before!==generation)return;
+  el('premium-private').hidden=false;el('premium-public').hidden=true;el('premium-library-note').textContent=data.notice;
+  for(const item of data.items){const card=node('article',null,'premium-card');card.append(node('span',item.exam,'kicker'),node('h3',item.title),node('p',item.description||item.summary));const button=node('button',item.kind==='guide'?'Open study guide ↗':'Open project ↗','button secondary');button.type='button';button.addEventListener('click',()=>loadContent(item.id));card.append(button);el('premium-library-cards').append(card);}
+ }
+ async function refresh(){
+  const identity=account?.identity();if(identity!==owner){owner=identity;generation++;clearPrivate();checking=false;}
+  if(checking)return;
+  const buy=el('premium-buy');buy.disabled=true;
+  if(!account?.configured()){say('Premium is in preparation. Secure checkout is not open yet.');return;}
+  if(!identity){say('Sign in to check your purchase or buy the one-time bundle when checkout opens.');return;}
+  checking=true;const before=generation;say('Verifying your Premium access…');
+  try{
+   const parameters=new URLSearchParams(location.search),session=parameters.get('premium_session');
+   const result=await account.request('/premium/access'+(session?'?session_id='+encodeURIComponent(session):''));if(before!==generation)return;
+   if(session){parameters.delete('premium_session');history.replaceState(null,'',location.pathname+(parameters.size?'?'+parameters:'')+'#premium');}
+   clearPrivate();purchased=result.purchased===true;
+   el('premium-access-label').textContent=purchased?'Your purchase is verified':'Private learning library';
+   el('premium-signin').hidden=!!identity;
+   if(purchased){buy.textContent='Refresh my access';buy.disabled=false;say('Premium access verified for your account. Chapter completion syncs with your training progress.');await catalog();}
+   else{buy.textContent=result.checkoutReady?'Get Premium · $15 ↗':'Checkout not open yet';buy.disabled=!result.checkoutReady;say(result.checkoutReady?'One payment, no subscription. Secure checkout opens on Stripe.':'Premium is in preparation. No purchase is required or available yet.');}
+  }catch(error){if(before!==generation)return;clearPrivate();say(error.status===401?'Your session expired. Sign in again to open Premium.':'Could not verify access. Your content remains locked; please retry.');}
+  finally{if(before===generation)checking=false;}
+ }
+ el('premium-buy').addEventListener('click',async()=>{
+  if(purchased){await refresh();return;}const button=el('premium-buy');button.disabled=true;const before=generation;
+  try{const result=await account.request('/premium/checkout','POST');if(before!==generation)return;const url=new URL(result.url);if(url.origin!=='https://checkout.stripe.com')throw new Error('Invalid checkout destination');location.assign(url.href);}
+  catch{say('Checkout could not be opened. No access has been granted. Refresh and try again.');button.disabled=false;}
+ });
+ el('premium-signin').addEventListener('click',()=>{try{sessionStorage.setItem('linform-premium-return','1');}catch{}});
+ const reload=node('button','Refresh purchase access','button secondary');reload.type='button';reload.addEventListener('click',refresh);el('premium-status').after(reload);
+ window.addEventListener('linform-auth-change',()=>{if(account?.identity()!==owner)refresh();});
+ window.addEventListener('hashchange',()=>{if(location.hash==='#premium')refresh();});
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){generation++;checking=false;clearPrivate();}else if(location.hash==='#premium')refresh();});
+ refresh();
 })();
 </script>
 
