@@ -3,7 +3,6 @@ Run in the Linform owner's AWS CloudShell. Never prints keys or raw provider err
 """
 import getpass
 import json
-import re
 import urllib.error
 import urllib.request
 import boto3
@@ -25,8 +24,17 @@ def read_stripe(path,key):
         raise KeyCheckError('HTTP '+str(error.code)+': '+meanings.get(error.code,'Stripe could not complete the check')) from None
     except (OSError,ValueError):raise KeyCheckError('Could not reach Stripe or read its response. Nothing was saved.') from None
 
+def normalize(key):
+    value=key.strip() if isinstance(key,str) else ''
+    if len(value)>1 and value[0]==value[-1] and value[0] in ("'",'"'):value=value[1:-1].strip()
+    return value
+
 def validate(key):
-    if not isinstance(key,str) or not re.fullmatch(r'rk_live_[A-Za-z0-9_]{24,}',key):raise KeyCheckError('Use the COMPLETE live restricted key, not a masked preview or key ID.')
+    if not isinstance(key,str) or not key.startswith('rk_live_'):
+        if isinstance(key,str) and key.startswith(('python','curl')):raise KeyCheckError('A command was entered at the key prompt. Paste the key copied from Stripe at this prompt.')
+        raise KeyCheckError('The key must be the live restricted key copied from Stripe (rk_live_ prefix).')
+    if not key.isascii() or any(ord(c)<33 or ord(c)>126 for c in key):raise KeyCheckError('The copied value contains whitespace or non-ASCII formatting. Use Stripe’s Copy button.')
+    # Do not guess the credential length or tail alphabet. Stripe validates it.
     price=read_stripe('/v1/prices/'+PRICE+'?expand[]=product',key)
     if not (price.get('livemode') is True and price.get('unit_amount')==1500 and price.get('currency')=='usd' and price.get('type')=='one_time'):raise KeyCheckError('The expected live $15 USD one-time price was not verified. Nothing was saved.')
     read_stripe('/v1/checkout/sessions?limit=1',key)
@@ -36,15 +44,16 @@ def main(manager=None,validator=validate,prompt=getpass.getpass):
         if boto3.client('sts',region_name=REGION).get_caller_identity()['Account']!='461729034360':raise KeyCheckError('Use the Linform AWS account.')
         manager=boto3.client('secretsmanager',region_name=REGION)
     data=json.loads(manager.get_secret_value(SecretId=SECRET)['SecretString'])
-    old=data.get('api_key','');clean=old.strip() if isinstance(old,str) else ''
+    old=data.get('api_key','');clean=normalize(old)
     try:
         validator(clean)
         if clean!=old:
             data['api_key']=clean;manager.put_secret_value(SecretId=SECRET,SecretString=json.dumps(data))
         print('Stored API key verified. Premium price and Checkout reads: OK.');return
     except KeyCheckError as error:print('Stored key check: '+str(error))
-    print('Paste the COMPLETE active live restricted key from Stripe. Input stays hidden.')
-    key=prompt('Replacement restricted Stripe key (hidden): ').strip()
+    print('NEXT: Open Stripe API keys and use the Copy button for your live restricted key.')
+    print('Paste that copied KEY at the prompt below, then press Enter. No characters will appear.')
+    key=normalize(prompt('Paste the Stripe key here (hidden): '))
     validator(key)
     data['api_key']=key
     manager.put_secret_value(SecretId=SECRET,SecretString=json.dumps(data))
