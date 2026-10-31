@@ -24,9 +24,17 @@ class Tests(unittest.TestCase):
   manager=Manager(' valid ')
   with contextlib.redirect_stdout(io.StringIO()):mod.main(manager,lambda key:self.assertEqual(key,'valid'),lambda prompt:self.fail('unnecessary key prompt'))
   self.assertEqual(manager.writes[0]['api_key'],'valid');self.assertEqual(manager.writes[0]['webhook_secret'],'private-signing-fixture')
- def test_masked_preview_rejected_before_network(self):
-  with patch.object(mod,'read_stripe') as read,self.assertRaises(mod.KeyCheckError):mod.validate('rk_live_...masked')
+ def test_commands_rejected_before_network(self):
+  with patch.object(mod,'read_stripe') as read,self.assertRaises(mod.KeyCheckError):mod.validate('python3 infra/replace-premium-stripe-key.py')
   read.assert_not_called()
+ def test_key_tail_format_and_length_are_validated_by_stripe(self):
+  with patch.object(mod,'read_stripe',side_effect=[{'livemode':True,'currency':'usd','type':'one_time','unit_amount':1500},{}]) as read:mod.validate('rk_live_synthetic-format+v2');self.assertEqual(read.call_count,2)
+ def test_wrapping_quotes_and_whitespace_are_removed(self):
+  self.assertEqual(mod.normalize('  "rk_live_synthetic"  '),'rk_live_synthetic')
+ def test_masked_value_can_never_be_saved_on_stripe_rejection(self):
+  manager=Manager()
+  with patch.object(mod,'read_stripe',side_effect=mod.KeyCheckError('HTTP 401')),contextlib.redirect_stdout(io.StringIO()),self.assertRaises(mod.KeyCheckError):mod.main(manager,mod.validate,lambda prompt:'rk_live_...masked')
+  self.assertFalse(manager.writes)
  def test_wrong_price_configuration_rejected(self):
   with patch.object(mod,'read_stripe',return_value={'livemode':True,'currency':'usd','type':'one_time','unit_amount':1}),self.assertRaises(mod.KeyCheckError):mod.validate('rk_live_'+'x'*30)
 if __name__=='__main__':unittest.main()
