@@ -1994,7 +1994,7 @@ No installation or cloud account needed.</pre></div>
     <button class="button secondary" id="account-logout" type="button" hidden>Sign out</button>
   </div>
   <p class="small-note" id="account-privacy">Guest lessons need no account. When you create an account, AWS Cognito stores your email and credentials; Linform stores completed lesson IDs linked to your account. Guest history stays separate unless you choose to add it to your account.</p>
-  <details><summary>Student data and privacy</summary><p class="small-note">Linform is operated by Alexis Espinosa. Guest progress and per-account progress caches stay in this browser until you clear its site data. Cognito manages sign-in and password recovery; completed lesson IDs are stored in Linform's AWS account to provide sync. Terminal files and quiz answers are not sent to the progress service. Sign-in tokens stay in memory and are discarded on reload or sign-out. Contact alexise2003@outlook.com to request account and progress deletion. Form inquiries use FormSubmit, which processes the information you submit. Do not enter passwords or private information into the practice lab.</p></details>
+  <details><summary>Student data and privacy</summary><p class="small-note">Linform is operated by Alexis Espinosa. Guest progress and per-account progress caches stay in this browser until you clear its site data. Cognito manages sign-in and password recovery; completed lesson IDs are stored in Linform's AWS account to provide sync. Terminal files and quiz answers are not sent to the progress service. Sign-in tokens stay in memory and are discarded on reload or sign-out. Contact alexise2003@outlook.com to request account and progress deletion. Mentoring requests, reply email and project links are stored privately in Linform’s AWS account for Alexis to review. Form inquiries use FormSubmit, which processes the information you submit. Do not enter passwords or private information into the practice lab.</p></details>
 </section>
 <script>
 (() => {
@@ -2004,11 +2004,11 @@ No installation or cloud account needed.</pre></div>
   window.LinformAccount = Object.freeze({
     identity: () => authenticated() ? userId : null,
     configured: () => /^https:\/\/[a-z0-9]+\.execute-api\.us-east-2\.amazonaws\.com$/.test(PREMIUM_API_URL),
-    async request(path,method='GET') {
+    async request(path,method='GET',value) {
       if(!canonical || !this.configured() || !authenticated()) {const error=new Error('Sign in required');error.status=401;throw error;}
-      if(!['GET','POST'].includes(method)||!/^\/premium\/(?:access(?:\?session_id=[A-Za-z0-9_%.-]+)?|catalog|checkout|content\/[a-z][a-z0-9-]{0,79})$/.test(path))throw new Error('Invalid Premium request');
+      if(!['GET','POST'].includes(method)||!/^\/premium\/(?:access(?:\?session_id=[A-Za-z0-9_%.-]+)?|catalog|checkout|mentoring|content\/[a-z][a-z0-9-]{0,79})$/.test(path))throw new Error('Invalid Premium request');
       const auth=session(),version=generation;
-      const res=await fetch(PREMIUM_API_URL+path,{method,headers:{Authorization:'Bearer '+auth.token,...(method==='POST'?{'Content-Type':'application/json'}:{})},...(method==='POST'?{body:'{}'}:{}),credentials:'omit',cache:'no-store',signal:AbortSignal.timeout(25000)});
+      const res=await fetch(PREMIUM_API_URL+path,{method,headers:{Authorization:'Bearer '+auth.token,...(method==='POST'?{'Content-Type':'application/json'}:{})},...(method==='POST'?{body:JSON.stringify(value||{})}:{}),credentials:'omit',cache:'no-store',signal:AbortSignal.timeout(25000)});
       if(version!==generation||auth.userId!==userId||!authenticated())throw new Error('Account changed');
       if(!res.ok){const error=new Error('Premium request failed');error.status=res.status;throw error;}
       return res.json();
@@ -2743,6 +2743,14 @@ output "project_name" {
  .premium-reader pre {white-space:pre-wrap;overflow-wrap:anywhere;}
  .premium-reader li {color:#c1d0e8;line-height:1.9;}
  .premium-disclosure {border:1px solid #2d4671;background:#0b162a;border-radius:10px;padding:20px;margin:28px 0;color:#afc4e4;font-size:13px;line-height:1.8;}
+ .premium-mentoring,.premium-roadmap {padding:34px 0;border-top:1px solid #315181;margin-top:38px;}
+ .premium-mentoring>.kicker,.premium-mentor-role {color:#8dbaff;}
+ .premium-roadmap {background:linear-gradient(120deg,#10244b,#0c1830);border:1px solid #315181;border-radius:14px;padding:30px;}
+ .premium-mentor-request {margin-top:28px;padding:24px;border:1px solid #345b96;border-radius:14px;background:#0d1c36;}
+ .premium-mentor-form {display:grid;gap:18px;max-width:760px;}
+ .premium-mentor-form input,.premium-mentor-form select,.premium-mentor-form textarea {width:100%;margin-top:8px;}
+ .premium-mentor-form .premium-consent {display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.6;}
+ .premium-mentor-form input[type=checkbox] {width:auto;flex:none;margin-top:3px;}
  #premium-private[hidden],#premium-public[hidden],#premium-reader[hidden] {display:none!important;}
  @media(max-width:850px){.premium-catalog{grid-template-columns:1fr;}.premium-hero{padding:30px 24px;}.premium-reader{padding:22px;}}
 </style>
@@ -2752,19 +2760,22 @@ output "project_name" {
  view.innerHTML=`<section class="premium-hero" aria-labelledby="premium-title">
  <div class="premium-topline"><span class="premium-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m3 7 5 4 4-7 4 7 5-4-2 12H5L3 7Z"/></svg>LINFORM PREMIUM</span><span class="small-note" id="premium-access-label">Private learning library</span></div>
  <h1 id="premium-title">Go deeper.<br><span>Build your cloud portfolio.</span></h1>
- <p>Three certification study guides. Three guided portfolio projects. One place to connect what you learn with work you can explain.</p>
+ <p>Three certification study guides. Six guided projects. Mentoring with Alexis Espinosa to help you connect learning with work you can explain.</p>
  <div class="premium-purchase"><div class="premium-price">$15<small>USD · One-time bundle · No subscription</small></div><button class="button" type="button" id="premium-buy" disabled>Checkout not open yet</button><a class="text-link" href="#account" id="premium-signin">Sign in / Create account ↗</a></div>
  <p class="small-note" id="premium-status" role="status">Premium is in preparation. Purchases are not available yet.</p></section>
  <div id="premium-public"><div class="premium-section-title"><span class="kicker">THE STUDY BUNDLE</span><h2>Prepare with purpose.</h2><p>Planned curriculum, with original explanations, practical checkpoints and links to official objectives.</p></div>
  <div class="premium-catalog"><article class="premium-card"><span class="kicker">AWS · CLF-C02</span><h3>Cloud Practitioner</h3><p>Connect cloud concepts with architecture decisions.</p><ul><li>Cloud value and resilience</li><li>Security and responsibility</li><li>Services and workload choices</li><li>Pricing, governance and support</li></ul></article><article class="premium-card"><span class="kicker">AZURE · AZ-900</span><h3>Azure Fundamentals</h3><p>Understand the platform, identity and operations.</p><ul><li>Cloud concepts</li><li>Compute, networking and storage</li><li>Identity and access</li><li>Management and governance</li></ul></article><article class="premium-card"><span class="kicker">TERRAFORM · ASSOCIATE 004</span><h3>Infrastructure as code</h3><p>Learn the workflow and the reasoning behind it.</p><ul><li>Configuration and modules</li><li>Plans, applies and state</li><li>Secrets and lifecycle rules</li><li>Team workflows and HCP Terraform</li></ul></article></div>
- <div class="premium-section-title"><span class="kicker">TURN KNOWLEDGE INTO EVIDENCE</span><h2>Projects you can talk through.</h2></div><div class="premium-catalog"><article class="premium-card"><span class="kicker">01 / AWS DELIVERY</span><h3>A secure site, delivered with CI/CD.</h3><p>Document a private origin, HTTPS delivery, short-lived deployment credentials, validation and rollback.</p></article><article class="premium-card"><span class="kicker">02 / AZURE OPERATIONS</span><h3>A governed application environment.</h3><p>Work through identity, access, governance, monitoring and an incident runbook.</p></article><article class="premium-card"><span class="kicker">03 / TERRAFORM WORKFLOW</span><h3>From local configuration to reusable modules.</h3><p>Run a local project without cloud credentials, then document state, reviews and recovery.</p></article></div>
- <div class="premium-disclosure"><strong>What the bundle covers</strong><br>Digital guides and project instructions for the purchased edition, accessed through your Linform account. Exam fees, cloud usage, personal feedback and job placement are not included. Optional cloud deployments can incur charges. A purchase does not guarantee passing an exam or getting hired. Final launch details will appear before checkout opens.</div></div>
- <section id="premium-private" class="premium-library" hidden aria-labelledby="premium-library-title"><span class="premium-badge">PREMIUM MEMBER LIBRARY</span><h2 id="premium-library-title">Your next chapter starts here.</h2><p id="premium-library-note"></p><div class="premium-catalog" id="premium-library-cards"></div><article class="premium-reader" id="premium-reader" hidden aria-live="polite"></article></section>`;
+ <div class="premium-section-title"><span class="kicker">TURN KNOWLEDGE INTO EVIDENCE</span><h2>Six projects. More ways to build.</h2><p>All six project guides are included in Premium, with no extra project fees. Optional cloud deployments can incur usage charges.</p></div><div class="premium-catalog"><article class="premium-card"><span class="kicker">01 / AWS DELIVERY</span><h3>A secure site, delivered with CI/CD.</h3><p>Document a private origin, HTTPS delivery, short-lived deployment credentials, validation and rollback.</p></article><article class="premium-card"><span class="kicker">02 / AZURE OPERATIONS</span><h3>A governed application environment.</h3><p>Work through identity, access, governance, monitoring and an incident runbook.</p></article><article class="premium-card"><span class="kicker">03 / TERRAFORM WORKFLOW</span><h3>Reusable infrastructure modules.</h3><p>Build a local project, then explain state, module interfaces, reviews and recovery.</p></article><article class="premium-card"><span class="kicker">04 / AWS SERVERLESS</span><h3>An authenticated support-ticket API.</h3><p>Design user-owned records, prove access boundaries, handle retries and investigate a controlled failure.</p></article><article class="premium-card"><span class="kicker">05 / AZURE + LINUX</span><h3>Operate it. Break it safely. Recover it.</h3><p>Run a Linux web workload, validate limited access, investigate a lab incident and document recovery.</p></article><article class="premium-card"><span class="kicker">06 / TERRAFORM + GIT</span><h3>Change review and team handoff.</h3><p>Practice address migration, ownership and import, automated validation and a clear operational handoff.</p></article></div>
+ <div class="premium-disclosure"><strong>What the bundle covers</strong><br>Digital guides and project instructions for the purchased edition, accessed through your Linform account. Mentoring requests and project feedback are included. Timing and availability are confirmed individually with Alexis. Exam fees, cloud usage and job placement are not included. Optional cloud deployments can incur charges. A purchase does not guarantee passing an exam or getting hired. Final launch details will appear before checkout opens.</div></div>
+
+ <section class="premium-mentoring" aria-labelledby="premium-mentor-title"><span class="kicker">MENTORING / INCLUDED IN PREMIUM</span><h2 id="premium-mentor-title">Learn with Alexis Espinosa.</h2><p class="premium-mentor-role">Cloud engineer · Founder of Linform</p><p>Ask a focused study question, request feedback on your project, or work through your next learning steps with the person building Linform.</p><div class="premium-catalog"><article class="premium-card"><h3>Study support</h3><p>Get guidance on concepts you are finding difficult across AWS, Azure and Terraform.</p></article><article class="premium-card"><h3>Project feedback</h3><p>Share your public project and ask for feedback on architecture, documentation and your technical reasoning.</p></article><article class="premium-card"><h3>Learning direction</h3><p>Ask which skills or project improvements to work on next as you build your cloud portfolio.</p></article></div><p class="small-note" id="premium-mentoring-availability">Mentoring requests open with Premium. Requests are reviewed by Alexis; response timing and availability are confirmed individually.</p></section>
+ <section class="premium-roadmap" aria-labelledby="premium-roadmap-title"><span class="premium-badge">MORE COMING TO PREMIUM</span><h2 id="premium-roadmap-title">Built to keep growing.</h2><p>More hands-on projects, deeper study resources and mentoring resources are planned for Premium. New additions will be announced here as they are ready.</p></section>
+ <section id="premium-private" class="premium-library" hidden aria-labelledby="premium-library-title"><span class="premium-badge">PREMIUM MEMBER LIBRARY</span><h2 id="premium-library-title">Your next chapter starts here.</h2><p id="premium-library-note"></p><div class="premium-catalog" id="premium-library-cards"></div><section class="premium-mentor-request" aria-labelledby="premium-mentor-request-title"><h3 id="premium-mentor-request-title">Request mentoring from Alexis</h3><p>Send one focused question or project-feedback request. This saves a request in your private member queue; it does not book an appointment.</p><form id="premium-mentor-form" class="premium-mentor-form"><label>What would you like help with?<select id="premium-mentor-topic"><option value="study-question">A study question</option><option value="project-feedback">Project feedback</option><option value="learning-plan">My learning plan</option></select></label><label>Email for Alexis’s reply<input id="premium-mentor-email" type="email" autocomplete="email" maxlength="254" required></label><label>Public GitHub project URL (optional)<input id="premium-mentor-project" type="url" placeholder="https://github.com/your-name/your-project" maxlength="300"></label><label>Your question<textarea id="premium-mentor-message" rows="5" minlength="20" maxlength="3000" required placeholder="Explain what you tried and what you would like guidance on."></textarea></label><p class="small-note">Share only material you have permission to share. Do not include credentials, private customer data or confidential code.</p><label class="premium-consent"><input id="premium-mentor-consent" type="checkbox" required> I agree to share this request and reply email with Alexis for mentoring.</label><button class="button" type="submit" id="premium-mentor-submit">Send mentoring request ↗</button><p id="premium-mentor-status" role="status" class="small-note"></p></form></section><article class="premium-reader" id="premium-reader" hidden aria-live="polite"></article></section>`;
  const el=id=>document.getElementById(id),account=window.LinformAccount;
  let owner=null,generation=0,checking=false,purchased=false;
  const say=text=>el('premium-status').textContent=text;
  const node=(tag,text,className)=>{const e=document.createElement(tag);if(text)e.textContent=text;if(className)e.className=className;return e;};
- function clearPrivate(){purchased=false;el('premium-access-label').textContent='Private learning library';el('premium-signin').hidden=!!account?.identity();el('premium-buy').textContent='Checkout not open yet';el('premium-buy').disabled=true;el('premium-private').hidden=true;el('premium-public').hidden=false;el('premium-reader').replaceChildren();el('premium-reader').hidden=true;el('premium-library-cards').replaceChildren();}
+ function clearPrivate(){purchased=false;el('premium-mentor-form').reset();el('premium-mentor-status').textContent='';el('premium-mentor-submit').disabled=false;el('premium-mentoring-availability').textContent='Mentoring requests open with Premium. Timing and availability are confirmed individually with Alexis.';el('premium-access-label').textContent='Private learning library';el('premium-signin').hidden=!!account?.identity();el('premium-buy').textContent='Checkout not open yet';el('premium-buy').disabled=true;el('premium-private').hidden=true;el('premium-public').hidden=false;el('premium-reader').replaceChildren();el('premium-reader').hidden=true;el('premium-library-cards').replaceChildren();}
  async function loadContent(id){
   const before=generation;const reader=el('premium-reader');reader.hidden=false;reader.replaceChildren(node('p','Loading your private content…'));
   try{
@@ -2804,7 +2815,7 @@ output "project_name" {
    clearPrivate();purchased=result.purchased===true;
    el('premium-access-label').textContent=purchased?'Your purchase is verified':'Private learning library';
    el('premium-signin').hidden=!!identity;
-   if(purchased){buy.textContent='Refresh my access';buy.disabled=false;say('Premium access verified for your account. Chapter completion syncs with your training progress.');await catalog();}
+   if(purchased){el('premium-mentoring-availability').textContent='Mentoring is included in your Premium bundle. Use the member request form below; timing and availability are confirmed individually with Alexis.';buy.textContent='Refresh my access';buy.disabled=false;say('Premium access verified for your account. Chapter completion syncs with your training progress.');await catalog();}
    else{buy.textContent=result.checkoutReady?'Get Premium · $15 ↗':'Checkout not open yet';buy.disabled=!result.checkoutReady;say(result.checkoutReady?'One payment, no subscription. Secure checkout opens on Stripe.':'Premium is in preparation. No purchase is required or available yet.');}
   }catch(error){if(before!==generation)return;clearPrivate();say(error.status===401?'Your session expired. Sign in again to open Premium.':'Could not verify access. Your content remains locked; please retry.');}
   finally{if(before===generation)checking=false;}
@@ -2815,6 +2826,17 @@ output "project_name" {
   catch{say('Checkout could not be opened. No access has been granted. Refresh and try again.');button.disabled=false;}
  });
  el('premium-signin').addEventListener('click',()=>{try{sessionStorage.setItem('linform-premium-return','1');}catch{}});
+
+ el('premium-mentor-form').addEventListener('submit',async event=>{
+  event.preventDefault();if(!purchased)return;
+  const before=generation,button=el('premium-mentor-submit'),status=el('premium-mentor-status');button.disabled=true;status.textContent='Saving your mentoring request…';
+  try{
+   const data={topic:el('premium-mentor-topic').value,message:el('premium-mentor-message').value.trim(),replyEmail:el('premium-mentor-email').value.trim(),projectUrl:el('premium-mentor-project').value.trim(),consent:el('premium-mentor-consent').checked};
+   const result=await account.request('/premium/mentoring','POST',data);if(before!==generation)return;
+   el('premium-mentor-form').reset();status.textContent='Request saved for Alexis to review. Reference: '+result.requestId+'. Reply timing and availability are confirmed individually.';
+  }catch(error){if(before!==generation)return;status.textContent=error.status===429?'Please wait before submitting more requests.':error.status===400?'Check your reply email, question length, consent and optional public GitHub URL.':'Could not save your request. Check your sign-in and Premium access, then retry.';}
+  finally{if(before===generation)button.disabled=false;}
+ });
  const reload=node('button','Refresh purchase access','button secondary');reload.type='button';reload.addEventListener('click',refresh);el('premium-status').after(reload);
  window.addEventListener('linform-auth-change',()=>{if(account?.identity()!==owner)refresh();});
  window.addEventListener('hashchange',()=>{if(location.hash==='#premium')refresh();});
@@ -2825,8 +2847,3 @@ output "project_name" {
 
 </body>
 </html>
-
-
-
-
-
