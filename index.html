@@ -434,32 +434,62 @@ summary { color: #c7d4ff; cursor: pointer; font-weight: 600; font-size: 13px; }
   </header>
 
   <section class="hero" aria-labelledby="hero-title">
-    <div>
+    <div class="hook-copy">
       <span class="kicker">AWS · Azure · Terraform · Linux</span>
-      <h1 id="hero-title">
-        Less memorizing.<br>
-        More building.<br>
-        <span class="gradient">Learn with Linform.</span>
-      </h1>
-      <p>Learn cloud by doing. Practice commands. Build real skills.</p>
-      <div class="actions">
-        <a class="button" href="#courses">Explore learning paths ↗</a>
-        <a class="text-link" href="#commands">Explore commands ↗</a>
-      </div>
-      <p class="small-note">Learn at your pace · Practice in your browser</p>
+      <h1 id="hero-title">Less memorizing.<br><span class="gradient">More building.</span></h1>
+      <p>Try a command. See what changes.</p>
     </div>
+    <div class="hook-playground" aria-label="Try Linform now">
+      <div class="hook-top"><span class="hook-eyebrow">YOUR FIRST 10 SECONDS</span><span class="hook-local">No account needed</span></div>
+      <div class="hook-tabs" role="tablist" aria-label="Choose a live demo">
+        <button type="button" role="tab" aria-selected="true" aria-controls="hook-linux" id="hook-linux-tab">Linux terminal</button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="hook-cloud" id="hook-cloud-tab" tabindex="-1">Terraform → EC2</button>
+      </div>
+      <div id="hook-linux" role="tabpanel" aria-labelledby="hook-linux-tab">
+        <div class="hook-linux-grid">
+          <div class="hook-shell">
+            <div class="hook-shell-bar"><span><i></i> Linux / browser workspace</span><button class="hook-quiet" type="button" id="hook-reset">Reset</button></div>
+            <div class="hook-output" id="hook-output" role="log" aria-live="polite" aria-label="Mini Linux terminal output"><pre>Welcome to your mini lab.
+Type pwd or ls—or tap a command below.</pre></div>
+            <form id="hook-form" class="hook-input-row">
+              <label for="hook-command" id="hook-prompt">learner:~ $</label>
+              <input id="hook-command" type="text" aria-label="Mini Linux command" placeholder="Try pwd" maxlength="600" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
+              <button class="hook-run" type="submit" id="hook-run">Run</button>
+            </form>
+            <div class="hook-chips" aria-label="Run a suggested command"><button type="button" data-hook-command="pwd">pwd</button><button type="button" data-hook-command="ls">ls</button><button type="button" data-hook-command="mkdir cloud-lab">mkdir cloud-lab</button></div>
+          </div>
+          <aside class="hook-workspace" aria-label="Live workspace effects">
+            <span class="hook-eyebrow">SEE THE EFFECT</span><h2>Your workspace</h2>
+            <p class="hook-path" id="hook-path">/home/learner</p>
+            <ul id="hook-files" aria-label="Practice files"><li><span class="hook-file-icon" aria-hidden="true"></span>welcome.txt</li></ul>
+            <ol class="hook-goals" aria-label="First commands"><li id="hook-goal-pwd">Find your location</li><li id="hook-goal-ls">List your files</li><li id="hook-goal-folder">Create cloud-lab</li></ol>
+          </aside>
+        </div>
+        <div class="hook-bottom"><p id="hook-linux-status" role="status">Preparing Linux… You can type while it loads.</p><button type="button" class="hook-quiet" id="hook-retry" hidden>Retry</button><a class="text-link" href="#practice">Open the full Linux lab ↗</a></div>
+      </div>
+      <div id="hook-cloud" role="tabpanel" aria-labelledby="hook-cloud-tab" hidden>
+        <div class="hook-cloud-grid">
+          <div class="hook-code"><div class="hook-shell-bar"><span>main.tf <small> / illustrative snippet</small></span><span class="hook-sim-label">SIMULATION</span></div><pre><code><span class="hook-token">provider</span> "aws" {
+  region = "us-east-2"
+}
 
-    <div class="terminal" aria-label="Illustrative Linux terminal">
-      <div class="terminal-bar"><span>● ● ●</span><span>LINFORM / YOUR NEXT STEP</span></div>
-      <div class="terminal-body">
-        <div><span class="prompt">alexis@linform:~$</span> mkdir cloud-lab</div>
-        <div><span class="prompt">alexis@linform:~$</span> cd cloud-lab</div>
-        <div><span class="prompt">alexis@linform:~/cloud-lab$</span> touch notes.txt</div>
-        <div><span class="prompt">alexis@linform:~/cloud-lab$</span> ls</div>
-        <div>notes.txt</div>
-        <div class="terminal-note">Understand it. Try it. Build it.</div>
+<span class="hook-token">resource</span> "aws_instance" "demo" {
+  ami           = var.ami_id
+  instance_type = "t3.micro"
+  tags = { Name = "linform-demo" }
+}</code></pre></div>
+          <div class="hook-architecture" id="hook-architecture" data-stage="idle">
+            <div class="hook-cloud-heading"><span class="hook-eyebrow">AWS / VISUAL DEMO</span><span id="hook-cloud-count">0 instances</span></div>
+            <div class="hook-cloud-boundary"><span>us-east-2 · demo network</span><div class="hook-ec2" id="hook-ec2"><svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="12" y="12" width="24" height="24" rx="4" stroke="currentColor" stroke-width="2"/><path d="M18 5v7m12-7v7M18 36v7m12-7v7M5 18h7m-7 12h7m24-12h7m-7 12h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 20h8v8h-8z" fill="currentColor"/></svg><strong>EC2</strong><small>linform-demo</small><span id="hook-instance-state">Not created</span></div></div>
+            <ol class="hook-cloud-steps" aria-label="Simulated Terraform stages"><li data-cloud-stage="plan">Plan</li><li data-cloud-stage="apply">Apply</li><li data-cloud-stage="running">Running</li></ol>
+          </div>
+        </div>
+        <div class="hook-deploy-row"><button class="button" id="hook-deploy" type="button">Click to deploy AWS EC2 via Terraform</button><button class="hook-quiet" type="button" id="hook-cloud-reset">Reset demo</button></div>
+        <pre class="hook-cloud-result" id="hook-cloud-result" role="status">One click. Watch the plan become an instance.</pre>
+        <div class="hook-bottom"><p>Visual simulation · No AWS account or paid resources.</p><a class="text-link" id="hook-open-terraform" href="#terraform">Open Terraform practice ↗</a></div>
       </div>
     </div>
+    <div class="hook-next"><a class="text-link" href="#learn">Explore learning paths ↗</a><span>Learn it. Try it. Build it.</span></div>
   </section>
 
   <section class="section case" aria-labelledby="case-title">
@@ -1549,7 +1579,7 @@ __linform_previous
   const section=document.createElement('section');section.id='linux-lab';section.className='section';
   section.innerHTML=`
     <div class="section-heading"><div><span class="kicker">Practice / Linux terminal</span><h2>Your terminal. Ready to explore.</h2></div><p>Type a command, press Enter, and see what happens. Your practice files stay safely in this tab.</p></div>
-    <p class="mobile-practice-tip">On your phone? Tap Start terminal, type a command, then tap Run. Tap a suggested command to fill it in. Turn your phone sideways for more room.</p>
+    <p class="mobile-practice-tip">On your phone? Tap Start terminal, type a command, then tap Run.</p>
     <div class="practice-workspace">
       <div>
         <div class="shell-window" id="shell-window">
@@ -1562,6 +1592,7 @@ Start a session, then try:
   cat welcome.txt
 
 No installation or cloud account needed.</pre></div>
+          <div class="lab-effects" aria-label="Linux workspace effects"><div><small>WORKING FOLDER</small><code id="lab-current-directory">/home/learner</code></div><div><small>FILES UNDER ~/</small><span id="lab-visible-files">welcome.txt</span></div></div>
           <form id="terminal-form" class="shell-input-row">
             <label id="terminal-prompt" for="terminal-input">learner:~ $</label>
             <textarea id="terminal-input" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Terminal command" placeholder="Start your terminal to type a command" maxlength="12000" disabled></textarea>
@@ -1644,7 +1675,7 @@ No installation or cloud account needed.</pre></div>
       return;
     }
     clearTimeout(timeoutId);
-    if(data.snapshot)savedSnapshot=data.snapshot;
+    if(data.snapshot){savedSnapshot=data.snapshot;el('lab-current-directory').textContent=data.snapshot.cwd;const files=data.snapshot.entries.filter(item=>item.path.startsWith('/home/learner/')).map(item=>item.path.slice(14)+(item.directory?'/':''));el('lab-visible-files').textContent=files.slice(0,8).join(' · ')||'Empty workspace';}
     if(data.cwd)cwd=data.cwd;
     busy=false;
     if(data.type==='ready'){
@@ -2627,11 +2658,11 @@ output "project_name" {
   section.innerHTML=`
     <div class="section-heading"><div><span class="kicker">Practice / Terraform workflow</span><h2>Plan it. Apply it. Understand it.</h2></div><p>A stateful command simulator for learning the Terraform workflow. No account keys or cloud resources.</p></div>
     <p><span class="tf-label">Teaching simulator · Not a Terraform CLI installation</span></p>
-    <p class="small-note">Commands change this tab’s simulated state only. The editor supports a focused HCL subset: basic variables, terraform_data resources with input, and root outputs. Other providers, complete HCL validation, remote systems, and real Terraform tests are outside this lab.</p>
-    <p class="mobile-practice-tip">Practice on your phone: tap a workflow command to fill it in, then tap Run. The editor is above the terminal; turn your phone sideways for more room.</p>
+    <details class="small-note"><summary>What this simulator supports</summary><p>Practice variables, terraform_data resources, outputs and state in this tab. Use the EC2 visual demo on Home to preview a cloud deployment.</p></details>
+    <p class="mobile-practice-tip">Tap a workflow command, then Run. Edit main.tf above the terminal.</p>
     <div class="tf-workspace">
       <div class="tf-editor"><div class="tf-editor-bar"><strong>main.tf</strong><button type="button" class="shell-tool" id="tf-save">Save file</button></div><label for="tf-config" class="small-note" style="padding:10px 18px 0">Practice configuration</label><textarea id="tf-config" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="16000"></textarea><p class="tf-note" id="tf-editor-status" role="status">Starter file is saved. Run terraform init to begin.</p></div>
-      <div class="shell-window"><div class="shell-toolbar"><span class="shell-title">Terraform Practice <small>Simulated state · <span id="tf-workspace-name">default</span></small></span><div class="shell-tools"><button type="button" class="shell-tool" id="tf-clear">Clear</button><button type="button" class="shell-tool" id="tf-reset">Reset lab</button></div></div><div class="shell-scroll" id="tf-transcript" role="log" aria-live="polite" aria-relevant="additions text" tabindex="0" aria-label="Terraform terminal output"></div><form class="shell-input-row" id="tf-form"><label for="tf-input" id="tf-prompt">terraform:default $</label><textarea id="tf-input" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="12000" aria-label="Terraform command" placeholder="terraform init"></textarea><button class="shell-tool" type="submit">Run ↵</button></form></div>
+      <div class="shell-window"><div class="shell-toolbar"><span class="shell-title">Terraform Practice <small>Simulated state · <span id="tf-workspace-name">default</span></small></span><div class="shell-tools"><button type="button" class="shell-tool" id="tf-clear">Clear</button><button type="button" class="shell-tool" id="tf-reset">Reset lab</button></div></div><div class="tf-effects" aria-label="Terraform workspace effects"><div class="tf-effects-heading"><strong>Your simulated infrastructure</strong><span id="tf-resource-count">0 resources</span></div><div id="tf-resource-cards"><p class="tf-effect-empty">Run init, plan, then apply to see your resource appear.</p></div></div><div class="shell-scroll" id="tf-transcript" role="log" aria-live="polite" aria-relevant="additions text" tabindex="0" aria-label="Terraform terminal output"></div><form class="shell-input-row" id="tf-form"><label for="tf-input" id="tf-prompt">terraform:default $</label><textarea id="tf-input" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="12000" aria-label="Terraform command" placeholder="terraform init"></textarea><button class="shell-tool" type="submit">Run ↵</button></form></div>
     </div>
     <p class="status-message" id="tf-status" role="status">Practice is temporary. Reset or reload starts a new lab.</p>
     <div class="tf-guides">
@@ -2647,7 +2678,13 @@ output "project_name" {
   function resize(){input.style.height='auto';input.style.height=Math.max(28,Math.min(140,input.scrollHeight))+'px';}
   function fill(command){input.value=command;resize();input.focus();}
   function prompt(){return simulator.pending?'Enter a value:':simulator.consoleMode?'>':'terraform:'+simulator.current+' $';}
-  function update(){el('tf-prompt').textContent=prompt();el('tf-workspace-name').textContent=simulator.current;}
+  function update(){
+    el('tf-prompt').textContent=prompt();el('tf-workspace-name').textContent=simulator.current;
+    const resources=Object.entries(simulator.state.resources);el('tf-resource-count').textContent=resources.length+' simulated resource'+(resources.length===1?'':'s');
+    const cards=el('tf-resource-cards');cards.replaceChildren();
+    for(const [address,resource]of resources){const card=document.createElement('div'),name=document.createElement('code'),value=document.createElement('span');card.className='tf-effect-card';name.textContent=address;const text=JSON.stringify(resource.output);value.textContent=(text||'Created').slice(0,140);card.append(name,value);cards.append(card);}
+    if(!resources.length){const empty=document.createElement('p');empty.className='tf-effect-empty';empty.textContent=simulator.pending?'Review the output and type yes to confirm.':'Your practice state is empty. Try init → plan → apply.';cards.append(empty);}
+  }
   function run(){
     const command=input.value.trim();if(!command)return;
     history.push(command);if(history.length>100)history.shift();position=history.length;draft='';
@@ -2976,5 +3013,201 @@ output "project_name" {
 })();
 </script>
 
+<style id="linform-hook-styles">
+.hero {display:block;padding:44px 40px 26px;background:radial-gradient(ellipse at 95% 0%,#293a7240,transparent 55%),#10192a;}
+.hook-copy h1 {font-size:clamp(42px,5.2vw,72px);line-height:1.05;margin:18px 0;letter-spacing:-2.5px;}
+.hook-copy>p {font-size:18px;margin:0 0 26px;color:#bccce6;}
+.hook-playground {border:1px solid #354c72;border-radius:16px;background:#0b1322;overflow:hidden;box-shadow:0 24px 60px #0003;}
+.hook-top {padding:16px 20px 4px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.hook-eyebrow {font-size:10px;font-weight:700;letter-spacing:1.7px;color:#a6b8d7;}
+.hook-local {font-size:11px;color:#91e1c0;}
+.hook-tabs {display:flex;gap:5px;padding:12px 20px 16px;border-bottom:1px solid #253852;}
+.hook-tabs button {border:1px solid transparent;background:transparent;color:#9fb4d6;font-family:inherit;font-size:13px;font-weight:600;padding:10px 16px;border-radius:8px;min-height:44px;cursor:pointer;}
+.hook-tabs button[aria-selected=true] {background:#233555;border-color:#546f9c;color:#f3f7ff;}
+.hook-tabs button:focus-visible,.hook-quiet:focus-visible,.hook-chips button:focus-visible {outline:2px solid #9bbdff;outline-offset:3px;}
+.hook-linux-grid {display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,.8fr);}
+.hook-shell,.hook-code {min-width:0;background:#080f1b;}
+.hook-shell-bar {padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;color:#bbcee9;font-size:11px;border-bottom:1px solid #23334a;}
+.hook-shell-bar>span {display:flex;gap:7px;align-items:center;}
+.hook-shell-bar i {width:6px;height:6px;border-radius:50%;background:#91e1c0;}
+.hook-shell-bar small {font-size:10px;color:#8aa0bf;}
+.hook-quiet {border:0;background:transparent;color:#a9c4ed;font-size:12px;min-height:32px;padding:5px 8px;cursor:pointer;}
+.hook-output {height:172px;overflow:auto;padding:16px 18px;color:#d7e7fc;font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;scrollbar-color:#354c72 #080f1b;}
+.hook-output pre,.hook-cloud-result {font:inherit;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;padding:0;border:0;background:transparent;}
+.hook-output .hook-echo {color:#91e1c0;margin-top:10px;}
+.hook-input-row {display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:9px;align-items:center;margin:0;padding:12px 16px;border-top:1px solid #263b58;}
+.hook-input-row:focus-within {box-shadow:inset 0 0 0 2px #80adff;}
+.hook-input-row label {font:12px ui-monospace,Consolas,monospace;color:#91e1c0;overflow-wrap:anywhere;margin:0;}
+.hook-input-row input {padding:8px 2px;background:transparent;border:0;color:#f0f6ff;font:16px/1.5 ui-monospace,Consolas,monospace;min-width:0;width:100%;margin:0;outline:0;}
+.hook-run {background:#a3d9fa;color:#0b1528;border:0;border-radius:6px;padding:10px 15px;font-weight:700;min-height:44px;cursor:pointer;}
+.hook-run:disabled {opacity:.55;}
+.hook-chips {padding:0 16px 14px;display:flex;flex-wrap:wrap;gap:7px;}
+.hook-chips button {padding:7px 10px;background:#15243b;border:1px solid #30496c;border-radius:6px;font:12px ui-monospace,Consolas,monospace;color:#b6d3fc;cursor:pointer;min-height:34px;}
+.hook-workspace {border-left:1px solid #273e5f;padding:20px;min-width:0;}
+.hook-workspace h2 {font-size:19px;letter-spacing:-.4px;margin:9px 0;}
+.hook-path {font:11px/1.5 ui-monospace,Consolas,monospace;color:#a8c0e3;overflow-wrap:anywhere;margin:8px 0 12px;}
+#hook-files {list-style:none;padding:0;margin:0;min-height:48px;}
+#hook-files li {display:flex;align-items:center;gap:9px;padding:5px 0;font:12px/1.6 ui-monospace,Consolas,monospace;color:#cfddf1;overflow-wrap:anywhere;}
+.hook-file-icon {display:inline-block;width:11px;height:14px;border:1px solid #8ea9d2;border-radius:2px;flex:none;}
+.hook-file-icon.folder {width:14px;height:10px;border-color:#e9bd63;background:#e9bd6319;}
+.hook-goals {list-style:none;padding:12px 0 0;margin:14px 0 0;border-top:1px solid #273e5f;counter-reset:hook-goal;}
+.hook-goals li {counter-increment:hook-goal;display:flex;align-items:center;gap:9px;font-size:11px;color:#8da4c5;padding:5px 0;}
+.hook-goals li:before {content:counter(hook-goal);display:grid;place-items:center;width:19px;height:19px;border:1px solid #3d5274;border-radius:50%;font-size:10px;flex:none;}
+.hook-goals li[data-done=true] {color:#a1e8ca;}
+.hook-goals li[data-done=true]:before {background:#225743;border-color:#78c6a4;}
+.hook-bottom {display:flex;align-items:center;justify-content:space-between;gap:10px 18px;flex-wrap:wrap;padding:14px 18px;border-top:1px solid #263b58;}
+.hook-bottom p {font-size:11px;margin:0;color:#97aed0;max-width:100%;}
+.hook-bottom .text-link {font-size:12px;}
+.hook-next {display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:22px;font-size:12px;color:#90a5c5;}
+.hook-next .text-link {font-size:13px;}
+.hook-cloud-grid {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
+.hook-code pre {margin:0;padding:18px;font:12px/1.8 ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;color:#c4d7ef;border:0;}
+.hook-token {color:#c4a8ff;}
+.hook-sim-label {font-size:9px;letter-spacing:1px;color:#9bb2d7;}
+.hook-architecture {padding:16px 20px;background:radial-gradient(ellipse at center,#29334845,transparent 70%),#101a2b;border-left:1px solid #2a3f5f;}
+.hook-cloud-heading {display:flex;justify-content:space-between;align-items:center;gap:9px;margin-bottom:14px;}
+#hook-cloud-count {font-size:10px;color:#9db4d6;}
+.hook-cloud-boundary {border:1px dashed #526586;border-radius:14px;padding:12px 16px 20px;text-align:center;}
+.hook-cloud-boundary>span {display:block;text-align:left;font-size:10px;letter-spacing:.5px;color:#90a7ca;}
+.hook-ec2 {display:flex;flex-direction:column;align-items:center;gap:4px;margin:14px auto 0;padding:15px 12px;max-width:155px;border:1px solid #3f4f69;border-radius:12px;background:#111d31;color:#758baa;transition:background .4s,border-color .4s,box-shadow .4s,color .4s;}
+.hook-ec2 svg {width:42px;height:42px;}
+.hook-ec2 strong {font-size:15px;}
+.hook-ec2 small {font:10px ui-monospace,Consolas,monospace;}
+#hook-instance-state {font-size:10px;margin-top:5px;}
+.hook-architecture[data-stage=plan] .hook-ec2 {color:#bba0ff;border-color:#8b73bf;}
+.hook-architecture[data-stage=apply] .hook-ec2 {color:#ffbc65;border-color:#e89a46;animation:hook-pulse .75s ease-in-out infinite alternate;}
+.hook-architecture[data-stage=running] .hook-ec2 {color:#ffd295;background:#472f19;border-color:#f5ae52;box-shadow:0 0 32px #ffae443b;}
+.hook-cloud-steps {display:flex;justify-content:center;gap:20px;list-style:none;padding:0;margin:15px 0 0;color:#7f98bd;font-size:11px;}
+.hook-cloud-steps li[data-done=true] {color:#a1e8ca;}
+.hook-deploy-row {display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:18px 18px 8px;}
+.hook-deploy-row .button {font-size:13px;padding:13px 18px;min-height:48px;background:linear-gradient(120deg,#8d78e8,#5b8fd8);}
+.hook-deploy-row .button:disabled {opacity:.65;cursor:wait;}
+.hook-cloud-result {min-height:54px;padding:6px 18px 16px;font:12px/1.7 ui-monospace,Consolas,monospace;color:#bed0ec;}
+.hook-playground [hidden] {display:none!important;}
+.lab-effects {display:flex;gap:12px 24px;flex-wrap:wrap;padding:12px 18px;background:#121e30;border-top:1px solid #30445f;}
+.lab-effects>div {min-width:0;flex:1;}
+.lab-effects small {display:block;color:#8ea4c5;font-size:10px;margin-bottom:4px;}
+.lab-effects code,.lab-effects span {font:12px/1.6 ui-monospace,Consolas,monospace;color:#c3dfef;overflow-wrap:anywhere;}
+.tf-effects {padding:15px;border:1px solid #514376;border-radius:12px;margin-bottom:14px;background:#121b2d;}
+.tf-effects-heading {display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:#cbb8fa;}
+.tf-effect-card {display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-top:10px;padding:12px;border:1px solid #486e66;border-radius:7px;background:#16322a;color:#bce8d8;}
+.tf-effect-card code {font-size:12px;background:transparent;padding:0;overflow-wrap:anywhere;}
+.tf-effect-card span {font:12px ui-monospace,Consolas,monospace;overflow-wrap:anywhere;}
+.tf-effect-empty {margin:12px 0 0;color:#93a8c8;font-size:12px;}
+@keyframes hook-pulse {from{box-shadow:0 0 8px #ffae4410}to{box-shadow:0 0 28px #ffae4450}}
+@media(max-width:760px){.hero{padding:28px 20px 22px;}.hook-linux-grid,.hook-cloud-grid{grid-template-columns:1fr;}.hook-workspace,.hook-architecture{border-left:0;border-top:1px solid #273e5f;}.hook-workspace{padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:0 16px;}.hook-workspace>.hook-eyebrow,.hook-workspace>h2,.hook-path,#hook-files{grid-column:1;}.hook-goals{grid-column:2;grid-row:1 / span 4;border:0;margin:0;padding:0;align-self:center;}.hook-architecture{padding:18px;}.hook-cloud-boundary{padding-bottom:18px;}.hook-ec2{margin-top:8px;padding:12px;width:150px;}.hook-cloud-grid .hook-code pre{font-size:12px;}.hook-output{height:160px;}.hook-bottom{align-items:flex-start;}.hook-copy h1{letter-spacing:-1.8px;}.hook-next>span{display:none;}}
+@media(max-width:480px){.hero{padding:24px 12px 20px;}.hook-top{padding:14px 12px 3px;}.hook-tabs{padding:10px 12px 12px;}.hook-tabs button{flex:1;padding:9px;font-size:12px;}.hook-input-row{grid-template-columns:minmax(0,1fr) auto;padding:11px 12px;}.hook-input-row label{grid-column:1 / -1;}.hook-input-row input{min-height:44px;}.hook-chips{padding:0 12px 12px;}.hook-chips button,.hook-quiet{min-height:44px;}.hook-workspace{grid-template-columns:1fr;}.hook-workspace>.hook-eyebrow,.hook-workspace>h2,.hook-path,#hook-files{grid-column:1;}.hook-goals{grid-column:1;grid-row:auto;display:flex;flex-wrap:wrap;gap:5px 12px;border-top:1px solid #273e5f;margin-top:10px;padding-top:10px;}.hook-output{font-size:13px;padding:12px;}.hook-deploy-row .button{width:100%;font-size:12px;}.hook-bottom{padding:12px;}.hook-eyebrow{font-size:9px;}.hook-local{font-size:10px;}.lab-effects{padding:12px;}.tf-effect-card{flex-direction:column;}}
+@media(prefers-reduced-motion:reduce){.hook-ec2{transition:none;animation:none!important;}}
+@media(max-width:760px){#hook-cloud{display:flex;flex-direction:column;}.hook-deploy-row{order:0;}.hook-cloud-grid{order:1;}.hook-cloud-result{order:2;}#hook-cloud>.hook-bottom{order:3;}.hook-cloud-grid .hook-architecture{grid-row:1;}.hook-cloud-grid .hook-code{grid-row:2;}}
+@media(max-width:480px){.hook-output{height:125px;}.hook-workspace{grid-template-columns:minmax(0,1fr) minmax(0,.85fr);gap:0 10px;}.hook-workspace>.hook-eyebrow,.hook-workspace>h2,.hook-path,#hook-files{grid-column:1;}.hook-workspace h2{font-size:16px;}.hook-goals{grid-column:2;grid-row:1 / span 4;display:block;border:0;padding:0;margin:0;}.hook-goals li{font-size:10px;line-height:1.4;}.hook-copy>p{font-size:16px;}}
+
+#hook-files li[data-new=true]{color:#a1e8ca;}
+</style>
+<script id="linform-hook">
+/* Linform's public try-it-now experience. Linux uses the existing WASM worker;
+   the EC2 story is a separate visual simulation and makes no cloud API calls. */
+(() => {
+  'use strict';
+  function workspace(snapshot,previous){
+    const prefix='/home/learner/',entries=(snapshot?.entries||[]).filter(item=>item.path.startsWith(prefix));
+    const old=new Set((previous?.entries||[]).map(item=>item.path));
+    const files=entries.map(item=>({name:item.path.slice(prefix.length),directory:item.directory===true,new:!!previous&&!old.has(item.path)})).sort((a,b)=>Number(b.directory)-Number(a.directory)||a.name.localeCompare(b.name));
+    return {cwd:snapshot?.cwd||'/home/learner',files,added:files.filter(item=>item.new).map(item=>item.name),folder:entries.some(item=>item.path==='/home/learner/cloud-lab'&&item.directory)};
+  }
+  window.LinformHookModel=Object.freeze({workspace});
+  const el=id=>document.getElementById(id),input=el('hook-command'),output=el('hook-output'),status=el('hook-linux-status');
+  if(!input)return;
+  const tabs=[el('hook-linux-tab'),el('hook-cloud-tab')],panels=[el('hook-linux'),el('hook-cloud')];
+  function select(index,focus=false){
+    tabs.forEach((tab,i)=>{tab.setAttribute('aria-selected',String(i===index));tab.tabIndex=i===index?0:-1;panels[i].hidden=i!==index;});
+    focusAfterRun=false;if(focus)tabs[index].focus();if(index===0&&homeVisible()&&!worker&&!booting)start();
+  }
+  tabs.forEach((tab,index)=>{tab.addEventListener('click',()=>select(index));tab.addEventListener('keydown',event=>{let next;if(event.key==='ArrowRight'||event.key==='ArrowLeft')next=1-index;else if(event.key==='Home')next=0;else if(event.key==='End')next=1;else return;event.preventDefault();select(next,true);});});
+  const homeVisible=()=>!document.getElementById('view-home')?.hidden;
+  const decoder=new TextDecoder();let worker=null,url=null,binary=null,booting=false,busy=false,epoch=0,timer=null,snapshot=null,sequence=0,queued='',lastCommand='',activeOutput=null,outputSize=0,focusAfterRun=false;
+  let history=[],historyIndex=0,draft='',foundLocation=false,listedFiles=false;
+  function log(text,className=''){const node=document.createElement('pre');node.textContent=text;node.className=className;output.append(node);while(output.childNodes.length>36)output.firstChild.remove();output.scrollTop=output.scrollHeight;return node;}
+  function controls(){el('hook-run').disabled=busy||!!queued;el('hook-run').textContent=busy?'Running…':'Run';input.setAttribute('aria-busy',String(busy));}
+  function showWorkspace(next){
+    const view=workspace(next,snapshot);snapshot=next;
+    el('hook-path').textContent=view.cwd;el('hook-prompt').textContent='learner:'+(view.cwd==='/home/learner'?'~':view.cwd.startsWith('/home/learner/')?'~'+view.cwd.slice(13):view.cwd)+' $';
+    const list=el('hook-files');list.replaceChildren();
+    for(const file of view.files.slice(0,7)){const row=document.createElement('li'),icon=document.createElement('span'),name=document.createElement('span');icon.className='hook-file-icon'+(file.directory?' folder':'');icon.setAttribute('aria-hidden','true');name.textContent=file.name+(file.directory?'/':'');row.dataset.new=String(file.new);row.append(icon,name);list.append(row);}
+    if(!view.files.length){const row=document.createElement('li');row.textContent='Your workspace is empty.';list.append(row);}
+    if(view.files.length>7){const row=document.createElement('li');row.textContent='+'+(view.files.length-7)+' more';list.append(row);}
+    el('hook-goal-pwd').dataset.done=String(foundLocation);el('hook-goal-ls').dataset.done=String(listedFiles);el('hook-goal-folder').dataset.done=String(view.folder);
+    return view;
+  }
+  function dispose(){epoch++;clearTimeout(timer);if(worker)worker.terminate();worker=null;if(url)URL.revokeObjectURL(url);url=null;booting=false;busy=false;decoder.decode();controls();}
+  function fail(message){dispose();status.textContent=message;el('hook-retry').hidden=false;}
+  function arm(){clearTimeout(timer);timer=setTimeout(()=>fail('Command paused at the time limit. Retry to restore your last workspace.'),8000);}
+  async function start(){
+    if(worker||booting)return;booting=true;const version=++epoch;status.textContent='Preparing Linux… Your first command will run automatically.';
+    try{
+      if(!binary){const response=await fetch('https://cdn.jsdelivr.net/npm/wasi-sh@0.11.0/dist/busybox.wasm',{integrity:'sha256-GVt3Cvj61FjeCRRKvTzD5oipqDkHypD3k4olMlPfubM=',signal:AbortSignal.timeout(15000)});if(!response.ok)throw Error('Load failed');const bytes=await response.arrayBuffer();if(version!==epoch)return;binary=bytes;}
+      if(version!==epoch)return;
+      url=URL.createObjectURL(new Blob([el('linform-lab-worker').textContent],{type:'text/javascript'}));
+      const instance=new Worker(url);worker=instance;
+      instance.onmessage=({data})=>{
+        if(worker!==instance)return;
+        if(data.type==='output'){
+          if(data.id!==sequence)return;outputSize+=data.bytes.byteLength;if(outputSize>16384){fail('That output is large. Retry and use head to show fewer lines.');return;}
+          if(!activeOutput)activeOutput=log('');activeOutput.textContent+=decoder.decode(data.bytes,{stream:true});output.scrollTop=output.scrollHeight;return;
+        }
+        clearTimeout(timer);
+        if(data.type==='ready'){
+          booting=false;busy=false;if(data.snapshot)showWorkspace(data.snapshot);el('hook-retry').hidden=true;status.textContent='Ready. Type pwd or tap a command.';controls();
+          if(queued){const command=queued;queued='';run(command);}return;
+        }
+        if(data.type==='result'&&data.id===sequence){
+          const tail=decoder.decode();if(tail){if(!activeOutput)activeOutput=log('');activeOutput.textContent+=tail;}
+          if(data.exitCode===0){if(/^pwd\s*$/.test(lastCommand))foundLocation=true;if(/^ls(?:\s|$)/.test(lastCommand))listedFiles=true;}
+          const view=data.snapshot?showWorkspace(data.snapshot):null;busy=false;controls();
+          status.textContent=data.exitCode!==0?'Read the terminal output, adjust the command, and try again.':view?.added.length?'Created: '+view.added.slice(0,3).join(', '):/^pwd\s*$/.test(lastCommand)?'Location found. Try ls next.':foundLocation&&listedFiles&&view?.folder?'First steps complete. Keep exploring in the full lab.':'Command complete. Try another.';
+          if(focusAfterRun&&homeVisible()&&!panels[0].hidden&&document.visibilityState==='visible')input.focus({preventScroll:true});focusAfterRun=false;return;
+        }
+        fail('The command stopped. Retry to restore your last completed workspace.');
+      };
+      instance.onerror=()=>{if(worker===instance)fail('Linux could not start. Retry, or open the full lab.');};
+      instance.postMessage({type:'init',bytes:binary,...(snapshot?{snapshot}:{})});arm();
+    }catch{if(version===epoch)fail('Could not load Linux. Check your connection and tap Retry.');}
+  }
+  function run(command){
+    command=command.trim();if(!command)return;if(busy||queued){status.textContent='One command at a time. Your current command is running.';return;}
+    focusAfterRun=true;
+    if(!worker||booting){queued=command;controls();start();return;}
+    if(command==='clear'){output.replaceChildren();status.textContent='Terminal cleared. Your practice files are still here.';return;}
+    log(el('hook-prompt').textContent+' '+command,'hook-echo');lastCommand=command;activeOutput=null;outputSize=0;decoder.decode();busy=true;controls();status.textContent='Running '+command+'…';
+    worker.postMessage({type:'run',command,id:++sequence});arm();
+  }
+  function submit(command){if(busy||queued)return;history.push(command);if(history.length>30)history.shift();historyIndex=history.length;draft='';input.value='';run(command);}
+  el('hook-form').addEventListener('submit',event=>{event.preventDefault();submit(input.value);});
+  input.addEventListener('keydown',event=>{if(event.isComposing)return;if(event.key==='ArrowUp'){event.preventDefault();if(historyIndex===history.length)draft=input.value;if(historyIndex>0)input.value=history[--historyIndex];}else if(event.key==='ArrowDown'){event.preventDefault();if(historyIndex<history.length)historyIndex++;input.value=historyIndex===history.length?draft:history[historyIndex];}});
+  for(const button of document.querySelectorAll('[data-hook-command]'))button.addEventListener('click',()=>submit(button.dataset.hookCommand));
+  el('hook-reset').addEventListener('click',()=>{dispose();snapshot=null;queued='';foundLocation=false;listedFiles=false;history=[];historyIndex=0;input.value='';output.replaceChildren();log('Fresh workspace. Try pwd, ls, then mkdir cloud-lab.');showWorkspace({cwd:'/home/learner',entries:[]});start();});
+  el('hook-retry').addEventListener('click',()=>{el('hook-retry').hidden=true;start();});
+  window.addEventListener('hashchange',()=>{if(homeVisible()&&!worker&&!booting)start();});
+  if(homeVisible())start();
+
+  // The EC2 visual is intentionally independent of the Terraform teaching CLI.
+  const deploy=el('hook-deploy'),architecture=el('hook-architecture');let cloudEpoch=0;const cloudTimers=[];
+  function cloudStage(stage){
+    architecture.dataset.stage=stage;
+    const order=['idle','plan','apply','running'],at=order.indexOf(stage);
+    for(const item of document.querySelectorAll('[data-cloud-stage]'))item.dataset.done=String(order.indexOf(item.dataset.cloudStage)<=at);
+    el('hook-instance-state').textContent={idle:'Not created',plan:'Planned',apply:'Creating…',running:'Running'}[stage];
+    el('hook-cloud-count').textContent=stage==='running'?'1 simulated instance':'0 instances';
+  }
+  function resetCloud(){cloudEpoch++;for(const timer of cloudTimers)clearTimeout(timer);cloudTimers.length=0;deploy.disabled=false;deploy.textContent='Click to deploy AWS EC2 via Terraform';cloudStage('idle');el('hook-cloud-result').textContent='One click. Watch the plan become an instance.';}
+  deploy.addEventListener('click',()=>{
+    resetCloud();const version=cloudEpoch;deploy.disabled=true;cloudStage('plan');el('hook-cloud-result').textContent='[simulation] terraform plan\nPlan: 1 to add, 0 to change, 0 to destroy.';
+    cloudTimers.push(setTimeout(()=>{if(version!==cloudEpoch)return;cloudStage('apply');el('hook-cloud-result').textContent='[simulation] terraform apply\naws_instance.demo: Creating…';},650));
+    cloudTimers.push(setTimeout(()=>{if(version!==cloudEpoch)return;cloudStage('running');el('hook-cloud-result').textContent='[simulation] Apply complete! 1 resource added.\nYour EC2 demo is running in this visual workspace.';deploy.disabled=false;deploy.textContent='Run the demo again';},1450));
+  });
+  el('hook-cloud-reset').addEventListener('click',resetCloud);
+  el('hook-open-terraform').href='#terraform';cloudStage('idle');
+})();
+
+</script>
 </body>
 </html>
