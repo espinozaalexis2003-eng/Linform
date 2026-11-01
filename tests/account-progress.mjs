@@ -42,7 +42,7 @@ async function browser({id='student-a',local=storage(),remote=backend(),authenti
     after(){}before(){}append(){}
     addEventListener(name,handler){this.listeners[name]=handler;}
   }
-  for(const id of ['student-account','courses','account-status','account-login','account-sync','account-logout']){
+  for(const id of ['student-account','courses','account-status','account-login','account-logout']){
     const node=new Element();node.id=id;
   }
   const header=new Element();
@@ -67,6 +67,8 @@ async function browser({id='student-a',local=storage(),remote=backend(),authenti
   return {context,local,remote,elements,windowEvents,documentEvents,
     status:()=>elements.get('account-status').textContent,
     async complete(id){context.progress[id]=true;context.saveProgress();await queued();},queued,
+    async retry(){const entry=[...timers].find(([,t])=>t.ms>=2000&&t.ms<=30000);assert.ok(entry,'automatic retry is scheduled');timers.delete(entry[0]);entry[1].fn();await settle();await queued();},
+    retryDelays:()=>[...timers.values()].map(t=>t.ms).filter(ms=>ms>=2000&&ms<=30000),
     expire(){for(const [key,{fn,ms}]of timers)if(ms>0){timers.delete(key);fn();}},
     async click(id){await elements.get(id).listeners.click();await queued();}};
 }
@@ -75,7 +77,7 @@ test('a signed-in completion automatically saves to that account',async()=>{
   const b=await browser();await b.complete('linux-location');
   assert.ok(b.remote.users.get('student-a').has('linux-location'));
   assert.equal(JSON.parse(b.local.getItem(accountKey('student-a')))['linux-location'],true);
-  assert.match(b.status(),/^Saved to your account/);
+  assert.match(b.status(),/^Progress saved automatically/);
   assert.equal(b.local.getItem(guestKey),null);
 });
 test('account B never inherits account A or guest progress',async()=>{
@@ -93,10 +95,10 @@ test('sign-in restores server progress and uploads pending per-account cache',as
 });
 test('offline save remains in the account cache and never claims cloud success',async()=>{
   const b=await browser();b.remote.offline=true;await b.complete('linux-location');
-  assert.match(b.status(),/Not synced yet/);
+  assert.match(b.status(),/Saved on this device · Retrying online/);
   assert.equal(JSON.parse(b.local.getItem(accountKey('student-a')))['linux-location'],true);
   assert.equal(b.local.getItem(guestKey),null);
-  b.remote.offline=false;await b.click('account-sync');
+  b.remote.offline=false;await b.retry();
   assert.ok(b.remote.users.get('student-a').has('linux-location'));
 });
 test('session expiry keeps new completions attached to the original account',async()=>{
@@ -128,4 +130,34 @@ test('backgrounding the page attempts a keepalive upload',async()=>{
   b.windowEvents.pagehide();await settle();
   assert.ok(b.remote.calls.some(call=>call.keepalive===true));
   assert.ok(b.remote.users.get('student-a').has('linux-location'));
+});
+
+
+test('failed saves retry automatically with capped backoff and recover without a button',async()=>{
+  const b=await browser();b.remote.offline=true;await b.complete('linux-location');
+  assert.deepEqual(b.retryDelays(),[2000]);
+  for(const delay of [4000,8000,16000,30000,30000]){await b.retry();assert.deepEqual(b.retryDelays(),[delay]);}
+  b.remote.offline=false;await b.retry();
+  assert.ok(b.remote.users.get('student-a').has('linux-location'));
+  assert.match(b.status(),/^Progress saved automatically/);
+  assert.deepEqual(b.retryDelays(),[]);
+});
+test('reconnection saves pending lessons automatically',async()=>{
+  const b=await browser();b.remote.offline=true;await b.complete('linux-location');
+  b.remote.offline=false;await b.windowEvents.online();await settle();await b.queued();
+  assert.ok(b.remote.users.get('student-a').has('linux-location'));
+  assert.deepEqual(b.retryDelays(),[]);
+});
+test('sign out cancels automatic retries and restores separate guest progress',async()=>{
+  const b=await browser();b.remote.offline=true;await b.complete('linux-location');
+  await b.click('account-logout');
+  assert.deepEqual(b.retryDelays(),[]);
+  assert.equal(b.context.progress['linux-location'],undefined);
+  assert.equal(JSON.parse(b.local.getItem(accountKey('student-a')))['linux-location'],true);
+});
+test('account page is concise and privacy is available in Terms',()=>{
+  const panel=html.match(/<section id="student-account"[\s\S]*?<\/section>/)[0];
+  assert.doesNotMatch(panel,/account-sync|<details>|Student data and privacy|AWS Cognito/);
+  assert.match(panel,/Terms &amp; privacy/);
+  assert.match(html,/terms.insertAdjacentHTML\('beforeend',.*<summary>Privacy<\/summary>/);
 });
