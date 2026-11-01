@@ -3274,20 +3274,25 @@ output "project_name" {
 
 </style>
 <script id="linform-public-preview">
-/* Public, original lesson preview. It uses the same teaching engine as Practice. */
+/* Public guided review case. Plan behavior verified separately with Terraform 1.12.2; this browser case uses illustrative fixtures. */
 (() => {
   'use strict';
   const host=document.getElementById('premium-public');if(!host)return;
   const sample=document.createElement('section');sample.id='premium-preview';sample.className='premium-preview';sample.setAttribute('aria-labelledby','preview-title');
   sample.innerHTML=`
-    <div class="preview-heading"><div><span class="kicker">TRY BEFORE YOU BUY</span><h2 id="preview-title">See how you’ll learn.</h2></div><p>One short lesson. One real project.</p></div>
+    <div class="preview-heading"><div><span class="kicker">TRY BEFORE YOU BUY</span><h2 id="preview-title">See how you’ll learn.</h2></div><p>Review a risky change. Explore a real build.</p></div>
     <div class="preview-tabs" role="tablist" aria-label="Premium public previews"><button type="button" role="tab" id="preview-lesson-tab" aria-controls="preview-lesson" aria-selected="true">Try a lesson</button><button type="button" role="tab" id="preview-project-tab" aria-controls="preview-project" aria-selected="false" tabindex="-1">Explore a project</button></div>
     <div role="tabpanel" id="preview-lesson" aria-labelledby="preview-lesson-tab">
-      <div class="preview-lesson-intro"><div><span class="preview-tag">TERRAFORM / WORKFLOW</span><h3>A plan is a preview.</h3><p>Edit your intent. Preview the difference. Apply when you’re ready.</p></div><span class="preview-simulation">Browser simulation</span></div>
-      <div class="preview-lesson-grid"><div class="preview-code"><div class="preview-panel-label">main.tf <span>desired configuration</span></div><pre id="preview-config"></pre></div><div class="preview-state"><div class="preview-panel-label">Practice state <span>what exists now</span></div><div class="preview-resource"><span class="preview-resource-dot" aria-hidden="true"></span><div><strong>terraform_data.sample</strong><code id="preview-state-value">learn</code></div><span id="preview-state-match">In sync</span></div><p id="preview-lesson-note">Start by editing the resource’s input.</p></div></div>
-      <div class="preview-lesson-actions"><button class="button secondary" id="preview-edit" type="button">1. Edit the file</button><button class="button secondary" id="preview-plan" type="button" disabled>2. Preview plan</button><button class="button" id="preview-apply" type="button" disabled>3. Apply change</button><button class="preview-reset" id="preview-reset" type="button">Start again</button></div>
-      <pre id="preview-plan-result" class="preview-plan-result" role="status">Your resource starts with input = "learn".</pre>
-      <details class="preview-check"><summary>Check your understanding</summary><p>You ran terraform plan. What changed?</p><div class="preview-answers" role="group" aria-label="Answer the sample question"><button type="button" data-preview-answer="preview">Only the proposed-change preview</button><button type="button" data-preview-answer="resource">The resource was already updated</button><button type="button" data-preview-answer="state">The state was deleted</button></div><p id="preview-answer-feedback" role="status"></p></details>
+      <div class="preview-lesson-intro"><div><span class="preview-tag">TERRAFORM / CHANGE REVIEW</span><h3>Catch the risky change.</h3><p>A teammate renamed a resource. Keep the existing object.</p></div><span class="preview-simulation">Guided review simulation</span></div>
+      <div class="risk-brief"><span>YOUR BRIEF</span><p>Rename <code>web</code> to <code>app</code> without recreating it. Review the plan before approving anything.</p></div>
+      <div class="preview-lesson-grid"><div class="preview-code"><div class="preview-panel-label">main.tf <span>proposed refactor</span></div><pre id="preview-config"></pre></div><div class="preview-state"><div class="preview-panel-label">State before apply <span>existing object</span></div><div class="preview-resource"><span class="preview-resource-dot" aria-hidden="true"></span><div><strong>terraform_data.web</strong><code>portfolio</code></div><span id="risk-object-id">ID: local-object-001</span></div><p id="preview-lesson-note">A new label is a new resource address unless you explain the move.</p></div></div>
+      <div class="risk-plan-heading"><strong id="risk-plan-label">Proposed plan · illustrative excerpt</strong><span id="risk-plan-badge" data-safe="false">1 destruction to review</span></div>
+      <pre id="preview-plan-result" class="preview-plan-result"></pre>
+      <section class="risk-question" aria-labelledby="risk-flag-title"><h4 id="risk-flag-title">1. What would you flag?</h4><div class="preview-answers" role="group" aria-label="Identify the risk"><button type="button" data-risk-flag="destroy" aria-pressed="false">The existing resource is scheduled for destruction</button><button type="button" data-risk-flag="format" aria-pressed="false">The file needs formatting</button><button type="button" data-risk-flag="region" aria-pressed="false">The resource needs an AWS Region</button></div><p id="risk-flag-feedback" class="risk-feedback" role="status"></p></section>
+      <section class="risk-question" id="risk-fix-section" aria-labelledby="risk-fix-title" hidden><h4 id="risk-fix-title">2. Choose a safer change.</h4><div class="preview-answers" role="group" aria-label="Choose the correction"><button type="button" data-risk-fix="move" aria-pressed="false">Add a moved block from web to app</button><button type="button" data-risk-fix="delete" aria-pressed="false">Delete the state and start over</button><button type="button" data-risk-fix="apply" aria-pressed="false">Apply the plan and recreate the resource</button></div><p id="risk-fix-feedback" class="risk-feedback" role="status"></p></section>
+      <div class="risk-review-actions"><button class="button" id="risk-verify" type="button" disabled>3. Re-run the plan</button><button class="preview-reset" id="preview-reset" type="button">Start again</button></div>
+      <p id="risk-review-status" class="risk-review-status" role="status">Flag the risk, choose a fix, then verify the new plan.</p>
+      <section class="risk-handoff" id="risk-handoff" aria-labelledby="risk-handoff-title" hidden><span class="preview-tag">TURN THE DECISION INTO EVIDENCE</span><h4 id="risk-handoff-title">Write the project handoff.</h4><dl><div><dt>Risk</dt><dd>A label-only refactor proposed deleting and creating a resource.</dd></div><div><dt>Correction</dt><dd>Map the old address to the new address with a moved block.</dd></div><div><dt>Verification</dt><dd>The revised plan proposes zero resource additions, changes or destructions. Applying it would record the address move.</dd></div></dl><details><summary>Example portfolio wording</summary><p>Practiced reviewing a simulated Terraform refactor, identified unintended resource recreation, and verified a moved-block correction.</p><p class="small-note">Use wording that matches your completed work. The full project takes this review into a local Terraform lab with your own evidence.</p></details></section>
     </div>
     <div role="tabpanel" id="preview-project" aria-labelledby="preview-project-tab" hidden>
       <div class="preview-lesson-intro"><div><span class="preview-tag">BUILT HERE / LINFORM</span><h3>You’re using the project.</h3><p>Trace the code, the website and a learner’s progress.</p></div><a class="text-link" href="https://github.com/espinozaalexis2003-eng/Linform" target="_blank" rel="noopener noreferrer">View the source ↗</a></div>
@@ -3302,30 +3307,55 @@ output "project_name" {
   function choose(index,focus=false){tabs.forEach((tab,i)=>{tab.setAttribute('aria-selected',String(i===index));tab.tabIndex=i===index?0:-1;panels[i].hidden=i!==index;});if(focus)tabs[index].focus();}
   tabs.forEach((tab,index)=>{tab.addEventListener('click',()=>choose(index));tab.addEventListener('keydown',event=>{let next;if(event.key==='ArrowRight'||event.key==='ArrowLeft')next=1-index;else if(event.key==='Home')next=0;else if(event.key==='End')next=1;else return;event.preventDefault();choose(next,true);});});
 
-  const config=value=>'resource "terraform_data" "sample" {\n  input = "'+value+'"\n}\n\noutput "name" {\n  value = terraform_data.sample.output\n}\n';
-  let simulator,stage='initial';
-  function render(){
-    el('preview-config').textContent=simulator.config;
-    const value=simulator.state.resources['terraform_data.sample']?.output||'learn';el('preview-state-value').textContent=value;
-    el('preview-state-match').textContent=stage==='edited'||stage==='planned'?'Change pending':'In sync';
-    el('preview-state-match').dataset.pending=String(stage==='edited'||stage==='planned');
-    el('preview-edit').disabled=stage!=='initial';el('preview-plan').disabled=stage!=='edited';el('preview-apply').disabled=stage!=='planned';
-    el('preview-lesson-note').textContent={initial:'Start by editing the resource’s input.',edited:'The file changed. Your resource still says learn.',planned:'The plan changed. Your resource still says learn.',applied:'Now the resource matches your configuration.'}[stage];
-  }
+  const renamed='resource "terraform_data" "app" {\n  input = "portfolio"\n}\n';
+  const migration='\nmoved {\n  from = terraform_data.web\n  to   = terraform_data.app\n}\n';
+  const riskyPlan='# terraform_data.web will be destroyed\n- resource "terraform_data" "web"\n\n# terraform_data.app will be created\n+ resource "terraform_data" "app"\n\nPlan: 1 to add, 0 to change, 1 to destroy.';
+  const saferPlan='# terraform_data.web has moved to terraform_data.app\n  resource "terraform_data" "app" {\n    id    = "local-object-001"\n    input = "portfolio"\n  }\n\nPlan: 0 to add, 0 to change, 0 to destroy.';
+  let riskFound=false,moveChosen=false,verified=false;
+  const flags=[...sample.querySelectorAll('[data-risk-flag]')],fixes=[...sample.querySelectorAll('[data-risk-fix]')];
   function reset(){
-    simulator=new window.LinformTerraform.Simulator();simulator.config=config('learn');
-    for(const command of ['terraform init','terraform apply -auto-approve']){const result=simulator.run(command);if(result.exitCode!==0)throw Error('Sample initialization failed');}
-    stage='initial';render();el('preview-plan-result').textContent='Your resource starts with input = "learn".';el('preview-answer-feedback').textContent='';
+    riskFound=false;moveChosen=false;verified=false;
+    el('preview-config').textContent=renamed;el('preview-plan-result').textContent=riskyPlan;
+    el('risk-plan-label').textContent='Proposed plan · illustrative excerpt';el('risk-plan-badge').textContent='1 destruction to review';el('risk-plan-badge').dataset.safe='false';
+    el('preview-lesson-note').textContent='A new label is a new resource address unless you explain the move.';
+    el('risk-flag-feedback').textContent='';el('risk-fix-feedback').textContent='';
+    el('risk-fix-section').hidden=true;el('risk-handoff').hidden=true;el('risk-verify').disabled=true;
+    el('risk-review-status').textContent='Flag the risk, choose a fix, then verify the new plan.';
+    for(const button of [...flags,...fixes]){button.disabled=false;button.setAttribute('aria-pressed','false');}
   }
-  el('preview-edit').addEventListener('click',()=>{if(stage!=='initial')return;simulator.config=config('portfolio');stage='edited';render();el('preview-plan-result').textContent='File saved. State stays unchanged until apply.';});
-  el('preview-plan').addEventListener('click',()=>{if(stage!=='edited')return;const result=simulator.run('terraform plan');if(result.exitCode!==0){el('preview-plan-result').textContent=result.text;return;}stage='planned';render();el('preview-plan-result').textContent=result.text;});
-  el('preview-apply').addEventListener('click',()=>{if(stage!=='planned')return;simulator.run('terraform apply');const result=simulator.run('yes');if(result.exitCode!==0){el('preview-plan-result').textContent=result.text;return;}stage='applied';render();el('preview-plan-result').textContent=result.text;});
+  for(const button of flags)button.addEventListener('click',()=>{
+    if(riskFound)return;
+    if(button.dataset.riskFlag!=='destroy'){
+      el('risk-flag-feedback').textContent=button.dataset.riskFlag==='format'?'Formatting changes layout. Read the plan’s destroy action: it removes the object at the old address.':'terraform_data is local and provider-free. An AWS Region is unrelated to this rename. Look for a destructive action.';return;
+    }
+    riskFound=true;button.setAttribute('aria-pressed','true');for(const choice of flags)choice.disabled=true;
+    el('risk-flag-feedback').textContent='Correct. Terraform sees two different addresses: remove web, create app.';
+    el('risk-fix-section').hidden=false;el('risk-review-status').textContent='Risk identified. Choose a correction that preserves the object.';
+  });
+  for(const button of fixes)button.addEventListener('click',()=>{
+    if(!riskFound||moveChosen)return;
+    if(button.dataset.riskFix!=='move'){
+      el('risk-fix-feedback').textContent=button.dataset.riskFix==='delete'?'Deleting state loses Terraform’s ownership records; it does not explain the rename. Keep state and map the addresses.':'That accepts the recreation you were asked to avoid. Preserve the existing object by declaring the address move.';return;
+    }
+    moveChosen=true;button.setAttribute('aria-pressed','true');for(const choice of fixes)choice.disabled=true;
+    el('preview-config').textContent=renamed+migration;el('risk-plan-label').textContent='Previous plan · re-run required';
+    el('risk-fix-feedback').textContent='Moved block added. Now generate a fresh plan to check its effect.';
+    el('risk-verify').disabled=false;el('risk-review-status').textContent='Configuration corrected. The previous plan is stale.';
+  });
+  el('risk-verify').addEventListener('click',()=>{
+    if(!riskFound||!moveChosen||verified)return;verified=true;
+    el('preview-plan-result').textContent=saferPlan;el('risk-plan-label').textContent='Revised plan · illustrative excerpt';
+    el('risk-plan-badge').textContent='0 resource destructions';el('risk-plan-badge').dataset.safe='true';
+    el('preview-lesson-note').textContent='State is unchanged in this review. Apply would record the new address while preserving the object.';
+    el('risk-review-status').textContent='Review complete: the plan preserves the object. Document the correction before a separately reviewed apply.';
+    el('risk-verify').disabled=true;el('risk-handoff').hidden=false;
+    el('risk-plan-label').tabIndex=-1;el('risk-plan-label').scrollIntoView({block:'center',behavior:'auto'});el('risk-plan-label').focus({preventScroll:true});
+  });
   el('preview-reset').addEventListener('click',reset);
-  for(const button of sample.querySelectorAll('[data-preview-answer]'))button.addEventListener('click',()=>{el('preview-answer-feedback').textContent=button.dataset.previewAnswer==='preview'?'Correct. Plan previews a difference; apply changes the managed resource.':'Review that step: plan previews a difference. The resource changes only after apply.';});
   const flows={ship:{nodes:['github','actions','s3'],path:'GitHub → GitHub Actions → S3',explanation:'A commit starts the deployment. Actions assumes an AWS role through OIDC and publishes the website files.'},visit:{nodes:['cloudfront','s3'],path:'Visitor → CloudFront → S3 content',explanation:'CloudFront delivers the website over HTTPS. The browser then runs Linform’s interactive lessons and local labs.'},save:{nodes:['cognito','progress'],path:'Student → Cognito → authenticated API → DynamoDB',explanation:'After sign-in, the progress API uses the verified student identity to read and save that student’s completed lesson IDs.'}};
   function showFlow(name){const flow=flows[name];for(const node of sample.querySelectorAll('[data-preview-node]'))node.dataset.active=String(flow.nodes.includes(node.dataset.previewNode));for(const button of sample.querySelectorAll('[data-preview-flow]'))button.setAttribute('aria-pressed',String(button.dataset.previewFlow===name));el('preview-flow-path').textContent=flow.path;el('preview-flow-explanation').textContent=flow.explanation;}
   for(const button of sample.querySelectorAll('[data-preview-flow]'))button.addEventListener('click',()=>showFlow(button.dataset.previewFlow));showFlow('ship');
-  try{reset();}catch{el('preview-plan-result').textContent='The sample is temporarily unavailable. Open Practice to explore the workflow.';for(const id of ['preview-edit','preview-plan','preview-apply'])el(id).disabled=true;}
+  reset();
 
   function openPreview(){if(!sample.getClientRects().length)return;sample.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});el('preview-title').tabIndex=-1;el('preview-title').focus({preventScroll:true});}
   let previewIntent=false;
@@ -3336,5 +3366,31 @@ output "project_name" {
 })();
 
 </script>
+<style id="linform-risk-review-styles">
+.risk-brief{margin:0 26px 18px;padding:14px 16px;border:1px solid #355681;border-left:3px solid #8eb8fa;border-radius:8px;background:#132642;}
+.risk-brief>span{font-size:9px;letter-spacing:1.3px;font-weight:700;color:#94b8ed;}
+.risk-brief p{font-size:13px;margin:7px 0 0;color:#bed0e8;}
+.risk-plan-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 26px 0;font-size:12px;color:#c5dbfb;}
+#risk-plan-badge{font-size:10px;color:#ffd495;background:#4a321b;border:1px solid #906530;border-radius:20px;padding:5px 10px;}
+#risk-plan-badge[data-safe=true]{color:#b0edce;background:#163b2d;border-color:#437e65;}
+#risk-object-id{color:#98b5a9;font:10px ui-monospace,Consolas,monospace;margin-top:8px;}
+.risk-question{margin:20px 26px;border-top:1px solid #2e4b74;padding-top:18px;}
+.risk-question h4,.risk-handoff h4{font-size:17px;margin:0 0 15px;color:#deebff;letter-spacing:-.3px;}
+.risk-feedback{color:#b6d8f1;font-size:12px;line-height:1.7;min-height:18px;}
+.risk-question button[aria-pressed=true]{border-color:#74c4a1;background:#183d32;color:#d1f6e4;}
+.risk-review-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:0 26px;}
+.risk-review-actions .button{font-size:13px;padding:12px 17px;min-height:44px;}
+.risk-review-status{font-size:12px;line-height:1.7;color:#aac4e7;margin:12px 26px 24px;}
+.risk-handoff{margin:0 26px 24px;border:1px solid #3a6d66;background:#112d2c;border-radius:10px;padding:20px;}
+.risk-handoff h4{margin:10px 0 16px;}
+.risk-handoff dl{display:grid;gap:12px;margin:0 0 16px;}
+.risk-handoff dl>div{display:grid;grid-template-columns:90px minmax(0,1fr);gap:12px;}
+.risk-handoff dt{font-size:12px;font-weight:700;color:#a7e0ce;}
+.risk-handoff dd{margin:0;font-size:12px;line-height:1.7;color:#b9d8d0;}
+.risk-handoff summary{min-height:44px;font-size:13px;color:#b8e8d8;cursor:pointer;}
+.risk-handoff p{font-size:13px;line-height:1.7;color:#beddd5;}
+@media(max-width:700px){.risk-brief{margin:0 16px 16px;}.risk-plan-heading{margin:18px 16px 0;}.risk-question{margin:18px 16px;}.risk-review-actions{padding:0 16px;}.risk-review-status{margin:12px 16px 20px;}.risk-handoff{margin:0 16px 20px;padding:16px;}.risk-handoff dl>div{grid-template-columns:1fr;gap:4px;}.risk-question .preview-answers button{font-size:16px;}}
+
+</style>
 </body>
 </html>
