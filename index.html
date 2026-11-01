@@ -2294,7 +2294,7 @@ No installation or cloud account needed.</pre></div>
   accountLink.textContent = 'Sign in ↗';
   header.append(accountLink);
   const views = {};
-  const names = {home:'Home',learn:'Learn',practice:'Practice',certifications:'Certifications',about:'About',contact:'Contact',premium:'Premium',account:'My account'};
+  const names = {home:'Home',learn:'Learn',practice:'Practice',certifications:'Certifications',about:'About',contact:'Contact',premium:'Premium',account:'My account',terms:'Terms of use'};
   for (const [key,name] of Object.entries(names)) {
     const view = document.createElement('div');
     view.id = 'view-' + key;
@@ -2323,6 +2323,13 @@ No installation or cloud account needed.</pre></div>
   views.practice.append(document.getElementById('linux-lab'),document.getElementById('commands'));
   views.certifications.append(document.getElementById('certifications'));
   views.about.append(document.getElementById('about'),document.querySelector('.case'));
+  const terms=document.createElement('section');terms.className='section';terms.setAttribute('aria-labelledby','terms-title');
+  terms.innerHTML='<span class="kicker">LINFORM / TERMS OF USE</span><h1 id="terms-title">Learn safely. Build responsibly.</h1><h2>Educational use</h2><p>Linform is an educational tool for learning Linux, AWS, Azure and Terraform.</p><h2>Browser labs</h2><p>Linform’s built-in browser labs run locally or as simulations. They do not deploy paid resources to your cloud accounts.</p><h2>Your external cloud accounts</h2><p>Commands and projects you run outside Linform can create paid resources or change real systems. You are responsible for your accounts, permissions, spending, backups and the actions you take.</p><p>To the extent permitted by applicable law, Linform and its creator are not responsible for actions you take in external cloud accounts or resulting charges, data loss, security incidents or service interruptions.</p><a class="text-link" href="#practice">Back to Practice ↗</a>';
+  views.terms.append(terms);
+  const termsLink=document.createElement('p');termsLink.innerHTML='<a class="text-link" href="#terms">Terms of use ↗</a>';document.getElementById('about').append(termsLink);
+  const practiceNotice=document.createElement('p');practiceNotice.className='small-note';practiceNotice.innerHTML='Browser labs stay in this tab and do not deploy paid cloud resources. <a class="text-link" href="#terms">Terms of use</a>';
+  views.practice.prepend(practiceNotice);
+  const footerTerms=document.createElement('a');footerTerms.className='text-link';footerTerms.href='#terms';footerTerms.textContent='Terms of use';document.querySelector('footer').append(footerTerms);
   views.contact.append(document.getElementById('contact'));
   views.account.append(document.getElementById('student-account'));
   main.replaceChildren(...Object.values(views));
