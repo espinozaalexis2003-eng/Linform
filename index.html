@@ -2022,16 +2022,14 @@ No installation or cloud account needed.</pre></div>
   .account-panel [hidden] { display: none; }
 </style>
 <section id="student-account" class="account-panel" aria-labelledby="account-heading">
-  <span class="kicker">Your learning journey</span>
-  <h2 id="account-heading">Keep building.</h2>
+  <h2 id="account-heading">My account</h2>
   <p id="account-status" role="status">Guest mode · Progress saves in this browser.</p>
   <div class="actions">
     <button class="button" id="account-login" type="button" hidden>Sign in / Create account ↗</button>
-    <button class="button secondary" id="account-sync" type="button" hidden>Sync progress</button>
     <button class="button secondary" id="account-logout" type="button" hidden>Sign out</button>
   </div>
-  <p class="small-note" id="account-privacy">Guest lessons need no account. When you create an account, AWS Cognito stores your email and credentials; Linform stores completed lesson IDs linked to your account. Guest history stays separate unless you choose to add it to your account.</p>
-  <details><summary>Student data and privacy</summary><p class="small-note">Linform is operated by Alexis Espinosa. Guest progress and per-account progress caches stay in this browser until you clear its site data. Cognito manages sign-in and password recovery; completed lesson IDs are stored in Linform's AWS account to provide sync. Terminal files and quiz answers are not sent to the progress service. Sign-in tokens stay in memory and are discarded on reload or sign-out. Contact alexise2003@outlook.com to request account and progress deletion. Mentoring requests, reply email and project links are stored privately in Linform’s AWS account for Alexis to review. Form inquiries use FormSubmit, which processes the information you submit. Do not enter passwords or private information into the practice lab.</p></details>
+  <a class="small-note text-link" href="#terms">Terms &amp; privacy</a>
+
 </section>
 <script>
 (() => {
@@ -2055,7 +2053,6 @@ No installation or cloud account needed.</pre></div>
   document.getElementById('courses').before(panel);
   const status = document.getElementById('account-status');
   const login = document.getElementById('account-login');
-  const syncButton = document.getElementById('account-sync');
   const logout = document.getElementById('account-logout');
   const importButton = document.createElement('button');
   importButton.type = 'button'; importButton.className = 'button secondary'; importButton.hidden = true;
@@ -2067,7 +2064,7 @@ No installation or cloud account needed.</pre></div>
   const canonical = configured && location.origin === cfg.origin;
   const guestSave = saveProgress;
   let token = null, userId = null, expiresAt = 0, generation = 0;
-  let timer, syncTimer, syncing = false, revision = 0;
+  let timer, syncTimer, retryTimer, retryDelay = 2000, syncing = false, revision = 0;
   const callback = () => cfg.origin + '/';
   const cacheKey = id => 'linform-account-progress-v1:' + id;
   const validId = id => /^[a-z][a-z0-9-]{0,79}$/.test(id);
@@ -2101,23 +2098,21 @@ No installation or cloud account needed.</pre></div>
     login.disabled = false;
     login.textContent = userId ? 'Sign in again ↗' : 'Sign in / Create account ↗';
     logout.hidden = !userId;
-    syncButton.hidden = !userId;
-    syncButton.disabled = !authenticated() || syncing;
     const count = completedIds(readStored(STORAGE_KEY)).filter(id => !isComplete(id)).length;
     importButton.hidden = !authenticated() || !count;
-    importButton.textContent = `Add ${count} guest ${count === 1 ? 'lesson' : 'lessons'} from this browser to my account`;
+    importButton.textContent = `Add ${count} saved ${count === 1 ? 'lesson' : 'lessons'}`;
   }
   function leave(message) {
-    generation++; clearTimeout(timer); clearTimeout(syncTimer);
+    generation++; clearTimeout(timer); clearTimeout(syncTimer); clearTimeout(retryTimer); retryDelay = 2000;
     token = null; userId = null; expiresAt = 0; syncing = false; revision = 0;
     progress = readStored(STORAGE_KEY);
     paintProgress(); controls(); say(message, 'Sign in to save across devices ↗');
   }
   function expireSession() {
     // Keep ownership of new completions; never silently save them as guest work.
-    token = null; expiresAt = 0; clearTimeout(timer); clearTimeout(syncTimer);
+    token = null; expiresAt = 0; clearTimeout(timer); clearTimeout(syncTimer); clearTimeout(retryTimer);
     controls();
-    say('Session expired · Your account progress stays on this device. Sign in again to sync new lessons.', 'Sign in again ↗');
+    say('Session expired · Sign in again to save online.');
   }
   function session() { return { token, userId, expiresAt }; }
   async function request(method, value, auth = session()) {
@@ -2143,7 +2138,8 @@ No installation or cloud account needed.</pre></div>
     if (!userId || syncing) return;
     if (!authenticated()) { expireSession(); return; }
     const current = generation, snapshot = revision, auth = session();
-    syncing = true; controls(); say('Saving your training progress to your account…');
+    clearTimeout(retryTimer);
+    syncing = true; controls(); say('Saving…');
     try {
       const ids = completedIds(progress);
       for (let i = 0; i < ids.length; i += 200) {
@@ -2152,18 +2148,24 @@ No installation or cloud account needed.</pre></div>
       }
       const remote = await request('GET', undefined, auth);
       if (current !== generation) return;
-      mergeRemote(remote, auth.userId); cacheAccount();
+      mergeRemote(remote, auth.userId); cacheAccount(); retryDelay = 2000;
       renderCourses(); if (dialog.open) renderLessonNavigation();
       if (revision !== snapshot) {
-        say('Saving your latest lesson…');
+        say('Saving…');
         clearTimeout(syncTimer); syncTimer = setTimeout(sync, 0);
       } else {
-        say('Saved to your account · Sign in on another device to continue.', 'View my training ↗');
+        say('Progress saved automatically.');
       }
     } catch (error) {
       if (current !== generation) return;
       if (error.sessionExpired) expireSession();
-      else say('Not synced yet · Progress stays on this device. Retry from Account.', 'Retry sync ↗');
+      else {
+        say(cacheAccount() ? 'Saved on this device · Retrying online…' : 'Save pending · Retrying online…');
+        retryTimer = setTimeout(() => {
+          if (current === generation && authenticated()) sync();
+        }, retryDelay);
+        retryDelay = Math.min(retryDelay * 2, 30000);
+      }
     } finally {
       if (current === generation) { syncing = false; controls(); }
     }
@@ -2171,7 +2173,7 @@ No installation or cloud account needed.</pre></div>
   saveProgress = function () {
     if (!userId) {
       const saved = guestSave();
-      say(saved ? 'Guest progress saved on this device.' : 'Browser storage unavailable · Progress lasts for this visit.', 'Sign in to save across devices ↗');
+      say(saved ? 'Progress saved on this device.' : 'Browser storage unavailable · Progress lasts for this visit.', 'Sign in to save across devices ↗');
       return saved;
     }
     revision++;
@@ -2179,7 +2181,7 @@ No installation or cloud account needed.</pre></div>
     controls();
     if (!authenticated()) expireSession();
     else {
-      say(saved ? 'Lesson saved on this device · Saving to your account…' : 'Saving to your account · Browser storage is unavailable…');
+      say(saved ? 'Saving…' : 'Saving online · Device storage unavailable.');
       clearTimeout(syncTimer); syncTimer = setTimeout(sync, 0);
     }
     return saved;
@@ -2221,12 +2223,11 @@ No installation or cloud account needed.</pre></div>
     }
   });
   logout.addEventListener('click', () => {
-    flushOnLeave(); leave('Signed out · Your separate guest progress is restored.');
+    flushOnLeave(); leave('Signed out · Progress saves on this device.');
     const url = new URL('/logout',cfg.domain);
     url.search = new URLSearchParams({client_id:cfg.clientId,logout_uri:callback()});
     location.assign(url.href);
   });
-  syncButton.addEventListener('click',sync);
   window.addEventListener('online',()=>{ if(authenticated()) sync(); });
   window.addEventListener('pagehide',flushOnLeave);
   document.addEventListener('visibilitychange',()=>{
@@ -2234,7 +2235,7 @@ No installation or cloud account needed.</pre></div>
     else if (authenticated()) sync();
   });
   controls();
-  say('Guest progress saves on this device.', 'Sign in to save across devices ↗');
+  say('Sign in to save progress across devices.');
   if (!configured) say('Guest mode · Student accounts are not available yet.');
   else if (!canonical) say('Guest mode · Sign in at linformcloud.com to save across devices.', 'Open account ↗');
   async function finishLogin() {
@@ -2251,7 +2252,7 @@ No installation or cloud account needed.</pre></div>
       say('Sign-in was cancelled or expired. Please try again.', 'View account ↗'); return;
     }
     try {
-      say('Signing in and restoring your training…');
+      say('Restoring your progress…');
       const res = await fetch(new URL('/oauth2/token',cfg.domain), {
         method:'POST',credentials:'omit',cache:'no-store',headers:{'Content-Type':'application/x-www-form-urlencoded'},
         body:new URLSearchParams({grant_type:'authorization_code',client_id:cfg.clientId,redirect_uri:callback(),code,code_verifier:pending.verifier}),
@@ -2271,7 +2272,7 @@ No installation or cloud account needed.</pre></div>
       await sync();
       if(sessionStorage.getItem("linform-premium-return")){sessionStorage.removeItem("linform-premium-return");location.hash="premium";}
     } catch {
-      leave('Could not restore your account. Sign in again; previously synced lessons remain saved.');
+      leave('Could not load progress · Please sign in again.');
     }
   }
   finishLogin();
@@ -2355,6 +2356,7 @@ No installation or cloud account needed.</pre></div>
   views.about.append(document.getElementById('about'),document.querySelector('.case'));
   const terms=document.createElement('section');terms.className='section';terms.setAttribute('aria-labelledby','terms-title');
   terms.innerHTML='<span class="kicker">LINFORM / TERMS OF USE</span><h1 id="terms-title">Learn safely. Build responsibly.</h1><h2>Educational use</h2><p>Linform is an educational tool for learning Linux, AWS, Azure and Terraform.</p><h2>Browser labs</h2><p>Linform’s built-in browser labs run locally or as simulations. They do not deploy paid resources to your cloud accounts.</p><h2>Your external cloud accounts</h2><p>Commands and projects you run outside Linform can create paid resources or change real systems. You are responsible for your accounts, permissions, spending, backups and the actions you take.</p><p>To the extent permitted by applicable law, Linform and its creator are not responsible for actions you take in external cloud accounts or resulting charges, data loss, security incidents or service interruptions.</p><a class="text-link" href="#practice">Back to Practice ↗</a>';
+  terms.insertAdjacentHTML('beforeend', "<details><summary>Privacy</summary><p class=\"small-note\">Linform is operated by Alexis Espinosa. Guest progress and per-account progress caches stay in this browser until you clear its site data. Cognito manages sign-in and password recovery; completed lesson IDs are stored in Linform's AWS account to provide sync. Terminal files and quiz answers are not sent to the progress service. Sign-in tokens stay in memory and are discarded on reload or sign-out. Contact alexise2003@outlook.com to request account and progress deletion. Mentoring requests, reply email and project links are stored privately in Linform’s AWS account for Alexis to review. Form inquiries use FormSubmit, which processes the information you submit. Do not enter passwords or private information into the practice lab.</p></details>");
   views.terms.append(terms);
   const termsLink=document.createElement('p');termsLink.innerHTML='<a class="text-link" href="#terms">Terms of use ↗</a>';views.about.querySelector('#about').append(termsLink);
   const practiceNotice=document.createElement('p');practiceNotice.className='small-note';practiceNotice.innerHTML='Browser labs stay in this tab and do not deploy paid cloud resources. <a class="text-link" href="#terms">Terms of use</a>';
@@ -3394,3 +3396,4 @@ output "project_name" {
 </style>
 </body>
 </html>
+
