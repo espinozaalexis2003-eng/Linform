@@ -3118,10 +3118,10 @@ output "project_name" {
    const parameters=new URLSearchParams(location.search),session=parameters.get('premium_session');
    const result=await account.request('/premium/access'+(session?'?session_id='+encodeURIComponent(session):''));if(before!==generation)return;
    if(session){parameters.delete('premium_session');history.replaceState(null,'',location.pathname+(parameters.size?'?'+parameters:'')+'#premium');}
-   clearPrivate();purchased=result.purchased===true;
-   el('premium-access-label').textContent=purchased?'Your purchase is verified':'Private learning library';
+   clearPrivate();const ownerAccess=result.owner===true;purchased=result.purchased===true||ownerAccess;
+   el('premium-access-label').textContent=ownerAccess?'Owner access':purchased?'Your purchase is verified':'Private learning library';
    el('premium-signin').hidden=!!identity;
-   if(purchased){el('premium-mentoring-availability').textContent='Mentoring is included. Send Alexis a request below.';buy.textContent='Refresh my access';buy.disabled=false;say('Premium access verified for your account. Chapter completion syncs with your training progress.');await catalog();}
+   if(purchased){el('premium-mentoring-availability').textContent='Mentoring is included. Send Alexis a request below.';buy.textContent='Refresh my access';buy.disabled=false;say(ownerAccess?'Owner access verified. Your full Premium library is available.':'Premium access verified for your account. Chapter completion syncs with your training progress.');await catalog();}
    else{buy.textContent=result.checkoutReady?'Get Premium · $15 ↗':'Try again later';buy.disabled=!result.checkoutReady;say(result.checkoutReady?'One-time payment. Secure checkout with Stripe.':'Checkout is temporarily unavailable. Please try again shortly.');}
   }catch(error){if(before!==generation)return;clearPrivate();say(error.status===401?'Your session expired. Sign in again to open Premium.':'Could not verify access. Your content remains locked; please retry.');}
   finally{if(before===generation)checking=false;}
@@ -3535,6 +3535,7 @@ output "project_name" {
 </style>
 </body>
 </html>
+
 
 
 

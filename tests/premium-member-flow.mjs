@@ -22,12 +22,14 @@ class Element{
  addEventListener(n,f){this.listeners[n]=f}reset(){this.value=''}
 }
 const view=new Element();view.id='view-premium';
-let identity='student-a',paid=true,saves=0,failContent=false;const pending=new Map(),calls=[],progress={};
+let ownerGranted=process.env.LINFORM_TEST_OWNER==='1';
+let identity='student-a',paid=!ownerGranted,saves=0,failContent=false;const pending=new Map(),calls=[],progress={};
 const context=vm.createContext({document:{getElementById:id=>elements.get(id),createElement:tag=>new Element(tag),body:new Element('body'),visibilityState:'visible',addEventListener:(n,f)=>docEvents[n]=f},
- window:{LinformAccount:{identity:()=>identity,configured:()=>true,async request(path,method='GET',value){calls.push({path,method,value});if(path.startsWith('/premium/access'))return {purchased:paid,checkoutReady:true};if(path==='/premium/catalog')return structuredClone(catalog);if(path.startsWith('/premium/content/')){const id=path.split('/').at(-1);if(pending.has(id))await pending.get(id);if(failContent)throw Object.assign(new Error('Forbidden'),{status:403});return structuredClone(contents[id]);}if(path==='/premium/mentoring')return {requestId:'local-test'};throw Error(path)}},addEventListener:(n,f)=>events[n]=f},
+ window:{LinformAccount:{identity:()=>identity,configured:()=>true,async request(path,method='GET',value){calls.push({path,method,value});if(path.startsWith('/premium/access'))return {purchased:paid,owner:ownerGranted,checkoutReady:true};if(path==='/premium/catalog')return structuredClone(catalog);if(path.startsWith('/premium/content/')){const id=path.split('/').at(-1);if(pending.has(id))await pending.get(id);if(failContent)throw Object.assign(new Error('Forbidden'),{status:403});return structuredClone(contents[id]);}if(path==='/premium/mentoring')return {requestId:'local-test'};throw Error(path)}},addEventListener:(n,f)=>events[n]=f},
  location:{hash:'#premium',search:'',pathname:'/'},history:{replaceState(){}},URL,URLSearchParams,TextEncoder,Blob,Uint8Array,DataView,encodeURIComponent,sessionStorage:{setItem(){}},setTimeout,progress,isComplete:id=>!!progress[id],saveProgress:()=>saves++,makeCodeBlock:code=>{const e=new Element('pre');e.textContent=code;return e;}});
 vm.runInContext(script,context);await settle();
 const el=id=>elements.get(id);const walk=e=>[e,...e.children.flatMap(walk)];
+if(ownerGranted)assert.equal(el('premium-access-label').textContent,'Owner access');
 assert.equal(el('premium-private').hidden,false);assert.equal(el('premium-public').hidden,true);assert.equal(el('premium-library-cards').children.length,9);
 for(const [index,item]of catalog.items.entries()){
  const button=el('premium-library-cards').children[index].children.at(-1);await button.click();await settle();
@@ -48,6 +50,6 @@ assert.ok(el('premium-reader').textContent.includes(catalog.items[1].title),'lat
 console.log('PASS: switching guides ignores a slower previous selection.');
 let lateRelease;pending.set('aws-guide',new Promise(resolve=>lateRelease=resolve));
 const late=el('premium-library-cards').children[0].children.at(-1).click();await settle();
-paid=false;await el('premium-buy').click();await settle();lateRelease();await late;await settle();
+paid=false;ownerGranted=false;await el('premium-buy').click();await settle();lateRelease();await late;await settle();
 await settle();assert.equal(el('premium-private').hidden,true);assert.equal(el('premium-reader').hidden,true);assert.equal(el('premium-reader').children.length,0);
 console.log('PASS: resume-review request mapping and revoked access clear private content.');
