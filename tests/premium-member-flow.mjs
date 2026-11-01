@@ -1,5 +1,5 @@
 import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
-const html=fs.readFileSync(process.argv[2]||'paid-access-qa/index.html','utf8');
+const html=fs.readFileSync(process.argv[2]||'index.html','utf8');
 // Default fixtures contain no paid curriculum. Pass a private-content directory to validate the owner's release separately.
 const base=process.argv[3];
 const ids=['aws-guide','azure-guide','terraform-guide','aws-project','azure-project','terraform-project','aws-serverless-project','azure-linux-project','terraform-drift-project'];
