@@ -19,7 +19,19 @@ function backend() {
   return {users,calls,offline:false,putGate:null,
     async fetch(url,options={}) {
       const address=String(url);
-      if(address.endsWith('/oauth2/token'))return {ok:true,json:async()=>({access_token:'mock-token',expires_in:900})};
+      if(address.endsWith('/oauth2/token')) {
+        const grant=new URLSearchParams(options.body).get('grant_type');
+        calls.push({url:address,...options,grant});
+        if(grant==='refresh_token' && this.refreshOffline)throw new Error('Offline');
+        if(grant==='refresh_token' && this.rejectRefresh)return {ok:false,status:400};
+        if(grant==='refresh_token' && this.refreshGate)await this.refreshGate;
+        return {ok:true,json:async()=>({access_token:grant==='refresh_token'?'renewed-token':'mock-token',expires_in:900,...(grant==='authorization_code'||this.rotateRefresh?{refresh_token:grant==='refresh_token'?'rotated-refresh':'mock-refresh'}:{})})};
+      }
+      if(address.endsWith('/oauth2/userInfo')) {
+        if(this.profileOffline)throw new Error('Profile unavailable');
+        if(this.profileGate)await this.profileGate;
+        return {ok:true,json:async()=>this.profileOverride||{sub:this.activeUser,name:'Test Student',email:this.activeUser+'@example.com'}};
+      }
       if(this.offline)throw new Error('Network unavailable');
       calls.push({url:address,...options});
       const user=this.activeUser;
@@ -33,7 +45,7 @@ function backend() {
     }
   };
 }
-async function browser({id='student-a',local=storage(),remote=backend(),authenticated=true}={}) {
+async function browser({id='student-a',local=storage(),remote=backend(),authenticated=true,sessionStore=null}={}) {
   const elements=new Map(),timers=new Map(),windowEvents={},documentEvents={};let nextTimer=0;
   class Element {
     constructor(){this.hidden=false;this.disabled=false;this.textContent='';this.listeners={};}
@@ -42,13 +54,13 @@ async function browser({id='student-a',local=storage(),remote=backend(),authenti
     after(){}before(){}append(){}
     addEventListener(name,handler){this.listeners[name]=handler;}
   }
-  for(const id of ['student-account','courses','account-status','account-login','account-logout']){
+  for(const id of ['student-account','courses','account-status','account-login','account-logout','account-profile','account-name','account-email']){
     const node=new Element();node.id=id;
   }
   const header=new Element();
   const document={getElementById:id=>elements.get(id),querySelector:()=>header,createElement:()=>new Element(),visibilityState:'visible',addEventListener:(name,handler)=>documentEvents[name]=handler};
   const now=Date.now();
-  const session=storage(authenticated?{'linform-oauth':JSON.stringify({verifier:'test-verifier',state:'test-state',at:now})}:{});
+  const session=sessionStore||storage(authenticated?{'linform-oauth':JSON.stringify({verifier:'test-verifier',state:'test-state',at:now})}:{});
   const location={origin:'https://linformcloud.com',href:'https://linformcloud.com/'+(authenticated?'?code=test-code&state=test-state':''),assign(url){this.assigned=url;}};
   const context=vm.createContext({document,location,history:{replaceState(){}},window:{addEventListener:(name,handler)=>windowEvents[name]=handler},
     URL,URLSearchParams,Date,AbortSignal,TextEncoder,Uint8Array,localStorage:local,sessionStorage:session,
@@ -64,12 +76,12 @@ async function browser({id='student-a',local=storage(),remote=backend(),authenti
     if(!pending.length)break;
     for(const [key,{fn}] of pending){timers.delete(key);fn();}await settle();
   }}
-  return {context,local,remote,elements,windowEvents,documentEvents,
+  return {context,local,remote,elements,windowEvents,documentEvents,session,
     status:()=>elements.get('account-status').textContent,
     async complete(id){context.progress[id]=true;context.saveProgress();await queued();},queued,
     async retry(){const entry=[...timers].find(([,t])=>t.ms>=2000&&t.ms<=30000);assert.ok(entry,'automatic retry is scheduled');timers.delete(entry[0]);entry[1].fn();await settle();await queued();},
     retryDelays:()=>[...timers.values()].map(t=>t.ms).filter(ms=>ms>=2000&&ms<=30000),
-    expire(){for(const [key,{fn,ms}]of timers)if(ms>0){timers.delete(key);fn();}},
+    async expire(){for(const [key,{fn,ms}]of [...timers])if(ms>30000){timers.delete(key);fn();}await settle();await queued();},
     async click(id){await elements.get(id).listeners.click();await queued();}};
 }
 
@@ -102,7 +114,7 @@ test('offline save remains in the account cache and never claims cloud success',
   assert.ok(b.remote.users.get('student-a').has('linux-location'));
 });
 test('session expiry keeps new completions attached to the original account',async()=>{
-  const b=await browser();b.expire();await b.complete('terraform-foundations');
+  const b=await browser();b.remote.rejectRefresh=true;await b.expire();await b.complete('terraform-foundations');
   assert.match(b.status(),/Session expired/);
   assert.equal(JSON.parse(b.local.getItem(accountKey('student-a')))['terraform-foundations'],true);
   assert.equal(b.local.getItem(guestKey),null);
@@ -160,4 +172,86 @@ test('account page is concise and privacy is available in Terms',()=>{
   assert.doesNotMatch(panel,/account-sync|<details>|Student data and privacy|AWS Cognito/);
   assert.match(panel,/Terms &amp; privacy/);
   assert.match(html,/terms.insertAdjacentHTML\('beforeend',.*<summary>Privacy<\/summary>/);
+});
+
+
+test('signed-in account displays its Cognito name and email without caching profile details',async()=>{
+  const b=await browser();
+  assert.equal(b.elements.get('account-profile').hidden,false);
+  assert.equal(b.elements.get('account-name').textContent,'Test Student');
+  assert.equal(b.elements.get('account-email').textContent,'student-a@example.com');
+  assert.doesNotMatch(b.local.getItem(accountKey('student-a')),/Test Student|example.com/);
+});
+test('missing full name uses given and family name; absent name is not invented from email',async()=>{
+  const remote=backend();remote.profileOverride={sub:'student-a',given_name:'Alex',family_name:'Student',email:'alex@example.com'};
+  let b=await browser({remote});assert.equal(b.elements.get('account-name').textContent,'Alex Student');
+  remote.profileOverride={sub:'student-a',email:'alex@example.com'};
+  b=await browser({remote});assert.equal(b.elements.get('account-name').textContent,'Not provided');
+});
+test('a mismatched profile is never displayed and does not stop progress saving',async()=>{
+  const remote=backend();remote.profileOverride={sub:'student-b',name:'Other Student',email:'other@example.com'};
+  const b=await browser({remote});assert.equal(b.elements.get('account-email').textContent,'Unavailable');
+  await b.complete('linux-location');assert.ok(remote.users.get('student-a').has('linux-location'));
+});
+test('profile request failure does not stop automatic progress saving',async()=>{
+  const remote=backend();remote.profileOffline=true;
+  const b=await browser({remote});assert.equal(b.elements.get('account-name').textContent,'Unavailable');
+  await b.complete('linux-location');assert.ok(remote.users.get('student-a').has('linux-location'));
+});
+test('guest accounts hide profile and sign out clears account details',async()=>{
+  const guest=await browser({authenticated:false});assert.equal(guest.elements.get('account-profile').hidden,true);
+  const b=await browser();await b.click('account-logout');
+  assert.equal(b.elements.get('account-profile').hidden,true);
+  assert.doesNotMatch(b.elements.get('account-email').textContent,/example.com/);
+});
+test('a late profile response cannot expose account details after sign out',async()=>{
+  const remote=backend();let release;remote.profileGate=new Promise(resolve=>release=resolve);
+  const b=await browser({remote});await b.click('account-logout');release();await settle();
+  assert.equal(b.elements.get('account-profile').hidden,true);
+  assert.doesNotMatch(b.elements.get('account-email').textContent,/example.com/);
+});
+
+test('refreshing the page restores the account, profile and progress without another sign in',async()=>{
+  const first=await browser();await first.complete('linux-location');
+  const again=await browser({authenticated:false,sessionStore:first.session,local:first.local,remote:first.remote});
+  assert.equal(again.elements.get('account-login').hidden,true);
+  assert.equal(again.elements.get('account-email').textContent,'student-a@example.com');
+  assert.equal(again.context.progress['linux-location'],true);
+  assert.equal(again.remote.calls.filter(c=>c.grant==='authorization_code').length,1);
+});
+test('expired access token is renewed on reload, including rotating refresh tokens',async()=>{
+  const first=await browser();const saved=JSON.parse(first.session.getItem('linform-tab-session-v1'));
+  saved.expiresAt=Date.now()-1000;first.session.setItem('linform-tab-session-v1',JSON.stringify(saved));first.remote.rotateRefresh=true;
+  const again=await browser({authenticated:false,sessionStore:first.session,local:first.local,remote:first.remote});
+  assert.equal(again.elements.get('account-login').hidden,true);
+  const renewed=JSON.parse(again.session.getItem('linform-tab-session-v1'));
+  assert.equal(renewed.token,'renewed-token');assert.equal(renewed.refreshToken,'rotated-refresh');
+  await again.complete('linux-location');assert.ok(again.remote.users.get('student-a').has('linux-location'));
+});
+test('active account renews before expiry without logging the student out',async()=>{
+  const b=await browser();await b.expire();
+  assert.equal(b.elements.get('account-login').hidden,true);
+  assert.ok(b.remote.calls.some(c=>c.grant==='refresh_token'));
+  await b.complete('linux-location');assert.ok(b.remote.users.get('student-a').has('linux-location'));
+});
+test('rejected refresh credentials clear session and never grant account access',async()=>{
+  const first=await browser();const saved=JSON.parse(first.session.getItem('linform-tab-session-v1'));
+  saved.expiresAt=Date.now()-1000;first.session.setItem('linform-tab-session-v1',JSON.stringify(saved));first.remote.rejectRefresh=true;
+  const again=await browser({authenticated:false,sessionStore:first.session,remote:first.remote});
+  assert.equal(again.elements.get('account-login').hidden,false);
+  assert.equal(again.session.getItem('linform-tab-session-v1'),null);
+  assert.equal(again.elements.get('account-profile').hidden,true);
+});
+test('sign out removes reload credentials and next reload remains signed out',async()=>{
+  const b=await browser();await b.click('account-logout');
+  assert.equal(b.session.getItem('linform-tab-session-v1'),null);
+  const again=await browser({authenticated:false,sessionStore:b.session,local:b.local,remote:b.remote});
+  assert.equal(again.elements.get('account-login').hidden,false);
+  assert.equal(again.elements.get('account-profile').hidden,true);
+});
+test('sign out during refresh prevents a late token response from restoring the session',async()=>{
+  const b=await browser();let release;b.remote.refreshGate=new Promise(resolve=>release=resolve);
+  await b.expire();await b.click('account-logout');release();await settle();
+  assert.equal(b.session.getItem('linform-tab-session-v1'),null);
+  assert.equal(b.elements.get('account-login').hidden,false);
 });
