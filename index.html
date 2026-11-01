@@ -565,7 +565,7 @@ summary { color: #c7d4ff; cursor: pointer; font-weight: 600; font-size: 13px; }
   <footer>
     <span class="brand">Linform</span>
     <span>© 2026 Linform · Founded by Alexis Espinosa</span>
-    <span>Independent education · Not affiliated with AWS, Microsoft, or HashiCorp.</span>
+    <span></span>
   </footer>
 </div>
 
@@ -2840,7 +2840,7 @@ output "project_name" {
   });
   block.append(form);parent.append(block);
  }
- function clearPrivate(){purchased=false;el('premium-mentor-form').reset();el('premium-mentor-status').textContent='';el('premium-mentor-submit').disabled=false;el('premium-mentoring-availability').textContent='Mentoring requests open with Premium. Timing and availability are confirmed individually with Alexis.';el('premium-access-label').textContent='Private learning library';el('premium-signin').hidden=!!account?.identity();el('premium-buy').textContent=account?.identity()?'Checking Premium access…':'Sign in to check out';el('premium-buy').disabled=true;el('premium-private').hidden=true;el('premium-public').hidden=false;el('premium-reader').replaceChildren();el('premium-reader').hidden=true;el('premium-library-cards').replaceChildren();}
+ function clearPrivate(){purchased=false;el('premium-mentor-form').reset();el('premium-mentor-status').textContent='';el('premium-mentor-submit').disabled=false;el('premium-mentoring-availability').textContent='Premium members can request mentoring with Alexis.';el('premium-access-label').textContent='Private learning library';el('premium-signin').hidden=!!account?.identity();el('premium-buy').textContent=account?.identity()?'Checking Premium access…':'Sign in to check out';el('premium-buy').disabled=true;el('premium-private').hidden=true;el('premium-public').hidden=false;el('premium-reader').replaceChildren();el('premium-reader').hidden=true;el('premium-library-cards').replaceChildren();}
  async function loadContent(id){
   const before=generation;const reader=el('premium-reader');reader.hidden=false;reader.replaceChildren(node('p','Loading your private content…'));
   try{
@@ -2876,7 +2876,7 @@ output "project_name" {
   if(checking)return;
   const buy=el('premium-buy');buy.disabled=true;
   if(!account?.configured()){say('Premium is in preparation. Secure checkout is not open yet.');return;}
-  if(!identity){buy.textContent='Sign in to check out';say('Sign in or create an account to purchase Premium or access your existing purchase.');return;}
+  if(!identity){buy.textContent='Sign in to check out';say('Sign in to purchase or open Premium.');return;}
   checking=true;const before=generation;say('Verifying your Premium access…');
   try{
    const parameters=new URLSearchParams(location.search),session=parameters.get('premium_session');
@@ -2885,7 +2885,7 @@ output "project_name" {
    clearPrivate();purchased=result.purchased===true;
    el('premium-access-label').textContent=purchased?'Your purchase is verified':'Private learning library';
    el('premium-signin').hidden=!!identity;
-   if(purchased){el('premium-mentoring-availability').textContent='Mentoring is included in your Premium bundle. Use the member request form below; timing and availability are confirmed individually with Alexis.';buy.textContent='Refresh my access';buy.disabled=false;say('Premium access verified for your account. Chapter completion syncs with your training progress.');await catalog();}
+   if(purchased){el('premium-mentoring-availability').textContent='Mentoring is included. Send Alexis a request below.';buy.textContent='Refresh my access';buy.disabled=false;say('Premium access verified for your account. Chapter completion syncs with your training progress.');await catalog();}
    else{buy.textContent=result.checkoutReady?'Get Premium · $15 ↗':'Checkout not open yet';buy.disabled=!result.checkoutReady;say(result.checkoutReady?'One-time payment. Secure checkout with Stripe.':'Premium is in preparation. No purchase is required or available yet.');}
   }catch(error){if(before!==generation)return;clearPrivate();say(error.status===401?'Your session expired. Sign in again to open Premium.':'Could not verify access. Your content remains locked; please retry.');}
   finally{if(before===generation)checking=false;}
