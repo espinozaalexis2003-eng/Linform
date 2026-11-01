@@ -3330,7 +3330,7 @@ output "project_name" {
   function openPreview(){if(!sample.getClientRects().length)return;sample.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});el('preview-title').tabIndex=-1;el('preview-title').focus({preventScroll:true});}
   let previewIntent=false;
   const homeNext=document.querySelector('.hook-next');
-  if(homeNext){const tagline=homeNext.querySelector('span');if(tagline)tagline.remove();const link=document.createElement('a');link.className='text-link';link.href='#premium';link.textContent='Preview Premium ↗';link.addEventListener('click',()=>{previewIntent=true;if(location.hash==='#premium'){previewIntent=false;openPreview();}});homeNext.append(link);}
+  if(homeNext){const tagline=homeNext.querySelector(':scope > span');if(tagline)tagline.remove();const link=document.createElement('a');link.className='text-link';link.href='#premium';link.textContent='Preview Premium ↗';link.addEventListener('click',()=>{previewIntent=true;if(location.hash==='#premium'){previewIntent=false;openPreview();}});homeNext.append(link);}
   const heroLink=document.createElement('button');heroLink.type='button';heroLink.className='button secondary';heroLink.textContent='Preview a lesson';heroLink.addEventListener('click',openPreview);document.querySelector('.premium-purchase').append(heroLink);
   window.addEventListener('hashchange',()=>{if(previewIntent&&location.hash==='#premium'){previewIntent=false;requestAnimationFrame(openPreview);}});
 })();
