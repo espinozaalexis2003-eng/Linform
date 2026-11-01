@@ -2971,7 +2971,7 @@ output "project_name" {
   if(checking)return;
   const buy=el('premium-buy');buy.disabled=true;
   if(!account?.configured()){say('Premium is in preparation. Secure checkout is not open yet.');return;}
-  if(!identity){buy.textContent='Sign in to check out';say('Sign in to purchase or open Premium.');return;}
+  if(!identity){buy.textContent='Sign in to check out';buy.disabled=false;say('Sign in to purchase or open Premium.');return;}
   checking=true;const before=generation;say('Verifying your Premium access…');
   try{
    const parameters=new URLSearchParams(location.search),session=parameters.get('premium_session');
@@ -2986,6 +2986,10 @@ output "project_name" {
   finally{if(before===generation)checking=false;}
  }
  el('premium-buy').addEventListener('click',async()=>{
+  if(!account?.identity()){
+   try{sessionStorage.setItem('linform-premium-return','1');}catch{}
+   const login=document.getElementById('account-login');if(login&&!login.disabled)login.click();else location.hash='account';return;
+  }
   if(purchased){await refresh();return;}const button=el('premium-buy');button.disabled=true;const before=generation;
   try{const result=await account.request('/premium/checkout','POST');if(before!==generation)return;const url=new URL(result.url);if(url.origin!=='https://checkout.stripe.com')throw new Error('Invalid checkout destination');location.assign(url.href);}
   catch{say('Checkout could not be opened. No access has been granted. Refresh and try again.');button.disabled=false;}
@@ -3205,6 +3209,130 @@ output "project_name" {
   });
   el('hook-cloud-reset').addEventListener('click',resetCloud);
   el('hook-open-terraform').href='#terraform';cloudStage('idle');
+})();
+
+</script>
+<style id="linform-public-preview-styles">
+.premium-preview{margin:26px 0 38px;border:1px solid #355e9d;border-radius:16px;overflow:hidden;background:#0b1931;scroll-margin-top:24px;}
+.preview-heading{display:flex;align-items:end;justify-content:space-between;gap:18px;padding:26px 26px 20px;flex-wrap:wrap;}
+.preview-heading h2{font-size:30px;margin:10px 0 0;letter-spacing:-1px;}
+.preview-heading>p{font-size:13px;color:#a7bcde;margin:0;}
+.preview-tabs{display:flex;gap:6px;padding:0 26px 20px;border-bottom:1px solid #2b4772;}
+.preview-tabs button,.preview-flow-controls button,.preview-answers button{font:inherit;border:1px solid #36567f;border-radius:8px;background:#122440;color:#bccfe9;padding:11px 15px;min-height:44px;cursor:pointer;}
+.preview-tabs button{font-size:13px;font-weight:600;}
+.preview-tabs button[aria-selected=true],.preview-flow-controls button[aria-pressed=true]{background:#254f94;border-color:#75a9fc;color:white;}
+.premium-preview button:focus-visible,.premium-preview a:focus-visible{outline:2px solid #a1c5ff;outline-offset:3px;}
+.preview-lesson-intro{display:flex;align-items:start;justify-content:space-between;gap:16px;padding:24px 26px 18px;flex-wrap:wrap;}
+.preview-tag{font-size:10px;letter-spacing:1.4px;color:#a4c7ff;font-weight:700;}
+.preview-lesson-intro h3{font-size:24px;margin:10px 0 8px;letter-spacing:-.5px;}
+.preview-lesson-intro p{font-size:13px;margin:0;color:#b0c3e1;}
+.preview-simulation{font-size:10px;border:1px solid #3b5a83;border-radius:20px;padding:5px 9px;color:#a7bad9;white-space:nowrap;}
+.preview-lesson-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;padding:0 26px;}
+.preview-code,.preview-state{min-width:0;background:#091322;border:1px solid #2e4870;border-radius:10px;overflow:hidden;}
+.preview-panel-label{display:flex;justify-content:space-between;gap:10px;padding:12px 14px;background:#14253f;color:#c4dbfa;font:11px ui-monospace,Consolas,monospace;}
+.preview-panel-label span{color:#809abd;font:10px system-ui;}
+.preview-code pre{font:13px/1.85 ui-monospace,Consolas,monospace;color:#c9defb;padding:18px;margin:0;border:0;background:transparent;white-space:pre-wrap;overflow-wrap:anywhere;}
+.preview-resource{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 14px;padding:16px 12px;border:1px solid #376e65;border-radius:8px;background:#142f2b;}
+.preview-resource-dot{width:8px;height:8px;border-radius:50%;background:#85dfb9;flex:none;}
+.preview-resource strong{display:block;font:12px ui-monospace,Consolas,monospace;color:#cfede5;overflow-wrap:anywhere;}
+.preview-resource code{display:block;background:transparent;padding:0;margin-top:6px;font:18px ui-monospace,Consolas,monospace;color:#9bf4cf;}
+#preview-state-match{font-size:10px;color:#a1d7c7;margin-left:auto;}
+#preview-state-match[data-pending=true]{color:#f4cf81;}
+#preview-lesson-note{font-size:12px;color:#a4bbda;padding:0 15px;}
+.preview-lesson-actions{display:flex;gap:9px;flex-wrap:wrap;padding:18px 26px 0;}
+.preview-lesson-actions .button{font-size:12px;padding:11px 14px;min-height:44px;}
+.premium-preview button:disabled{opacity:.42;cursor:default;}
+.preview-reset{background:transparent;border:0;color:#acc8f4;font-size:12px;cursor:pointer;padding:10px;min-height:44px;}
+.preview-plan-result{font:12px/1.7 ui-monospace,Consolas,monospace;color:#b8d1f4;margin:16px 26px;padding:16px;background:#101f38;border:1px solid #2c4770;border-radius:9px;white-space:pre-wrap;overflow-wrap:anywhere;}
+.preview-check{margin:0 26px 24px;padding-top:16px;border-top:1px solid #2b4772;}
+.preview-check summary{color:#bad5ff;font-weight:600;font-size:13px;cursor:pointer;min-height:44px;}
+.preview-check p{font-size:13px;}
+.preview-answers{display:grid;gap:8px;}
+.preview-answers button{text-align:left;font-size:13px;}
+#preview-answer-feedback{color:#b7e7d3;min-height:20px;}
+.preview-flow-controls{display:flex;gap:8px;flex-wrap:wrap;padding:0 26px 20px;}
+.preview-flow-controls button{font-size:12px;}
+.preview-architecture{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0 26px;}
+.preview-architecture>div{border:1px solid #304867;background:#0c172a;border-radius:10px;padding:17px 14px;transition:border-color .2s,background .2s;min-width:0;}
+.preview-architecture small{display:block;font-size:9px;letter-spacing:1px;color:#7e97bd;}
+.preview-architecture strong{display:block;font-size:15px;margin:9px 0 6px;color:#a8bddb;}
+.preview-architecture span{font-size:11px;color:#829abf;}
+.preview-architecture>div[data-active=true]{border-color:#84adf2;background:#193969;box-shadow:inset 0 2px 0 #88b8ff;}
+.preview-architecture>div[data-active=true] strong{color:#e5f0ff;}
+.preview-architecture>div[data-active=true] span{color:#bad4fa;}
+.preview-flow-detail{margin:18px 26px;padding:16px;border-radius:9px;border:1px solid #34537e;background:#142744;}
+.preview-flow-detail strong{font-size:13px;color:#d3e4ff;overflow-wrap:anywhere;}
+.preview-flow-detail p{font-size:12px;color:#a9bfdf;margin:9px 0 0;}
+.preview-evidence{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 26px 24px;font-size:11px;color:#8da8cf;}
+.preview-evidence .text-link{font-size:12px;}
+.preview-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 26px;border-top:1px solid #2b4772;font-size:12px;color:#9eb6da;}
+.preview-bottom .text-link{font-size:12px;}
+.premium-preview [hidden]{display:none!important;}
+.hook-next{align-items:center;}
+@media(max-width:700px){.preview-heading,.preview-lesson-intro{padding:20px 16px 16px;}.preview-heading h2{font-size:26px;}.preview-tabs{padding:0 16px 16px;}.preview-tabs button{flex:1;}.preview-lesson-grid{grid-template-columns:1fr;padding:0 16px;}.preview-code pre{font-size:14px;}.preview-panel-label span{font-size:10px;}.preview-lesson-actions{padding:16px 16px 0;}.preview-lesson-actions .button{flex:1;min-width:120px;}.preview-plan-result{margin:16px;}.preview-check{margin:0 16px 20px;}.preview-flow-controls{padding:0 16px 16px;}.preview-flow-controls button{flex:1;}.preview-architecture{grid-template-columns:repeat(2,minmax(0,1fr));padding:0 16px;gap:9px;}.preview-architecture>div{padding:14px 10px;}.preview-architecture strong{font-size:13px;}.preview-flow-detail{margin:16px;}.preview-evidence{margin:0 16px 20px;}.preview-bottom{padding:16px;}.preview-answers button{font-size:16px;}.premium-purchase>.button.secondary{min-height:44px;}}
+@media(prefers-reduced-motion:reduce){.preview-architecture>div{transition:none;}}
+
+</style>
+<script id="linform-public-preview">
+/* Public, original lesson preview. It uses the same teaching engine as Practice. */
+(() => {
+  'use strict';
+  const host=document.getElementById('premium-public');if(!host)return;
+  const sample=document.createElement('section');sample.id='premium-preview';sample.className='premium-preview';sample.setAttribute('aria-labelledby','preview-title');
+  sample.innerHTML=`
+    <div class="preview-heading"><div><span class="kicker">TRY BEFORE YOU BUY</span><h2 id="preview-title">See how you’ll learn.</h2></div><p>One short lesson. One real project.</p></div>
+    <div class="preview-tabs" role="tablist" aria-label="Premium public previews"><button type="button" role="tab" id="preview-lesson-tab" aria-controls="preview-lesson" aria-selected="true">Try a lesson</button><button type="button" role="tab" id="preview-project-tab" aria-controls="preview-project" aria-selected="false" tabindex="-1">Explore a project</button></div>
+    <div role="tabpanel" id="preview-lesson" aria-labelledby="preview-lesson-tab">
+      <div class="preview-lesson-intro"><div><span class="preview-tag">TERRAFORM / WORKFLOW</span><h3>A plan is a preview.</h3><p>Edit your intent. Preview the difference. Apply when you’re ready.</p></div><span class="preview-simulation">Browser simulation</span></div>
+      <div class="preview-lesson-grid"><div class="preview-code"><div class="preview-panel-label">main.tf <span>desired configuration</span></div><pre id="preview-config"></pre></div><div class="preview-state"><div class="preview-panel-label">Practice state <span>what exists now</span></div><div class="preview-resource"><span class="preview-resource-dot" aria-hidden="true"></span><div><strong>terraform_data.sample</strong><code id="preview-state-value">learn</code></div><span id="preview-state-match">In sync</span></div><p id="preview-lesson-note">Start by editing the resource’s input.</p></div></div>
+      <div class="preview-lesson-actions"><button class="button secondary" id="preview-edit" type="button">1. Edit the file</button><button class="button secondary" id="preview-plan" type="button" disabled>2. Preview plan</button><button class="button" id="preview-apply" type="button" disabled>3. Apply change</button><button class="preview-reset" id="preview-reset" type="button">Start again</button></div>
+      <pre id="preview-plan-result" class="preview-plan-result" role="status">Your resource starts with input = "learn".</pre>
+      <details class="preview-check"><summary>Check your understanding</summary><p>You ran terraform plan. What changed?</p><div class="preview-answers" role="group" aria-label="Answer the sample question"><button type="button" data-preview-answer="preview">Only the proposed-change preview</button><button type="button" data-preview-answer="resource">The resource was already updated</button><button type="button" data-preview-answer="state">The state was deleted</button></div><p id="preview-answer-feedback" role="status"></p></details>
+    </div>
+    <div role="tabpanel" id="preview-project" aria-labelledby="preview-project-tab" hidden>
+      <div class="preview-lesson-intro"><div><span class="preview-tag">BUILT HERE / LINFORM</span><h3>You’re using the project.</h3><p>Trace the code, the website and a learner’s progress.</p></div><a class="text-link" href="https://github.com/espinozaalexis2003-eng/Linform" target="_blank" rel="noopener noreferrer">View the source ↗</a></div>
+      <div class="preview-flow-controls" role="group" aria-label="Choose an architecture path"><button type="button" data-preview-flow="ship" aria-pressed="true">Ship code</button><button type="button" data-preview-flow="visit" aria-pressed="false">Serve a page</button><button type="button" data-preview-flow="save" aria-pressed="false">Save progress</button></div>
+      <div class="preview-architecture" aria-label="Linform architecture"><div data-preview-node="github"><small>SOURCE</small><strong>GitHub</strong><span>Versioned website</span></div><div data-preview-node="actions"><small>DEPLOYMENT</small><strong>GitHub Actions</strong><span>AWS OIDC role</span></div><div data-preview-node="s3"><small>CONTENT</small><strong>Amazon S3</strong><span>Website files</span></div><div data-preview-node="cloudfront"><small>DELIVERY</small><strong>CloudFront</strong><span>HTTPS website</span></div><div data-preview-node="cognito"><small>IDENTITY</small><strong>Cognito</strong><span>Student sign-in</span></div><div data-preview-node="progress"><small>LEARNING DATA</small><strong>API + DynamoDB</strong><span>Per-user progress</span></div></div>
+      <div class="preview-flow-detail" role="status"><strong id="preview-flow-path"></strong><p id="preview-flow-explanation"></p></div>
+      <div class="preview-evidence"><a class="text-link" href="https://github.com/espinozaalexis2003-eng/Linform/actions" target="_blank" rel="noopener noreferrer">Inspect the deployment runs ↗</a><span>Real source. Working site. Explainable decisions.</span></div>
+    </div>
+    <div class="preview-bottom"><span>Premium adds full guides, six guided builds and personal feedback.</span><a class="text-link" href="#contact">Something unclear? Tell Alexis ↗</a></div>`;
+  host.prepend(sample);
+  const el=id=>document.getElementById(id),tabs=[el('preview-lesson-tab'),el('preview-project-tab')],panels=[el('preview-lesson'),el('preview-project')];
+  function choose(index,focus=false){tabs.forEach((tab,i)=>{tab.setAttribute('aria-selected',String(i===index));tab.tabIndex=i===index?0:-1;panels[i].hidden=i!==index;});if(focus)tabs[index].focus();}
+  tabs.forEach((tab,index)=>{tab.addEventListener('click',()=>choose(index));tab.addEventListener('keydown',event=>{let next;if(event.key==='ArrowRight'||event.key==='ArrowLeft')next=1-index;else if(event.key==='Home')next=0;else if(event.key==='End')next=1;else return;event.preventDefault();choose(next,true);});});
+
+  const config=value=>'resource "terraform_data" "sample" {\n  input = "'+value+'"\n}\n\noutput "name" {\n  value = terraform_data.sample.output\n}\n';
+  let simulator,stage='initial';
+  function render(){
+    el('preview-config').textContent=simulator.config;
+    const value=simulator.state.resources['terraform_data.sample']?.output||'learn';el('preview-state-value').textContent=value;
+    el('preview-state-match').textContent=stage==='edited'||stage==='planned'?'Change pending':'In sync';
+    el('preview-state-match').dataset.pending=String(stage==='edited'||stage==='planned');
+    el('preview-edit').disabled=stage!=='initial';el('preview-plan').disabled=stage!=='edited';el('preview-apply').disabled=stage!=='planned';
+    el('preview-lesson-note').textContent={initial:'Start by editing the resource’s input.',edited:'The file changed. Your resource still says learn.',planned:'The plan changed. Your resource still says learn.',applied:'Now the resource matches your configuration.'}[stage];
+  }
+  function reset(){
+    simulator=new window.LinformTerraform.Simulator();simulator.config=config('learn');
+    for(const command of ['terraform init','terraform apply -auto-approve']){const result=simulator.run(command);if(result.exitCode!==0)throw Error('Sample initialization failed');}
+    stage='initial';render();el('preview-plan-result').textContent='Your resource starts with input = "learn".';el('preview-answer-feedback').textContent='';
+  }
+  el('preview-edit').addEventListener('click',()=>{if(stage!=='initial')return;simulator.config=config('portfolio');stage='edited';render();el('preview-plan-result').textContent='File saved. State stays unchanged until apply.';});
+  el('preview-plan').addEventListener('click',()=>{if(stage!=='edited')return;const result=simulator.run('terraform plan');if(result.exitCode!==0){el('preview-plan-result').textContent=result.text;return;}stage='planned';render();el('preview-plan-result').textContent=result.text;});
+  el('preview-apply').addEventListener('click',()=>{if(stage!=='planned')return;simulator.run('terraform apply');const result=simulator.run('yes');if(result.exitCode!==0){el('preview-plan-result').textContent=result.text;return;}stage='applied';render();el('preview-plan-result').textContent=result.text;});
+  el('preview-reset').addEventListener('click',reset);
+  for(const button of sample.querySelectorAll('[data-preview-answer]'))button.addEventListener('click',()=>{el('preview-answer-feedback').textContent=button.dataset.previewAnswer==='preview'?'Correct. Plan previews a difference; apply changes the managed resource.':'Review that step: plan previews a difference. The resource changes only after apply.';});
+  const flows={ship:{nodes:['github','actions','s3'],path:'GitHub → GitHub Actions → S3',explanation:'A commit starts the deployment. Actions assumes an AWS role through OIDC and publishes the website files.'},visit:{nodes:['cloudfront','s3'],path:'Visitor → CloudFront → S3 content',explanation:'CloudFront delivers the website over HTTPS. The browser then runs Linform’s interactive lessons and local labs.'},save:{nodes:['cognito','progress'],path:'Student → Cognito → authenticated API → DynamoDB',explanation:'After sign-in, the progress API uses the verified student identity to read and save that student’s completed lesson IDs.'}};
+  function showFlow(name){const flow=flows[name];for(const node of sample.querySelectorAll('[data-preview-node]'))node.dataset.active=String(flow.nodes.includes(node.dataset.previewNode));for(const button of sample.querySelectorAll('[data-preview-flow]'))button.setAttribute('aria-pressed',String(button.dataset.previewFlow===name));el('preview-flow-path').textContent=flow.path;el('preview-flow-explanation').textContent=flow.explanation;}
+  for(const button of sample.querySelectorAll('[data-preview-flow]'))button.addEventListener('click',()=>showFlow(button.dataset.previewFlow));showFlow('ship');
+  try{reset();}catch{el('preview-plan-result').textContent='The sample is temporarily unavailable. Open Practice to explore the workflow.';for(const id of ['preview-edit','preview-plan','preview-apply'])el(id).disabled=true;}
+
+  function openPreview(){if(!sample.getClientRects().length)return;sample.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});el('preview-title').tabIndex=-1;el('preview-title').focus({preventScroll:true});}
+  let previewIntent=false;
+  const homeNext=document.querySelector('.hook-next');
+  if(homeNext){const tagline=homeNext.querySelector('span');if(tagline)tagline.remove();const link=document.createElement('a');link.className='text-link';link.href='#premium';link.textContent='Preview Premium ↗';link.addEventListener('click',()=>{previewIntent=true;if(location.hash==='#premium'){previewIntent=false;openPreview();}});homeNext.append(link);}
+  const heroLink=document.createElement('button');heroLink.type='button';heroLink.className='button secondary';heroLink.textContent='Preview a lesson';heroLink.addEventListener('click',openPreview);document.querySelector('.premium-purchase').append(heroLink);
+  window.addEventListener('hashchange',()=>{if(previewIntent&&location.hash==='#premium'){previewIntent=false;requestAnimationFrame(openPreview);}});
 })();
 
 </script>
