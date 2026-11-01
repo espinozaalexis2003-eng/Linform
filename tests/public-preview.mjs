@@ -8,7 +8,7 @@ const preview=scripts.find(([all,attrs])=>attrs.includes('id="linform-public-pre
 const ids=new Map(),groups={};
 class Element{
  constructor(id=''){this.id=id;this.children=[];this.dataset={};this.handlers={};this.attributes={};this.textContent='';this.hidden=false;this.disabled=false;}
- set innerHTML(value){this.markup=value;for(const match of value.matchAll(/id="([^"]+)"/g))el(match[1]);for(const attribute of ['data-preview-answer','data-preview-flow','data-preview-node'])groups[attribute]=[...value.matchAll(new RegExp(attribute+'="([^"]+)"','g'))].map(match=>{const e=new Element();e.dataset[{ 'data-preview-answer':'previewAnswer','data-preview-flow':'previewFlow','data-preview-node':'previewNode'}[attribute]]=match[1];return e;});}
+ set innerHTML(value){this.markup=value;for(const match of value.matchAll(/id="([^"]+)"/g))el(match[1]);for(const match of value.matchAll(/id="([^"]+)"[^>]*>([^<]*)</g))el(match[1]).textContent=match[2];for(const attribute of ['data-risk-flag','data-risk-fix','data-preview-flow','data-preview-node'])groups[attribute]=[...value.matchAll(new RegExp(attribute+'="([^"]+)"','g'))].map(match=>{const e=new Element();e.dataset[{ 'data-risk-flag':'riskFlag','data-risk-fix':'riskFix','data-preview-flow':'previewFlow','data-preview-node':'previewNode'}[attribute]]=match[1];return e;});}
  setAttribute(k,v){this.attributes[k]=v;}
  append(...nodes){this.children.push(...nodes);}
  prepend(...nodes){this.children.unshift(...nodes);}
@@ -25,21 +25,30 @@ const document={getElementById:el,createElement:()=>new Element(),querySelector:
 const events={},window={matchMedia:()=>({matches:false}),addEventListener:(event,fn)=>events[event]=fn};
 const context=vm.createContext({window,document,location:{hash:'#home'},requestAnimationFrame:fn=>fn()});
 vm.runInContext(engine,context);vm.runInContext(preview,context);
-assert.equal(el('preview-state-value').textContent,'learn');
-assert.equal(el('preview-plan').disabled,true);assert.equal(el('preview-apply').disabled,true);
-el('preview-apply').handlers.click();assert.equal(el('preview-state-value').textContent,'learn');
-el('preview-edit').handlers.click();assert.match(el('preview-config').textContent,/portfolio/);assert.equal(el('preview-state-value').textContent,'learn');assert.equal(el('preview-plan').disabled,false);
-el('preview-plan').handlers.click();assert.match(el('preview-plan-result').textContent,/1 to change/);assert.equal(el('preview-state-value').textContent,'learn');assert.equal(el('preview-apply').disabled,false);
-el('preview-apply').handlers.click();assert.equal(el('preview-state-value').textContent,'portfolio');assert.equal(el('preview-state-match').textContent,'In sync');
-el('preview-reset').handlers.click();assert.equal(el('preview-state-value').textContent,'learn');assert.equal(el('preview-edit').disabled,false);
-groups['data-preview-answer'][0].handlers.click();assert.match(el('preview-answer-feedback').textContent,/Correct/);
-groups['data-preview-answer'][1].handlers.click();assert.match(el('preview-answer-feedback').textContent,/Review/);
+assert.match(el('preview-config').textContent, /terraform_data/);
+assert.match(el('preview-plan-result').textContent,/1 to destroy/);
+assert.equal(el('risk-verify').disabled,true);assert.equal(el('risk-handoff').hidden,true);
+const originalId=el('risk-object-id').textContent;assert.match(originalId,/local-object-001/);
+const flag=name=>groups['data-risk-flag'].find(e=>e.dataset.riskFlag===name);
+const fix=name=>groups['data-risk-fix'].find(e=>e.dataset.riskFix===name);
+fix('move').handlers.click();assert.doesNotMatch(el('preview-config').textContent,/moved/,'cannot skip the risk review');
+el('risk-verify').handlers.click();assert.equal(el('risk-handoff').hidden,true);
+flag('format').handlers.click();assert.match(el('risk-flag-feedback').textContent,/Formatting/);assert.equal(el('risk-fix-section').hidden,true);
+flag('region').handlers.click();assert.match(el('risk-flag-feedback').textContent,/provider-free/);
+flag('destroy').handlers.click();assert.equal(el('risk-fix-section').hidden,false);
+fix('delete').handlers.click();assert.match(el('risk-fix-feedback').textContent,/ownership/);assert.equal(el('risk-verify').disabled,true);
+fix('apply').handlers.click();assert.match(el('risk-fix-feedback').textContent,/recreation/);assert.equal(el('risk-verify').disabled,true);
+fix('move').handlers.click();assert.match(el('preview-config').textContent,/moved/);assert.match(el('risk-plan-label').textContent,/re-run required/);assert.equal(el('risk-verify').disabled,false);
+assert.match(el('preview-plan-result').textContent,/1 to destroy/,'changing configuration does not silently replace the stale plan');
+el('risk-verify').handlers.click();assert.match(el('preview-plan-result').textContent,/0 to add, 0 to change, 0 to destroy/);assert.equal(el('risk-handoff').hidden,false);assert.equal(el('risk-plan-badge').dataset.safe,'true');
+assert.equal(el('risk-object-id').textContent,originalId);assert.match(el('preview-lesson-note').textContent,/State is unchanged/);
+el('preview-reset').handlers.click();assert.match(el('preview-plan-result').textContent,/1 to destroy/);assert.equal(el('risk-fix-section').hidden,true);assert.equal(el('risk-handoff').hidden,true);assert.equal(el('risk-verify').disabled,true);
 el('preview-project-tab').handlers.click();assert.equal(el('preview-project').hidden,false);assert.equal(el('preview-lesson').hidden,true);
 groups['data-preview-flow'].find(e=>e.dataset.previewFlow==='save').handlers.click();
 assert.match(el('preview-flow-path').textContent,/Cognito/);
 assert.equal(groups['data-preview-node'].find(e=>e.dataset.previewNode==='progress').dataset.active,'true');
 assert.equal(groups['data-preview-node'].find(e=>e.dataset.previewNode==='s3').dataset.active,'false');
-console.log('PASS: real Terraform sample edit/plan/apply/reset, explanation choices, preview tabs and architecture paths.');
+console.log('PASS: risk identification, wrong-choice explanations, gated correction/replan, unchanged state, portfolio handoff, reset and architecture tabs.');
 
 // Exercise the production purchase listener with fake sign-in/checkout services.
 const start=html.indexOf(" el('premium-buy').addEventListener('click'");
