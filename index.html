@@ -521,8 +521,8 @@ summary { color: #c7d4ff; cursor: pointer; font-weight: 600; font-size: 13px; }
       <div>
         <span class="kicker">03 / Meet the founder</span>
         <h2>Hi, I’m Alexis Espinosa.</h2>
-        <p>I’m a cloud engineer and the founder of Linform. I created this platform to make Linux, AWS, Azure, and Terraform easier to understand through hands-on learning.</p>
-        <p>My approach: explain the concept, show the steps, and connect it to something you can build.</p>
+        <p>I’m a cloud engineer, the founder of Linform, and a fellow student who got tired of boring tutorials.</p>
+        <p>I learn by typing commands, not just reading textbooks or watching hours of videos. I built Linform to practice Linux, AWS, Azure, and Terraform myself—and now I’m sharing it with you.</p>
         <span class="badge">Dallas–Fort Worth</span>
         <span class="badge">English & Spanish</span>
       </div>
@@ -1529,13 +1529,22 @@ __linform_previous
   .shell-fullscreen .shell-scroll { height:auto; flex:1; }
   #linux-lab [hidden] { display:none !important; }
   @media(max-width:900px) { .practice-workspace { grid-template-columns:1fr; } .lab-guide { padding:20px; } }
-  @media(max-width:480px) {
-    .shell-scroll { height:350px; padding:14px; font-size:12px; }
-    .shell-input-row { padding:12px; font-size:12px; gap:6px; flex-wrap:wrap; }
-    .shell-input-row label { width:100%; }
-    .shell-input-row textarea { flex-basis:70%; }
+  .mobile-practice-tip { display:none; }
+  @media(max-width:600px) {
+    .shell-scroll { height:clamp(220px,40svh,350px); padding:14px; font-size:14px; }
+    .shell-input-row { display:grid; grid-template-columns:minmax(0,1fr) auto; padding:12px; font-size:16px; gap:8px; }
+    .shell-input-row label { grid-column:1 / -1; overflow-wrap:anywhere; }
+    .shell-input-row textarea { width:100%; min-height:48px; padding:10px 0; font-size:16px; }
+    .shell-tool { min-height:44px; padding:10px 12px; font-size:13px; touch-action:manipulation; }
     .shell-title small { display:block; margin-left:0; }
+    .shell-toolbar { padding:12px; }
+    .shell-launch { padding:12px; }
+    .shell-launch .button { min-height:44px; }
+    .shell-shortcuts { display:none; }
+    .lab-tip { min-height:44px; display:flex; align-items:center; font-size:14px; overflow-wrap:anywhere; }
+    .mobile-practice-tip { display:block; padding:12px 14px; border:1px solid #455875; border-radius:10px; background:#152137; color:#d9e5fc; font-size:13px; line-height:1.6; }
     .shell-fullscreen { inset:5px; }
+    .shell-fullscreen .shell-scroll { min-height:0; }
   }
 </style>
 <script>
@@ -1543,6 +1552,7 @@ __linform_previous
   const section=document.createElement('section');section.id='linux-lab';section.className='section';
   section.innerHTML=`
     <div class="section-heading"><div><span class="kicker">Practice / Linux terminal</span><h2>Your terminal. Ready to explore.</h2></div><p>Type a command, press Enter, and see what happens. Your practice files stay safely in this tab.</p></div>
+    <p class="mobile-practice-tip">On your phone? Tap Start terminal, type a command, then tap Run. Tap a suggested command to fill it in. Turn your phone sideways for more room.</p>
     <div class="practice-workspace">
       <div>
         <div class="shell-window" id="shell-window">
@@ -2606,6 +2616,12 @@ output "project_name" {
   #tf-command-list {min-height:45px;}
   .tf-label {display:inline-block;border:1px solid #7c68b0;color:#dacdff;background:#211c36;border-radius:20px;padding:3px 10px;font-size:11px;}
   @media(max-width:900px){.tf-workspace,.tf-guides{grid-template-columns:1fr;}#tf-config{min-height:270px;}}
+  @media(max-width:600px){
+    .tf-workspace > *, .practice-workspace > * { min-width:0; }
+    #tf-config { font-size:16px; min-height:220px; padding:14px; }
+    #tf-transcript { height:clamp(220px,40svh,350px); }
+    .practice-switch button, #tf-command-list { min-height:44px; font-size:16px; }
+  }
 </style>
 <script>
 (() => {
@@ -2617,6 +2633,7 @@ output "project_name" {
     <div class="section-heading"><div><span class="kicker">Practice / Terraform workflow</span><h2>Plan it. Apply it. Understand it.</h2></div><p>A stateful command simulator for learning the Terraform workflow. No account keys or cloud resources.</p></div>
     <p><span class="tf-label">Teaching simulator · Not a Terraform CLI installation</span></p>
     <p class="small-note">Commands change this tab’s simulated state only. The editor supports a focused HCL subset: basic variables, terraform_data resources with input, and root outputs. Other providers, complete HCL validation, remote systems, and real Terraform tests are outside this lab.</p>
+    <p class="mobile-practice-tip">Practice on your phone: tap a workflow command to fill it in, then tap Run. The editor is above the terminal; turn your phone sideways for more room.</p>
     <div class="tf-workspace">
       <div class="tf-editor"><div class="tf-editor-bar"><strong>main.tf</strong><button type="button" class="shell-tool" id="tf-save">Save file</button></div><label for="tf-config" class="small-note" style="padding:10px 18px 0">Practice configuration</label><textarea id="tf-config" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="16000"></textarea><p class="tf-note" id="tf-editor-status" role="status">Starter file is saved. Run terraform init to begin.</p></div>
       <div class="shell-window"><div class="shell-toolbar"><span class="shell-title">Terraform Practice <small>Simulated state · <span id="tf-workspace-name">default</span></small></span><div class="shell-tools"><button type="button" class="shell-tool" id="tf-clear">Clear</button><button type="button" class="shell-tool" id="tf-reset">Reset lab</button></div></div><div class="shell-scroll" id="tf-transcript" role="log" aria-live="polite" aria-relevant="additions text" tabindex="0" aria-label="Terraform terminal output"></div><form class="shell-input-row" id="tf-form"><label for="tf-input" id="tf-prompt">terraform:default $</label><textarea id="tf-input" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="12000" aria-label="Terraform command" placeholder="terraform init"></textarea><button class="shell-tool" type="submit">Run ↵</button></form></div>
