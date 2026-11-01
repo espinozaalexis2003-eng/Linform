@@ -50,6 +50,7 @@ jobs:
         run: |
           node tests/validate-site.mjs
           node --test tests/account-progress.mjs
+          node tests/premium-member-flow.mjs
           node --test tests/terminal.mjs
           node --test tests/terraform.mjs
           python -m unittest discover -s infra -p 'test_*.py' -v

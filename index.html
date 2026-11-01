@@ -2905,7 +2905,7 @@ output "project_name" {
  .premium-price small {display:block;font-size:12px;font-weight:400;color:#bbd0ef;margin-top:9px;}
  #premium-status {color:#c8dcff;}
  .premium-catalog {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:26px 0;}
- .premium-card {border:1px solid #2c4774;background:#0e1c35;border-radius:13px;padding:25px;}
+ .premium-card {min-width:0;overflow-wrap:anywhere;border:1px solid #2c4774;background:#0e1c35;border-radius:13px;padding:25px;}
  .premium-card .kicker {color:#80afff;}
  .premium-card h3 {color:#eef5ff;font-size:21px;line-height:1.35;margin:15px 0;}
  .premium-card p {font-size:14px;}
@@ -2916,7 +2916,7 @@ output "project_name" {
  .premium-reader {background:#0b162b;border:1px solid #345b96;border-radius:14px;padding:30px;margin-top:24px;}
  .premium-reader p {max-width:85ch;}
  .premium-reader details {border-top:1px solid #2d4265;margin-top:18px;padding:15px 0;}
- .premium-reader summary {font-weight:700;color:#d6e6ff;cursor:pointer;line-height:1.6;}
+ .premium-reader summary {min-height:44px;font-weight:700;color:#d6e6ff;cursor:pointer;line-height:1.6;}
  .premium-reader h3 {color:#fff;margin-top:30px;}
  .premium-reader .checkpoint {background:#10264a;border-radius:10px;padding:18px;margin:22px 0;}
  .premium-reader pre {white-space:pre-wrap;overflow-wrap:anywhere;}
@@ -2942,6 +2942,14 @@ output "project_name" {
  @media(max-width:600px){.premium-review fieldset{padding:12px;}.premium-review-option{font-size:16px;}}
  #premium-private[hidden],#premium-public[hidden],#premium-reader[hidden] {display:none!important;}
  @media(max-width:850px){.premium-catalog{grid-template-columns:1fr;}.premium-hero{padding:30px 24px;}.premium-reader{padding:22px;}}
+ @media(max-width:600px){
+  .premium-reader,.premium-mentor-request{padding:16px;min-width:0;}
+  .premium-reader h2{font-size:28px;overflow-wrap:anywhere;}
+  .premium-reader .button,.premium-mentor-form .button{min-height:44px;max-width:100%;white-space:normal;}
+  .premium-mentor-form input,.premium-mentor-form select,.premium-mentor-form textarea{font-size:16px;min-height:44px;min-width:0;}
+  .premium-mentor-form input[type=checkbox]{min-height:0;width:22px;height:22px;}
+  .premium-reader pre{max-width:100%;overflow-wrap:anywhere;}
+ }
 </style>
 <script id="linform-premium-ui">
 (() => {
@@ -2962,7 +2970,7 @@ output "project_name" {
  <section class="premium-roadmap" aria-labelledby="premium-roadmap-title"><span class="premium-badge">MORE COMING TO PREMIUM</span><h2 id="premium-roadmap-title">5. More coming to Premium</h2><p>More projects, study resources and mentoring tools are on the way.</p></section>
  <section id="premium-private" class="premium-library" hidden aria-labelledby="premium-library-title"><span class="premium-badge">PREMIUM MEMBER LIBRARY</span><h2 id="premium-library-title">Your next chapter starts here.</h2><p id="premium-library-note"></p><div class="premium-catalog" id="premium-library-cards"></div><section class="premium-mentor-request" aria-labelledby="premium-mentor-request-title"><h3 id="premium-mentor-request-title">Request feedback from Alexis</h3><p>Send a study question, project link or redacted resume for review.</p><form id="premium-mentor-form" class="premium-mentor-form"><label>What would you like help with?<select id="premium-mentor-topic"><option value="study-question">A study question</option><option value="project-feedback">Project feedback</option><option value="learning-plan">My learning plan</option><option value="resume-review">Resume review</option></select></label><label>Email for Alexis’s reply<input id="premium-mentor-email" type="email" autocomplete="email" maxlength="254" required></label><label>Public GitHub project URL (optional)<input id="premium-mentor-project" type="url" placeholder="https://github.com/your-name/your-project" maxlength="300"></label><label>Question or redacted resume<textarea id="premium-mentor-message" rows="7" minlength="20" maxlength="2900" required placeholder="Ask a question, or paste your redacted resume and target cloud role."></textarea></label><p class="small-note">For resume reviews, paste text without your home address, phone number or other sensitive details.</p><label class="premium-consent"><input id="premium-mentor-consent" type="checkbox" required> I agree to share this request and reply email with Alexis for mentoring or resume feedback.</label><button class="button" type="submit" id="premium-mentor-submit">Send mentoring request ↗</button><p id="premium-mentor-status" role="status" class="small-note"></p></form></section><article class="premium-reader" id="premium-reader" hidden aria-live="polite"></article></section>`;
  const el=id=>document.getElementById(id),account=window.LinformAccount;
- let owner=null,generation=0,checking=false,purchased=false;
+ let owner=null,generation=0,contentRequest=0,checking=false,purchased=false;
  const say=text=>el('premium-status').textContent=text;
  const node=(tag,text,className)=>{const e=document.createElement(tag);if(text)e.textContent=text;if(className)e.className=className;return e;};
  function appendPracticeCases(parent,title,cases){
@@ -3067,11 +3075,11 @@ output "project_name" {
   for(const bullet of data.resumeBullets){const item=node('div',null,'checkpoint');item.append(node('p',bullet.text),node('p','Evidence: '+bullet.evidence,'small-note'));reader.append(item);}
   const link=node('a','Request resume feedback below','text-link');link.href='#premium';link.addEventListener('click',event=>{event.preventDefault();if(before!==generation||!purchased)return;el('premium-mentor-topic').value='resume-review';syncPremiumFeedbackPrompt();el('premium-mentor-request-title').scrollIntoView({behavior:'smooth',block:'start'});el('premium-mentor-message').focus({preventScroll:true});});reader.append(link);
  }
- function clearPrivate(){purchased=false;el('premium-mentor-form').reset();syncPremiumFeedbackPrompt();el('premium-mentor-status').textContent='';el('premium-mentor-submit').disabled=false;el('premium-mentoring-availability').textContent='Premium members can request mentoring with Alexis.';el('premium-access-label').textContent='Private learning library';el('premium-signin').hidden=!!account?.identity();el('premium-buy').textContent=account?.identity()?'Checking Premium access…':'Sign in to check out';el('premium-buy').disabled=true;el('premium-private').hidden=true;el('premium-public').hidden=false;el('premium-reader').replaceChildren();el('premium-reader').hidden=true;el('premium-library-cards').replaceChildren();}
+ function clearPrivate(){contentRequest++;purchased=false;el('premium-mentor-form').reset();syncPremiumFeedbackPrompt();el('premium-mentor-status').textContent='';el('premium-mentor-submit').disabled=false;el('premium-mentoring-availability').textContent='Premium members can request mentoring with Alexis.';el('premium-access-label').textContent='Private learning library';el('premium-signin').hidden=!!account?.identity();el('premium-buy').textContent=account?.identity()?'Checking Premium access…':'Sign in to check out';el('premium-buy').disabled=true;el('premium-private').hidden=true;el('premium-public').hidden=false;el('premium-reader').replaceChildren();el('premium-reader').hidden=true;el('premium-library-cards').replaceChildren();}
  async function loadContent(id){
-  const before=generation;const reader=el('premium-reader');reader.hidden=false;reader.replaceChildren(node('p','Loading your private content…'));
+  const before=generation,requestId=++contentRequest;const reader=el('premium-reader');reader.hidden=false;reader.replaceChildren(node('p','Loading your private content…'));
   try{
-   const data=await account.request('/premium/content/'+encodeURIComponent(id));if(before!==generation)return;
+   const data=await account.request('/premium/content/'+encodeURIComponent(id));if(before!==generation||requestId!==contentRequest||!purchased)return;
    reader.replaceChildren(node('span',data.exam,'kicker'),node('h2',data.title),node('p',data.revision||''));
    if(data.kind==='guide'){
     reader.append(node('p',data.intro));const plan=node('ol');for(const step of data.studyPlan)plan.append(node('li',step));reader.append(plan);
@@ -3092,7 +3100,7 @@ output "project_name" {
     reader.append(node('h3','Starter / read-only checks'),makeCodeBlock(data.commands,'Project reference'),node('h3','Portfolio deliverables'));const list=node('ul');for(const item of data.deliverables)list.append(node('li',item));reader.append(list,node('h3','Interview rehearsal'));const questions=node('ol');for(const item of data.interview)questions.append(node('li',item));reader.append(questions);appendResumeBullets(reader,data,before);
    }
    reader.scrollIntoView({behavior:'smooth',block:'start'});
-  }catch(error){if(before!==generation)return;clearPrivate();say(error.status===403?'Your purchase could not be verified. Refresh access or contact Linform.':'Could not load private content. Please retry.');}
+  }catch(error){if(before!==generation||requestId!==contentRequest)return;clearPrivate();say(error.status===403?'Your purchase could not be verified. Refresh access or contact Linform.':'Could not load private content. Please retry.');}
  }
  async function catalog(){
   const before=generation,data=await account.request('/premium/catalog');if(before!==generation)return;
@@ -3527,5 +3535,6 @@ output "project_name" {
 </style>
 </body>
 </html>
+
 
 
