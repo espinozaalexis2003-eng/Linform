@@ -2049,6 +2049,7 @@ No installation or cloud account needed.</pre></div>
     identity: () => authenticated() ? userId : null,
     configured: () => /^https:\/\/[a-z0-9]+\.execute-api\.us-east-2\.amazonaws\.com$/.test(PREMIUM_API_URL),
     async request(path,method='GET',value) {
+      if(canonical && userId && !authenticated() && refreshToken) { await maintainSession(); }
       if(!canonical || !this.configured() || !authenticated()) {const error=new Error('Sign in required');error.status=401;throw error;}
       if(!['GET','POST'].includes(method)||!/^\/premium\/(?:access(?:\?session_id=[A-Za-z0-9_%.-]+)?|catalog|checkout|mentoring|content\/[a-z][a-z0-9-]{0,79})$/.test(path))throw new Error('Invalid Premium request');
       const auth=session(),version=generation;
@@ -2076,6 +2077,57 @@ No installation or cloud account needed.</pre></div>
   const canonical = configured && location.origin === cfg.origin;
   const guestSave = saveProgress;
   let token = null, userId = null, expiresAt = 0, generation = 0;
+  let refreshToken = null, refreshUntil = 0, refreshing = null, restoring = false;
+  const SESSION_KEY = 'linform-tab-session-v1';
+  // Tab-scoped credentials survive reloads; never put them in localStorage.
+  function clearSession() { try { sessionStorage.removeItem(SESSION_KEY); } catch {} }
+  function persistSession() {
+    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({token, expiresAt, refreshToken, refreshUntil})); } catch {}
+  }
+  function acceptTokens(result, first = false) {
+    if (typeof result.access_token !== 'string' || !result.access_token || !Number.isFinite(result.expires_in) || result.expires_in <= 0) throw new Error('Invalid sign-in response');
+    token = result.access_token; expiresAt = Date.now() + Math.min(result.expires_in,900)*1000-10000;
+    if (first) { refreshToken = null; refreshUntil = Date.now() + 30*86400000; }
+    if (typeof result.refresh_token === 'string' && result.refresh_token) refreshToken = result.refresh_token;
+    persistSession();
+  }
+  async function refreshSession() {
+    if (refreshing) return refreshing;
+    if (!refreshToken || Date.now() >= refreshUntil) { const error = new Error('Session expired'); error.sessionExpired = true; throw error; }
+    const current = generation, credential = refreshToken;
+    const pending = (async () => {
+      const res = await fetch(new URL('/oauth2/token',cfg.domain), {
+        method:'POST', credentials:'omit', cache:'no-store', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:new URLSearchParams({grant_type:'refresh_token',client_id:cfg.clientId,refresh_token:credential}), signal:AbortSignal.timeout(15000)
+      });
+      if (!res.ok) { const error = new Error('Session renewal failed'); error.sessionExpired = res.status === 400 || res.status === 401; throw error; }
+      const result = await res.json();
+      if (current !== generation || credential !== refreshToken) throw new Error('Account changed');
+      acceptTokens(result);
+    })();
+    refreshing = pending;
+    try { await pending; } finally { if (refreshing === pending) refreshing = null; }
+  }
+  function scheduleRenewal() {
+    clearTimeout(timer);
+    timer = setTimeout(maintainSession, Math.max(1000, expiresAt-Date.now()-60000));
+  }
+  async function maintainSession() {
+    const current = generation;
+    try {
+      await refreshSession();
+      if (current !== generation) return;
+      scheduleRenewal(); controls();
+      if (userId) await sync();
+    } catch (error) {
+      if (current !== generation) return;
+      if (error.sessionExpired) expireSession();
+      else {
+        say('Connection interrupted · Reconnecting…');
+        clearTimeout(timer); timer = setTimeout(maintainSession, 10000);
+      }
+    }
+  }
   let timer, syncTimer, retryTimer, retryDelay = 2000, syncing = false, revision = 0;
   const callback = () => cfg.origin + '/';
   const cacheKey = id => 'linform-account-progress-v1:' + id;
@@ -2107,7 +2159,7 @@ No installation or cloud account needed.</pre></div>
   function controls() {
     if(window.dispatchEvent && typeof CustomEvent === "function") window.dispatchEvent(new CustomEvent("linform-auth-change"));
     login.hidden = !configured || authenticated();
-    login.disabled = false;
+    login.disabled = restoring;
     login.textContent = userId ? 'Sign in again ↗' : 'Sign in / Create account ↗';
     logout.hidden = !userId;
     profile.hidden = !authenticated();
@@ -2140,14 +2192,14 @@ No installation or cloud account needed.</pre></div>
     }
   }
   function leave(message) {
-    clearProfile();
+    clearProfile(); clearSession(); refreshToken = null; refreshUntil = 0; refreshing = null;
     generation++; clearTimeout(timer); clearTimeout(syncTimer); clearTimeout(retryTimer); retryDelay = 2000;
     token = null; userId = null; expiresAt = 0; syncing = false; revision = 0;
     progress = readStored(STORAGE_KEY);
     paintProgress(); controls(); say(message, 'Sign in to save across devices ↗');
   }
   function expireSession() {
-    clearProfile();
+    clearProfile(); clearSession(); refreshToken = null; refreshUntil = 0; refreshing = null; generation++; syncing = false;
     // Keep ownership of new completions; never silently save them as guest work.
     token = null; expiresAt = 0; clearTimeout(timer); clearTimeout(syncTimer); clearTimeout(retryTimer);
     controls();
@@ -2175,7 +2227,7 @@ No installation or cloud account needed.</pre></div>
   }
   async function sync() {
     if (!userId || syncing) return;
-    if (!authenticated()) { expireSession(); return; }
+    if (!authenticated()) { await maintainSession(); return; }
     const current = generation, snapshot = revision, auth = session();
     clearTimeout(retryTimer);
     syncing = true; controls(); say('Saving…');
@@ -2218,7 +2270,7 @@ No installation or cloud account needed.</pre></div>
     revision++;
     const saved = cacheAccount();
     controls();
-    if (!authenticated()) expireSession();
+    if (!authenticated()) maintainSession();
     else {
       say(saved ? 'Saving…' : 'Saving online · Device storage unavailable.');
       clearTimeout(syncTimer); syncTimer = setTimeout(sync, 0);
@@ -2262,16 +2314,23 @@ No installation or cloud account needed.</pre></div>
     }
   });
   logout.addEventListener('click', () => {
-    flushOnLeave(); leave('Signed out · Progress saves on this device.');
+    flushOnLeave();
+    if (refreshToken) {
+      fetch(new URL('/oauth2/revoke',cfg.domain), {
+        method:'POST', keepalive:true, credentials:'omit', cache:'no-store', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:new URLSearchParams({client_id:cfg.clientId,token:refreshToken})
+      }).catch(()=>{});
+    }
+    leave('Signed out · Progress saves on this device.');
     const url = new URL('/logout',cfg.domain);
     url.search = new URLSearchParams({client_id:cfg.clientId,logout_uri:callback()});
     location.assign(url.href);
   });
-  window.addEventListener('online',()=>{ if(authenticated()) sync(); });
+  window.addEventListener('online',()=>{ if (restoring) return; if (userId) { if(authenticated()) sync(); else maintainSession(); } else restoreSession(); });
   window.addEventListener('pagehide',flushOnLeave);
   document.addEventListener('visibilitychange',()=>{
     if (document.visibilityState === 'hidden') flushOnLeave();
-    else if (authenticated()) sync();
+    else if (!restoring && userId) { if (authenticated()) sync(); else maintainSession(); }
   });
   controls();
   say('Sign in to save progress across devices.');
@@ -2300,22 +2359,51 @@ No installation or cloud account needed.</pre></div>
       if (!res.ok) throw new Error('Sign-in failed');
       const result = await res.json();
       if (typeof result.access_token !== 'string' || !Number.isFinite(result.expires_in) || result.expires_in <= 0) throw new Error('Invalid sign-in response');
-      // Never persist access, refresh, or ID tokens in browser storage.
-      token = result.access_token; expiresAt = Date.now() + Math.min(result.expires_in,900)*1000-10000;
+      acceptTokens(result, true);
       const remote = await request('GET');
       if (typeof remote.userId !== 'string' || !/^[a-zA-Z0-9-]{1,128}$/.test(remote.userId) || !Array.isArray(remote.completed)) throw new Error('Invalid account response');
       userId = remote.userId; generation++; revision = 0;
       progress = readStored(cacheKey(userId)); mergeRemote(remote,userId); cacheAccount();
       clearProfile(); paintProgress(); controls();
       loadProfile();
-      timer = setTimeout(expireSession,Math.max(0,expiresAt-Date.now()));
+      scheduleRenewal();
       await sync();
       if(sessionStorage.getItem("linform-premium-return")){sessionStorage.removeItem("linform-premium-return");location.hash="premium";}
     } catch {
       leave('Could not load progress · Please sign in again.');
     }
   }
-  finishLogin();
+  async function restoreSession() {
+    if (!canonical || restoring || userId) return;
+    let saved;
+    try { saved = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null'); } catch { clearSession(); return; }
+    if (!saved) return;
+    if (typeof saved.token !== 'string' || !saved.token || !Number.isFinite(saved.expiresAt) || saved.expiresAt > Date.now()+900000 || !Number.isFinite(saved.refreshUntil) || saved.refreshUntil > Date.now()+31*86400000) { clearSession(); return; }
+    restoring = true; controls(); say('Restoring your account…');
+    token = saved.token; expiresAt = saved.expiresAt;
+    refreshToken = typeof saved.refreshToken === 'string' ? saved.refreshToken : null; refreshUntil = saved.refreshUntil;
+    const current = generation;
+    try {
+      if (Date.now() >= expiresAt-60000) await refreshSession();
+      const remote = await request('GET');
+      if (current !== generation) return;
+      if (typeof remote.userId !== 'string' || !/^[a-zA-Z0-9-]{1,128}$/.test(remote.userId) || !Array.isArray(remote.completed)) throw new Error('Invalid account response');
+      userId = remote.userId; generation++; revision = 0;
+      progress = readStored(cacheKey(userId)); mergeRemote(remote,userId); cacheAccount();
+      clearProfile(); paintProgress(); controls(); loadProfile(); scheduleRenewal(); await sync();
+    } catch (error) {
+      if (current !== generation) return;
+      if (error.sessionExpired) leave('Session expired · Please sign in again.');
+      else {
+        token = null; expiresAt = 0;
+        say('Connection interrupted · Reconnecting…');
+        clearTimeout(timer); timer = setTimeout(restoreSession, 10000);
+      }
+    } finally { restoring = false; controls(); }
+  }
+  const authUrl = new URL(location.href);
+  if (authUrl.searchParams.has('code') || authUrl.searchParams.has('error')) finishLogin();
+  else restoreSession();
 })();
 </script>
 
@@ -2396,7 +2484,7 @@ No installation or cloud account needed.</pre></div>
   views.about.append(document.getElementById('about'),document.querySelector('.case'));
   const terms=document.createElement('section');terms.className='section';terms.setAttribute('aria-labelledby','terms-title');
   terms.innerHTML='<span class="kicker">LINFORM / TERMS OF USE</span><h1 id="terms-title">Learn safely. Build responsibly.</h1><h2>Educational use</h2><p>Linform is an educational tool for learning Linux, AWS, Azure and Terraform.</p><h2>Browser labs</h2><p>Linform’s built-in browser labs run locally or as simulations. They do not deploy paid resources to your cloud accounts.</p><h2>Your external cloud accounts</h2><p>Commands and projects you run outside Linform can create paid resources or change real systems. You are responsible for your accounts, permissions, spending, backups and the actions you take.</p><p>To the extent permitted by applicable law, Linform and its creator are not responsible for actions you take in external cloud accounts or resulting charges, data loss, security incidents or service interruptions.</p><a class="text-link" href="#practice">Back to Practice ↗</a>';
-  terms.insertAdjacentHTML('beforeend', "<details><summary>Privacy</summary><p class=\"small-note\">Linform is operated by Alexis Espinosa. Guest progress and per-account progress caches stay in this browser until you clear its site data. Cognito manages sign-in and password recovery; completed lesson IDs are stored in Linform's AWS account to provide sync. Terminal files and quiz answers are not sent to the progress service. Sign-in tokens stay in memory and are discarded on reload or sign-out. Contact alexise2003@outlook.com to request account and progress deletion. Mentoring requests, reply email and project links are stored privately in Linform’s AWS account for Alexis to review. Form inquiries use FormSubmit, which processes the information you submit. Do not enter passwords or private information into the practice lab.</p></details>");
+  terms.insertAdjacentHTML('beforeend', "<details><summary>Privacy</summary><p class=\"small-note\">Linform is operated by Alexis Espinosa. Guest progress and per-account progress caches stay in this browser until you clear its site data. Cognito manages sign-in and password recovery; completed lesson IDs are stored in Linform's AWS account to provide sync. Terminal files and quiz answers are not sent to the progress service. Sign-in credentials stay in tab-scoped session storage so refreshing keeps you signed in. Signing out clears them; browser storage settings control whether a restored tab retains its session. Contact alexise2003@outlook.com to request account and progress deletion. Mentoring requests, reply email and project links are stored privately in Linform’s AWS account for Alexis to review. Form inquiries use FormSubmit, which processes the information you submit. Do not enter passwords or private information into the practice lab.</p></details>");
   views.terms.append(terms);
   const termsLink=document.createElement('p');termsLink.innerHTML='<a class="text-link" href="#terms">Terms of use ↗</a>';views.about.querySelector('#about').append(termsLink);
   const practiceNotice=document.createElement('p');practiceNotice.className='small-note';practiceNotice.innerHTML='Browser labs stay in this tab and do not deploy paid cloud resources. <a class="text-link" href="#terms">Terms of use</a>';
