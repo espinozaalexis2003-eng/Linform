@@ -20,6 +20,11 @@ function backend() {
     async fetch(url,options={}) {
       const address=String(url);
       if(address.endsWith('/oauth2/token'))return {ok:true,json:async()=>({access_token:'mock-token',expires_in:900})};
+      if(address.endsWith('/oauth2/userInfo')) {
+        if(this.profileOffline)throw new Error('Profile unavailable');
+        if(this.profileGate)await this.profileGate;
+        return {ok:true,json:async()=>this.profileOverride||{sub:this.activeUser,name:'Test Student',email:this.activeUser+'@example.com'}};
+      }
       if(this.offline)throw new Error('Network unavailable');
       calls.push({url:address,...options});
       const user=this.activeUser;
@@ -42,7 +47,7 @@ async function browser({id='student-a',local=storage(),remote=backend(),authenti
     after(){}before(){}append(){}
     addEventListener(name,handler){this.listeners[name]=handler;}
   }
-  for(const id of ['student-account','courses','account-status','account-login','account-logout']){
+  for(const id of ['student-account','courses','account-status','account-login','account-logout','account-profile','account-name','account-email']){
     const node=new Element();node.id=id;
   }
   const header=new Element();
@@ -160,4 +165,41 @@ test('account page is concise and privacy is available in Terms',()=>{
   assert.doesNotMatch(panel,/account-sync|<details>|Student data and privacy|AWS Cognito/);
   assert.match(panel,/Terms &amp; privacy/);
   assert.match(html,/terms.insertAdjacentHTML\('beforeend',.*<summary>Privacy<\/summary>/);
+});
+
+
+test('signed-in account displays its Cognito name and email without caching profile details',async()=>{
+  const b=await browser();
+  assert.equal(b.elements.get('account-profile').hidden,false);
+  assert.equal(b.elements.get('account-name').textContent,'Test Student');
+  assert.equal(b.elements.get('account-email').textContent,'student-a@example.com');
+  assert.doesNotMatch(b.local.getItem(accountKey('student-a')),/Test Student|example.com/);
+});
+test('missing full name uses given and family name; absent name is not invented from email',async()=>{
+  const remote=backend();remote.profileOverride={sub:'student-a',given_name:'Alex',family_name:'Student',email:'alex@example.com'};
+  let b=await browser({remote});assert.equal(b.elements.get('account-name').textContent,'Alex Student');
+  remote.profileOverride={sub:'student-a',email:'alex@example.com'};
+  b=await browser({remote});assert.equal(b.elements.get('account-name').textContent,'Not provided');
+});
+test('a mismatched profile is never displayed and does not stop progress saving',async()=>{
+  const remote=backend();remote.profileOverride={sub:'student-b',name:'Other Student',email:'other@example.com'};
+  const b=await browser({remote});assert.equal(b.elements.get('account-email').textContent,'Unavailable');
+  await b.complete('linux-location');assert.ok(remote.users.get('student-a').has('linux-location'));
+});
+test('profile request failure does not stop automatic progress saving',async()=>{
+  const remote=backend();remote.profileOffline=true;
+  const b=await browser({remote});assert.equal(b.elements.get('account-name').textContent,'Unavailable');
+  await b.complete('linux-location');assert.ok(remote.users.get('student-a').has('linux-location'));
+});
+test('guest accounts hide profile and sign out clears account details',async()=>{
+  const guest=await browser({authenticated:false});assert.equal(guest.elements.get('account-profile').hidden,true);
+  const b=await browser();await b.click('account-logout');
+  assert.equal(b.elements.get('account-profile').hidden,true);
+  assert.doesNotMatch(b.elements.get('account-email').textContent,/example.com/);
+});
+test('a late profile response cannot expose account details after sign out',async()=>{
+  const remote=backend();let release;remote.profileGate=new Promise(resolve=>release=resolve);
+  const b=await browser({remote});await b.click('account-logout');release();await settle();
+  assert.equal(b.elements.get('account-profile').hidden,true);
+  assert.doesNotMatch(b.elements.get('account-email').textContent,/example.com/);
 });
