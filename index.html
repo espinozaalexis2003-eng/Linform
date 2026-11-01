@@ -2020,9 +2020,18 @@ No installation or cloud account needed.</pre></div>
   .account-panel .actions { margin-top: 16px; gap: 12px; }
   .account-panel button { font-size: 13px; }
   .account-panel [hidden] { display: none; }
+  .account-profile { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px 28px; margin:20px 0; max-width:620px; }
+  .account-profile > div { min-width:0; }
+  .account-profile dt { font-size:12px; color:var(--muted); margin-bottom:5px; }
+  .account-profile dd { margin:0; font-size:16px; color:var(--text); overflow-wrap:anywhere; }
+  @media(max-width:540px) { .account-profile { grid-template-columns:minmax(0,1fr); gap:14px; } }
 </style>
 <section id="student-account" class="account-panel" aria-labelledby="account-heading">
   <h2 id="account-heading">My account</h2>
+  <dl id="account-profile" class="account-profile" aria-label="Account details" hidden>
+    <div><dt>Name</dt><dd id="account-name">Loading…</dd></div>
+    <div><dt>Email</dt><dd id="account-email">Loading…</dd></div>
+  </dl>
   <p id="account-status" role="status">Guest mode · Progress saves in this browser.</p>
   <div class="actions">
     <button class="button" id="account-login" type="button" hidden>Sign in / Create account ↗</button>
@@ -2054,6 +2063,9 @@ No installation or cloud account needed.</pre></div>
   const status = document.getElementById('account-status');
   const login = document.getElementById('account-login');
   const logout = document.getElementById('account-logout');
+  const profile = document.getElementById('account-profile');
+  const profileName = document.getElementById('account-name');
+  const profileEmail = document.getElementById('account-email');
   const importButton = document.createElement('button');
   importButton.type = 'button'; importButton.className = 'button secondary'; importButton.hidden = true;
   importButton.id = 'account-import'; logout.after(importButton);
@@ -2098,17 +2110,44 @@ No installation or cloud account needed.</pre></div>
     login.disabled = false;
     login.textContent = userId ? 'Sign in again ↗' : 'Sign in / Create account ↗';
     logout.hidden = !userId;
+    profile.hidden = !authenticated();
     const count = completedIds(readStored(STORAGE_KEY)).filter(id => !isComplete(id)).length;
     importButton.hidden = !authenticated() || !count;
     importButton.textContent = `Add ${count} saved ${count === 1 ? 'lesson' : 'lessons'}`;
   }
+  function clearProfile() {
+    profile.hidden = true;
+    profileName.textContent = 'Loading…'; profileEmail.textContent = 'Loading…';
+  }
+  async function loadProfile() {
+    const auth = session(), current = generation;
+    try {
+      const res = await fetch(new URL('/oauth2/userInfo', cfg.domain), {
+        headers:{Authorization:'Bearer ' + auth.token},
+        credentials:'omit', cache:'no-store', signal:AbortSignal.timeout(15000)
+      });
+      if (!res.ok) throw new Error('Profile unavailable');
+      const info = await res.json();
+      if (current !== generation || !authenticated() || auth.userId !== userId) return;
+      if (info.sub !== auth.userId) throw new Error('Unexpected account profile');
+      const text = (value, limit) => typeof value === 'string' ? value.trim().slice(0, limit) : '';
+      const fullName = text(info.name, 160) || [text(info.given_name, 80), text(info.family_name, 80)].filter(Boolean).join(' ');
+      profileName.textContent = fullName || 'Not provided';
+      profileEmail.textContent = text(info.email, 254) || 'Not provided';
+    } catch {
+      if (current !== generation || !authenticated() || auth.userId !== userId) return;
+      profileName.textContent = 'Unavailable'; profileEmail.textContent = 'Unavailable';
+    }
+  }
   function leave(message) {
+    clearProfile();
     generation++; clearTimeout(timer); clearTimeout(syncTimer); clearTimeout(retryTimer); retryDelay = 2000;
     token = null; userId = null; expiresAt = 0; syncing = false; revision = 0;
     progress = readStored(STORAGE_KEY);
     paintProgress(); controls(); say(message, 'Sign in to save across devices ↗');
   }
   function expireSession() {
+    clearProfile();
     // Keep ownership of new completions; never silently save them as guest work.
     token = null; expiresAt = 0; clearTimeout(timer); clearTimeout(syncTimer); clearTimeout(retryTimer);
     controls();
@@ -2267,7 +2306,8 @@ No installation or cloud account needed.</pre></div>
       if (typeof remote.userId !== 'string' || !/^[a-zA-Z0-9-]{1,128}$/.test(remote.userId) || !Array.isArray(remote.completed)) throw new Error('Invalid account response');
       userId = remote.userId; generation++; revision = 0;
       progress = readStored(cacheKey(userId)); mergeRemote(remote,userId); cacheAccount();
-      paintProgress(); controls();
+      clearProfile(); paintProgress(); controls();
+      loadProfile();
       timer = setTimeout(expireSession,Math.max(0,expiresAt-Date.now()));
       await sync();
       if(sessionStorage.getItem("linform-premium-return")){sessionStorage.removeItem("linform-premium-return");location.hash="premium";}
@@ -3396,4 +3436,5 @@ output "project_name" {
 </style>
 </body>
 </html>
+
 
