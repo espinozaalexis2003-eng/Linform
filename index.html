@@ -416,10 +416,10 @@ summary { color: #c7d4ff; cursor: pointer; font-weight: 600; font-size: 13px; }
   <header>
     <a class="brand" href="#" aria-label="Linform home">
       Linform
-      <svg viewBox="0 0 60 40" fill="none" aria-hidden="true">
-        <path d="M13 26H10a7 7 0 0 1-1-14 10 10 0 0 1 19-3 7.5 7.5 0 0 1 9 7"
+      <svg class="linform-brand-mark" viewBox="0 0 60 40" fill="none" aria-hidden="true">
+        <path class="linform-logo-cloud" d="M13 26H10a7 7 0 0 1-1-14 10 10 0 0 1 19-3 7.5 7.5 0 0 1 9 7"
           stroke="#81b4ff" stroke-width="1.8" stroke-linecap="round"/>
-        <path d="M15 32C32 35 46 25 48 8M40 13l8-5 5 8"
+        <path class="linform-logo-arrow" d="M15 32C32 35 46 25 48 8M40 13l8-5 5 8"
           stroke="#ad96ff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </a>
@@ -2990,9 +2990,9 @@ output "project_name" {
 .premium-mentor-heading>div>p:last-child{font-size:23px;line-height:1.5;color:#e2ecff;margin:22px 0 0;}
 .premium-mentor-spotlight .kicker{color:#ffe0a0;}
 .premium-mentor-role{color:#bbd4ff;font-size:14px;}
-.premium-mentor-monogram{aspect-ratio:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;border:1px solid #c9a55899;border-radius:50%;background:radial-gradient(circle at 35% 30%,#5086f166,#102756);box-shadow:0 0 0 13px #9cbcff0a,0 0 0 14px #b3ceff1f;}
-.premium-mentor-monogram span{font-size:66px;font-weight:800;letter-spacing:-5px;color:#ffe1a0;}
-.premium-mentor-monogram small{font-size:9px;letter-spacing:1.5px;color:#c1d7ff;}
+.premium-mentor-emblem{aspect-ratio:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;border:1px solid #c9a55899;border-radius:50%;background:radial-gradient(circle at 35% 30%,#5086f166,#102756);box-shadow:0 0 0 13px #9cbcff0a,0 0 0 14px #b3ceff1f;}
+.premium-mentor-emblem .premium-mentor-logo{width:145px;height:105px;overflow:visible;filter:drop-shadow(0 4px 10px #f4c96930);}
+.premium-mentor-emblem small{font-size:9px;letter-spacing:1.5px;color:#c1d7ff;}
 .premium-mentor-spotlight .premium-catalog{grid-template-columns:repeat(3,minmax(0,1fr));}
 .premium-mentor-spotlight .premium-card{background:#081a4080;border-color:#7da7fc55;box-shadow:none;}
 .premium-mentor-actions{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
@@ -3007,9 +3007,15 @@ output "project_name" {
 .premium-reader{scroll-margin-top:24px;border-color:#5778b5;background:linear-gradient(145deg,#102248,#0b1529);}
 .premium-reader>h2{color:#f5d58a;}
 #view-premium button:focus-visible,#view-premium a:focus-visible{outline:2px solid #ffdc8d;outline-offset:4px;}
-@media(max-width:850px){.premium-projects-grid,.premium-mentor-request{grid-template-columns:1fr;}.premium-mentor-spotlight .premium-catalog{grid-template-columns:1fr;}.premium-mentor-heading{grid-template-columns:1fr 150px;gap:24px;}.premium-mentor-monogram span{font-size:48px;}}
-@media(max-width:600px){[data-member="true"] .premium-hero{padding:28px 20px;}.premium-member-nav{gap:9px;}.premium-member-nav .button{flex:1 1 135px;font-size:14px;}.premium-mentor-spotlight{padding:25px 20px;}.premium-mentor-heading{grid-template-columns:1fr;}.premium-mentor-monogram{display:none;}.premium-mentor-heading>div>p:last-child{font-size:21px;}.premium-group-heading{gap:13px;}.premium-section-number{width:44px;height:52px;font-size:20px;border-radius:12px;}.premium-group-heading h2{font-size:25px;}.premium-mentor-request{padding:20px;gap:18px;}.premium-card{padding:21px;}.premium-hero #premium-intro{font-size:16px;}.premium-member-nav .button{white-space:normal;}}
+@media(max-width:850px){.premium-projects-grid,.premium-mentor-request{grid-template-columns:1fr;}.premium-mentor-spotlight .premium-catalog{grid-template-columns:1fr;}.premium-mentor-heading{grid-template-columns:1fr 150px;gap:24px;}.premium-mentor-emblem .premium-mentor-logo{width:100px;height:74px;}}
+@media(max-width:600px){[data-member="true"] .premium-hero{padding:28px 20px;}.premium-member-nav{gap:9px;}.premium-member-nav .button{flex:1 1 135px;font-size:14px;}.premium-mentor-spotlight{padding:25px 20px;}.premium-mentor-heading{grid-template-columns:1fr;}.premium-mentor-emblem{display:flex;width:104px;height:104px;justify-self:start;margin:4px 0 12px;gap:0;}.premium-mentor-emblem .premium-mentor-logo{width:72px;height:54px;}.premium-mentor-emblem small{display:none;}.premium-mentor-heading>div>p:last-child{font-size:21px;}.premium-group-heading{gap:13px;}.premium-section-number{width:44px;height:52px;font-size:20px;border-radius:12px;}.premium-group-heading h2{font-size:25px;}.premium-mentor-request{padding:20px;gap:18px;}.premium-card{padding:21px;}.premium-hero #premium-intro{font-size:16px;}.premium-member-nav .button{white-space:normal;}}
 @media(prefers-reduced-motion:reduce){.premium-card{transition:none;}.premium-card:hover{transform:none;}}
+
+/* The member logo treatment is scoped to the active Premium route. */
+.premium-mode[data-premium-member="true"] .site-header .brand{color:#f5d58a;}
+.premium-mode[data-premium-member="true"] .linform-brand-mark{filter:drop-shadow(0 2px 7px #4b8cff35);}
+.premium-mode[data-premium-member="true"] .linform-logo-cloud{stroke:#73b7ff;}
+.premium-mode[data-premium-member="true"] .linform-logo-arrow{stroke:#f5d58a;}
 </style>
 <script id="linform-premium-ui">
 (() => {
@@ -3035,7 +3041,7 @@ output "project_name" {
  <div class="premium-disclosure"><strong>What’s included</strong><br>Three certification study guides, practice questions, six guided projects, mentoring, resume-building guidance and resume reviews.</div></div>
 
  <section class="premium-mentoring premium-mentor-spotlight" aria-labelledby="premium-mentor-title">
- <div class="premium-mentor-heading"><div><span class="kicker">MENTORING / INCLUDED IN PREMIUM</span><h2 id="premium-mentor-title">3. Mentoring with Alexis</h2><p class="premium-mentor-role">Cloud engineer · Founder of Linform</p><p>You bring the questions.<br>I’ll help you find your next step.</p></div><div class="premium-mentor-monogram" aria-hidden="true"><span>AE</span><small>BUILD. LEARN. REPEAT.</small></div></div>
+ <div class="premium-mentor-heading"><div><span class="kicker">MENTORING / INCLUDED IN PREMIUM</span><h2 id="premium-mentor-title">3. Mentoring with Alexis</h2><p class="premium-mentor-role">Cloud engineer · Founder of Linform</p><p>You bring the questions.<br>I’ll help you find your next step.</p></div><div class="premium-mentor-emblem" aria-hidden="true"><svg class="premium-mentor-logo" viewBox="0 0 60 40" fill="none" aria-hidden="true"><defs><linearGradient id="linform-mentor-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2c4"/><stop offset=".5" stop-color="#f4cd7b"/><stop offset="1" stop-color="#c68c35"/></linearGradient></defs><path d="M13 26H10a7 7 0 0 1-1-14 10 10 0 0 1 19-3 7.5 7.5 0 0 1 9 7" stroke="url(#linform-mentor-gold)" stroke-width="2" stroke-linecap="round"/><path d="M15 32C32 35 46 25 48 8M40 13l8-5 5 8" stroke="url(#linform-mentor-gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><small>BUILD. LEARN. REPEAT.</small></div></div>
  <div class="premium-catalog"><article class="premium-card"><span class="kicker">01 / GET UNSTUCK</span><h3>Make it click.</h3><p>Work through AWS, Azure and Terraform concepts together.</p></article><article class="premium-card"><span class="kicker">02 / BUILD WITH CONFIDENCE</span><h3>A fresh pair of eyes.</h3><p>Get feedback on your architecture, code and project decisions.</p></article><article class="premium-card"><span class="kicker">03 / SHOW YOUR WORK</span><h3>Tell your project story.</h3><p>Turn what you built into clear resume bullet points.</p></article></div>
  <div class="premium-mentor-actions"><button class="button premium-contact-action" id="premium-mentor-cta" type="button">Ask Alexis</button><a class="text-link premium-email" href="mailto:alexise2003@outlook.com?subject=Linform%20Premium%20question">Email Alexis</a></div><p class="small-note" id="premium-mentoring-availability">Premium members can request study, project and resume feedback.</p></section>
  <section class="premium-mentoring" aria-labelledby="premium-resume-title"><span class="kicker">CAREER SUPPORT / INCLUDED IN PREMIUM</span><h2 id="premium-resume-title">4. Resume building &amp; review</h2><p>Turn completed projects into resume bullet points and get feedback on your draft.</p></section>
@@ -3149,6 +3155,7 @@ output "project_name" {
  }
  function memberPresentation(enabled){
   view.setAttribute('data-member',String(enabled));
+  document.body.setAttribute('data-premium-member',String(enabled));
   el('premium-purchase').hidden=enabled;el('premium-member-nav').hidden=!enabled;el('premium-status').hidden=enabled;
   el('premium-title').innerHTML=enabled?'Your next chapter.<br><span>Build it here.</span>':'Certification prep.<br><span>Build your cloud portfolio.</span>';
   el('premium-intro').textContent=enabled?'Study with purpose. Build something you’re proud of. Your Premium library is ready.':'AWS, Azure and Terraform certification prep—with guided projects, mentoring and resume building.';
@@ -3618,6 +3625,7 @@ output "project_name" {
 </style>
 </body>
 </html>
+
 
 
 
