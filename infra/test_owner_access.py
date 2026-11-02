@@ -30,7 +30,9 @@ def checkout(client,subject):
  if entitled(client,subject):return respond(409,{'error':'already'})
  return 200
 """
-TEMPLATE={'Resources':{'Function':{'Type':'AWS::Lambda::Function','Properties':{'Handler':'index.handler','Runtime':'python3.12','Code':{'ZipFile':SOURCE},'Environment':{'Variables':{'SALES_ENABLED':'true','PRICE_ID':'existing-price'}}}},'Keep':{'Type':'AWS::S3::Bucket','Properties':{'BucketName':'unchanged'}}},'Parameters':{'SalesEnabled':{'Type':'String'}}}
+TEMPLATE={'Resources':{'Function':{'Type':'AWS::Lambda::Function','Properties':{'Handler':'index.handler','Runtime':'python3.12','Code':{'ZipFile':SOURCE},'Environment':{'Variables':{'SALES_ENABLED':'true','PRICE_ID':'existing-price'}}}},'Integration':{'Type':'AWS::ApiGatewayV2::Integration','Properties':{'IntegrationUri':{'Fn::GetAtt':['Function','Arn']}}},'Keep':{'Type':'AWS::S3::Bucket','Properties':{'BucketName':'unchanged'}}},'Parameters':{'SalesEnabled':{'Type':'String'}}}
+FUNCTION_CHANGE={'LogicalResourceId':'Function','ResourceType':'AWS::Lambda::Function','Action':'Modify','Replacement':'False','Scope':['Properties'],'Details':[{'Target':{'Attribute':'Properties','Name':name,'RequiresRecreation':'Never'},'Evaluation':'Static','ChangeSource':'DirectModification'} for name in ['Code','Environment']]}
+INTEGRATION_CHANGE={'LogicalResourceId':'Integration','ResourceType':'AWS::ApiGatewayV2::Integration','Action':'Modify','Replacement':'False','Scope':['Properties'],'Details':[{'Target':{'Attribute':'Properties','Name':'IntegrationUri','RequiresRecreation':'Never'},'Evaluation':'Dynamic','ChangeSource':'ResourceAttribute','CausingEntity':'Function.Arn'}]}
 class OwnerSetupTests(unittest.TestCase):
  def test_owner_is_server_subject_not_email_or_browser_flag(self):
   ns={};exec(m.patch_code(SOURCE),ns)
@@ -78,7 +80,7 @@ class OwnerSetupTests(unittest.TestCase):
     if operation=='describe-stacks':return {'Stacks':[{'StackStatus':'UPDATE_COMPLETE','Parameters':[{'ParameterKey':'SalesEnabled'}]}]}
     if operation=='get-template':return {'TemplateBody':copy.deepcopy(TEMPLATE)}
     if operation=='create-change-set':return {'Id':'fixture-change'}
-    if operation=='describe-change-set':return {'Changes':[{'ResourceChange':{'LogicalResourceId':target,'Action':'Modify','Replacement':'False'}}]}
+    if operation=='describe-change-set':return {'Changes':[{'ResourceChange':{**copy.deepcopy(FUNCTION_CHANGE),'LogicalResourceId':target}}]}
     return {}
    with patch.object(m,'aws',aws),patch('sys.argv',ARGV+(['--review-only'] if review_only else [])),redirect_stdout(io.StringIO()) as output:
     if should_execute or review_only:m.main()
@@ -90,5 +92,28 @@ class OwnerSetupTests(unittest.TestCase):
     self.assertIn('PROPOSED CHANGE SUMMARY',output.getvalue())
     self.assertNotIn(EMAIL,output.getvalue())
     self.assertNotIn(SUBJECT,output.getvalue())
+ def test_observed_arn_dependency_is_accepted(self):
+  change={'Changes':[{'ResourceChange':copy.deepcopy(row)} for row in [FUNCTION_CHANGE,INTEGRATION_CHANGE]]}
+  self.assertTrue(m.expected_changes(change,TEMPLATE))
+  self.assertTrue(m.expected_changes({'Changes':[{'ResourceChange':FUNCTION_CHANGE}]},TEMPLATE))
+ def test_other_integration_edits_and_replacements_stay_blocked(self):
+  for mutate in [
+   lambda row:row.update(Replacement='True'),
+   lambda row:row.update(Replacement='Conditional'),
+   lambda row:row.update(Action='Remove'),
+   lambda row:row['Details'][0].update(ChangeSource='DirectModification'),
+   lambda row:row['Details'][0].update(CausingEntity='OtherFunction.Arn'),
+   lambda row:row['Details'][0]['Target'].update(Name='CredentialsArn'),
+   lambda row:row['Details'][0]['Target'].update(RequiresRecreation='Always')]:
+   row=copy.deepcopy(INTEGRATION_CHANGE);mutate(row)
+   self.assertFalse(m.expected_changes({'Changes':[{'ResourceChange':FUNCTION_CHANGE},{'ResourceChange':row}]},TEMPLATE))
+  template=copy.deepcopy(TEMPLATE);template['Resources']['Integration']['Properties']['IntegrationUri']='https://example.com'
+  self.assertFalse(m.expected_changes({'Changes':[{'ResourceChange':FUNCTION_CHANGE},{'ResourceChange':INTEGRATION_CHANGE}]},template))
+ def test_unrelated_function_properties_duplicate_resources_and_extra_pages_are_blocked(self):
+  row=copy.deepcopy(FUNCTION_CHANGE);row['Details'][0]['Target']['Name']='Role'
+  self.assertFalse(m.expected_changes({'Changes':[{'ResourceChange':row}]},TEMPLATE))
+  self.assertFalse(m.expected_changes({'Changes':[{'ResourceChange':FUNCTION_CHANGE}]*2},TEMPLATE))
+  self.assertFalse(m.expected_changes({'Changes':[{'ResourceChange':FUNCTION_CHANGE}], 'NextToken':'more'},TEMPLATE))
 if __name__=='__main__':unittest.main()
+
 
