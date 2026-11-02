@@ -24,7 +24,7 @@ async function terminal(saved){
     worker.on('message',onMessage);worker.postMessage({...data,id:current});
   });
   await request({type:'init',bytes,...(saved?{snapshot:saved}:{})});
-  return {run:command=>request({type:'run',command}),check:check=>request({type:'check',check}),reset:()=>request({type:'reset'}),close:()=>worker.terminate(),output};
+  return {read:path=>request({type:'read-file',path}),write:(path,text,append=false)=>request({type:'write-file',path,text,append}),run:command=>request({type:'run',command}),check:check=>request({type:'check',check}),reset:()=>request({type:'reset'}),close:()=>worker.terminate(),output};
 }
 test('cd, files and prompt directory persist between commands',async()=>{
   const t=await terminal();try{
@@ -105,4 +105,25 @@ test('aliases persist and system simulations change only practice state',async()
   assert.match((await restored.run('ufw status')).output,/active/);
   assert.equal((await restored.run('hi')).output,'hello\n');
  }finally{await restored.close();}
+});
+
+
+test('text editor writes UTF-8, preserves literal shell characters and truncates shorter saves',async()=>{
+ const t=await terminal();try{
+  await t.write('~/a file.txt',"Azure\nEspañol ☁\n$(echo unchanged); 'quotes'\n");
+  assert.equal((await t.read('~/a file.txt')).text,"Azure\nEspañol ☁\n$(echo unchanged); 'quotes'\n");
+  assert.match((await t.run('cat "a file.txt"')).output,/Español ☁/);
+  await t.write('~/a file.txt','short');assert.equal((await t.read('~/a file.txt')).text,'short');
+  await t.write('~/a file.txt',' + appended',true);assert.equal((await t.read('~/a file.txt')).text,'short + appended');
+ }finally{await t.close();}
+});
+test('editor file limits, directories and malformed paths fail without overwriting existing text',async()=>{
+ const t=await terminal();try{
+  await t.write('keep.txt','keep');
+  await assert.rejects(t.write('keep.txt','x'.repeat(65537)),/64 KB/);
+  assert.equal((await t.read('keep.txt')).text,'keep');
+  await assert.rejects(t.write('/home/learner','text'),/folder/);
+  await assert.rejects(t.write('bad\0name','text'),/valid practice filename/);
+  assert.equal((await t.read('new-note.txt')).exists,false);
+ }finally{await t.close();}
 });
