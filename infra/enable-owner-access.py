@@ -70,7 +70,10 @@ def main():
     parser.add_argument('--user-pool-id', required=True)
     parser.add_argument('--stack-name', required=True)
     parser.add_argument('--owner-email', required=True)
-    args = parser.parse_args()
+    parser.add_argument('--review-only', action='store_true', help='Show resource/property change summaries without executing an update')
+    options = parser.parse_args()
+    review_only = options.review_only
+    args = options
     account, pool, stack_name, owner_email = args.account_id, args.user_pool_id, args.stack_name, args.owner_email.strip().lower()
     if not re.fullmatch(r'[0-9]{12}', account) or not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+', owner_email):
         raise ValueError('Use a valid AWS account ID and owner email')
@@ -114,6 +117,28 @@ def main():
         safe = (len(resources) == 1 and resources[0].get('LogicalResourceId') == 'Function'
                 and resources[0].get('Action') == 'Modify' and resources[0].get('Replacement') == 'False'
                 and not change.get('NextToken'))
+        if review_only or not safe:
+            summary = []
+            for resource in resources:
+                details = []
+                for detail in resource.get('Details', []):
+                    target = detail.get('Target', {})
+                    details.append({key: value for key, value in {
+                        'attribute': target.get('Attribute'), 'property': target.get('Name'),
+                        'requiresRecreation': target.get('RequiresRecreation'),
+                        'evaluation': detail.get('Evaluation'), 'source': detail.get('ChangeSource'),
+                        'causingEntity': detail.get('CausingEntity')
+                    }.items() if value is not None})
+                summary.append({'resource': resource.get('LogicalResourceId'),
+                                'type': resource.get('ResourceType'), 'action': resource.get('Action'),
+                                'replacement': resource.get('Replacement'), 'scope': resource.get('Scope', []),
+                                'details': details})
+            print('PROPOSED CHANGE SUMMARY (no account attributes, template values or secrets):', flush=True)
+            print(json.dumps({'changes': summary, 'morePages': bool(change.get('NextToken'))}, indent=2), flush=True)
+        if review_only:
+            aws('cloudformation', 'delete-change-set', '--stack-name', stack_name, '--change-set-name', change_id)
+            print('Review complete. Temporary change set removed; no update was executed.')
+            return
         if not safe:
             aws('cloudformation', 'delete-change-set', '--stack-name', stack_name, '--change-set-name', change_id)
             raise RuntimeError('Unexpected infrastructure changes were blocked; nothing was executed')
@@ -128,3 +153,4 @@ if __name__ == '__main__':
         main()
     except (RuntimeError, ValueError, KeyError) as error:
         raise SystemExit(str(error))
+
