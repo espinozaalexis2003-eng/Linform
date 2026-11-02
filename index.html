@@ -1614,7 +1614,7 @@ __linform_previous
   const section=document.createElement('section');section.id='linux-lab';section.className='section';
   section.innerHTML=`
     <div class="section-heading"><div><span class="kicker">Practice / Linux terminal</span><h2>Your terminal. Ready to explore.</h2></div><p>Type a command, press Enter, and see what happens. Your practice files stay safely in this tab.</p></div>
-    <p class="mobile-practice-tip">On your phone? Tap Start terminal, type a command, then tap Run.</p>
+    
     <div class="practice-workspace">
       <div>
         <div class="shell-window" id="shell-window">
@@ -2714,7 +2714,7 @@ output "project_name" {
     <div class="section-heading"><div><span class="kicker">Practice / Terraform workflow</span><h2>Plan it. Apply it. Understand it.</h2></div><p>Start with one practice object. See how a configuration becomes a plan, then a saved result.</p></div>
     <p><span class="tf-label">Teaching simulator · Not a Terraform CLI installation</span></p>
     <details class="small-note"><summary>What this simulator supports</summary><p>Practice variables, terraform_data resources, outputs and state in this tab. Use the EC2 visual demo on Home to preview a cloud deployment.</p></details>
-    <p class="mobile-practice-tip">Tap a workflow command, then Run. Edit main.tf above the terminal.</p>
+    
     <section class="tf-coach" aria-labelledby="tf-guide-title"><div><span class="kicker" id="tf-guide-progress">STEP 1 OF 8</span><h3 id="tf-guide-title"></h3><p id="tf-guide-why"></p><p class="tf-expect" id="tf-guide-expect"></p></div><div class="tf-coach-action"><code id="tf-guide-command"></code><button class="button secondary" id="tf-guide-use" type="button">Put command at prompt</button></div></section>
     <div class="tf-file-map"><span><strong>main.tf</strong> What you want</span><span><strong>Plan</strong> What would change</span><span><strong>State</strong> What has been applied</span></div>
     <div class="tf-workspace">
@@ -2866,6 +2866,7 @@ output "project_name" {
  .premium-topline {display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
  .premium-badge {display:inline-flex;align-items:center;gap:8px;color:#dceaff;border:1px solid #5a8aee;background:#163773;border-radius:30px;padding:7px 14px;font-size:12px;letter-spacing:.12em;font-weight:800;}
  .premium-badge svg {width:17px;height:17px;}
+ .premium-badge .premium-tag-logo{width:31px;height:24px;overflow:visible;filter:drop-shadow(0 1px 4px #e7ac4e40);}
  .premium-hero h1 {max-width:850px;font-size:clamp(36px,5vw,64px);line-height:1.08;margin:26px 0 20px;letter-spacing:-.045em;}
  .premium-hero h1 span {color:#8cbbff;}
  .premium-hero p {max-width:720px;}
@@ -3003,7 +3004,7 @@ output "project_name" {
 (() => {
  const view=document.getElementById('view-premium');
  view.innerHTML=`<section class="premium-hero" aria-labelledby="premium-title">
- <div class="premium-topline"><span class="premium-badge"><svg viewBox="0 0 24 24" class="premium-crown" fill="#f2c66d" stroke="#ffe3a0" stroke-width="1.6" aria-hidden="true"><path d="m3 7 5 4 4-7 4 7 5-4-2 12H5L3 7Z"/></svg>LINFORM PREMIUM</span><span class="small-note" id="premium-access-label">Private learning library</span></div>
+ <div class="premium-topline"><span class="premium-badge"><svg class="premium-tag-logo" viewBox="0 0 60 40" fill="none" aria-hidden="true"><defs><linearGradient id="linform-tag-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2c4"/><stop offset=".5" stop-color="#f4cd7b"/><stop offset="1" stop-color="#c68c35"/></linearGradient></defs><path d="M13 26H10a7 7 0 0 1-1-14 10 10 0 0 1 19-3 7.5 7.5 0 0 1 9 7" stroke="url(#linform-tag-gold)" stroke-width="2" stroke-linecap="round"/><path d="M15 32C32 35 46 25 48 8M40 13l8-5 5 8" stroke="url(#linform-tag-gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>LINFORM PREMIUM</span><span class="small-note" id="premium-access-label">Private learning library</span></div>
  <h1 id="premium-title">Certification prep.<br><span>Build your cloud portfolio.</span></h1>
  <p id="premium-intro">AWS, Azure and Terraform certification prep—with guided projects, mentoring and resume building.</p>
  <nav class="premium-member-nav" id="premium-member-nav" aria-label="Your Premium library" hidden><button class="button" id="premium-go-guides" type="button">Study guides</button><button class="button secondary" id="premium-go-projects" type="button">Build a project</button><button class="button secondary" id="premium-go-contact" type="button">Ask Alexis</button></nav>
