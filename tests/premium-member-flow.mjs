@@ -66,6 +66,6 @@ console.log('PASS: resume-review request mapping and revoked access clear privat
 
 
 assert.equal(view.attributes['data-member'],'false');assert.equal(el('premium-purchase').hidden,false);assert.equal(el('premium-member-nav').hidden,true);assert.equal(el('premium-guide-cards').children.length,0);assert.equal(el('premium-project-cards').children.length,0);
-assert.match(html,/fill="#f2c66d"/);assert.doesNotMatch(html,/Refresh purchase access/);
+assert.match(html,/class="premium-tag-logo"/);assert.doesNotMatch(html,/Refresh purchase access/);
 console.log('PASS: member and owner presentation hides pricing/retry, separates guides/projects, routes contact shortcuts and restores prospect state after revoked access.');
 
