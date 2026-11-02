@@ -18,7 +18,7 @@ class Element{
  set textContent(v){this._text=v??'';this.children=[]}get textContent(){return this._text+this.children.map(e=>e.textContent).join(' ')}
  set innerHTML(s){this.html=s;for(const m of s.matchAll(/<([a-z][a-z0-9]*)\b([^>]*\bid="([^"]+)"[^>]*)>/g)){const e=new Element(m[1]);e.id=m[3];e.hidden=/\bhidden\b/.test(m[2]);}}
  append(...items){this.children.push(...items)}replaceChildren(...items){this._text='';this.children=[...items]}
- after(e){this.sibling=e}setAttribute(name,value){this.attributes[name]=value}scrollIntoView(){this.scrolled=true}focus(){this.focused=true}remove(){}click(){return this.listeners.click?.({preventDefault(){}})}
+ showModal(){this.open=true}close(){this.open=false;this.listeners.close?.()}after(e){this.sibling=e}setAttribute(name,value){this.attributes[name]=value}scrollIntoView(){this.scrolled=true}focus(){this.focused=true}remove(){}click(){return this.listeners.click?.({preventDefault(){}})}
  addEventListener(n,f){this.listeners[n]=f}reset(){this.value=''}
 }
 const view=new Element();view.id='view-premium';
@@ -41,7 +41,12 @@ for(const [index,item]of catalog.items.entries()){
  const reader=el('premium-reader');assert.equal(reader.hidden,false);assert.match(reader.textContent,new RegExp(item.title.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
  const marks=walk(reader).filter(e=>e.tag==='button'&&/Mark .*complete/.test(e.textContent));
  assert.ok(marks.length>0,item.id+' has completion controls');await marks[0].click();assert.ok(saves>0);
- if(item.kind==='guide')assert.equal(walk(reader).filter(e=>e.tag==='fieldset').length,12);
+ if(item.kind==='guide'){
+  assert.equal(walk(reader).filter(e=>e.tag==='fieldset').length,0);
+  const launch=walk(reader).find(e=>e.tag==='button'&&e.textContent==='Start 5-question quiz');assert.ok(launch);await launch.click();
+  const modal=walk(reader).find(e=>e.tag==='dialog');assert.equal(modal.open,true);assert.equal(walk(modal).filter(e=>e.tag==='fieldset').length,1);
+  await walk(modal).find(e=>e.tag==='button'&&e.textContent==='Close').click();assert.equal(modal.open,false);
+ }
  else {assert.ok(reader.textContent.includes('Resume bullets after you finish'));assert.ok(reader.textContent.includes('Download starter files'));}
 }
 console.log('PASS: paid-member catalog, all 3 complete guide readers, 6 guided project readers, quiz controls, milestones, starter downloads and resume sections render.');
@@ -63,3 +68,4 @@ console.log('PASS: resume-review request mapping and revoked access clear privat
 assert.equal(view.attributes['data-member'],'false');assert.equal(el('premium-purchase').hidden,false);assert.equal(el('premium-member-nav').hidden,true);assert.equal(el('premium-guide-cards').children.length,0);assert.equal(el('premium-project-cards').children.length,0);
 assert.match(html,/fill="#f2c66d"/);assert.doesNotMatch(html,/Refresh purchase access/);
 console.log('PASS: member and owner presentation hides pricing/retry, separates guides/projects, routes contact shortcuts and restores prospect state after revoked access.');
+

@@ -31,11 +31,11 @@ const document = {
   getElementById: id => { if (!elements.has(id)) elements.set(id,new Element('div')); return elements.get(id); },
   querySelector: () => new Element('nav')
 };
-const learning = scripts.find(([, , source]) => source.includes('const paths =') && source.includes('function gradeQuiz'));
+const learning = scripts.find(([, , source]) => source.includes('const paths =') && source.includes('window.LinformLearning'));
 assert.ok(learning, 'certification curriculum exists');
 const learningContext = vm.createContext({ document,courses,renderCourses(){},openCourse(){},window:{},setInterval,clearInterval });
 vm.runInContext(learning[2], learningContext);
-const {questions, paths, gradeQuiz, shuffle} = learningContext.window.LinformLearning;
+const {paths} = learningContext.window.LinformLearning;
 const ids = new Set();
 for (const [key, course] of Object.entries(courses)) {
   for (const lesson of course.lessons) {
@@ -43,15 +43,8 @@ for (const [key, course] of Object.entries(courses)) {
     assert.ok(lesson.title && lesson.intro && lesson.challenge && lesson.answerText);
   }
   if (key === 'linux') continue;
-  const bank = questions[key];
-  assert.equal(gradeQuiz(bank, bank.map(q=>q[3])).correct, bank.length);
-  assert.equal(gradeQuiz(bank, bank.map(()=>null)).correct, 0);
-  assert.equal(gradeQuiz(bank, bank.map(q=>(q[3]+1)%q[2].length)).correct, 0);
-  for (const lesson of paths[key].lessons) assert.ok(bank.some(q=>q[0]===lesson.domain), `review for ${key} ${lesson.domain}`);
-  for (const q of bank) assert.ok(Number.isInteger(q[3]) && q[3] >= 0 && q[3] < q[2].length && q[4]);
-  const copy = shuffle(bank);
-  assert.equal(copy.length, bank.length);
-  assert.notEqual(copy, bank);
+  for (const lesson of paths[key].lessons) assert.ok(course.lessons.some(item=>item.id===lesson.id), `mapped lesson ${key} ${lesson.id}`);
 }
 assert.equal(ids.size, 26);
-console.log(`Site validation passed: ${scripts.length} scripts parse, 26 unique lessons, 15 review questions, every mapped domain represented.`);
+console.log(`Site validation passed: ${scripts.length} scripts parse, 26 unique lessons, every certification lesson mapped; quizzes are inside protected Premium guides.`);
+

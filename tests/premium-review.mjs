@@ -1,57 +1,33 @@
-import assert from 'node:assert/strict';
-import fs from 'node:fs';
-import vm from 'node:vm';
-
-class Element {
- constructor(tag,text=''){this.tag=tag;this.textContent=text||'';this.children=[];this.handlers={};this.hidden=false;this.checked=false;this.disabled=false;}
- append(...items){this.children.push(...items);}
- setAttribute(){}
- addEventListener(name,fn){this.handlers[name]=fn;}
- replaceChildren(...items){this.children=[...items];this.textContent='';}
- focus(){this.focused=true;}
- reset(){const visit=e=>{if(e.tag==='input')e.checked=false;e.children.forEach(visit);};visit(this);}
+import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
+class Element{
+ constructor(tag,text=''){this.tag=tag;this.textContent=text||'';this.children=[];this.handlers={};this.hidden=false;this.checked=false;this.disabled=false;this.open=false;}
+ append(...items){this.children.push(...items)}setAttribute(){}addEventListener(name,fn){this.handlers[name]=fn}
+ replaceChildren(...items){this.children=[...items];this.textContent=''}focus(){this.focused=true}remove(){this.removed=true}
+ showModal(){this.open=true}close(){this.open=false;this.handlers.close?.()}click(){return this.handlers.click?.()}
 }
-const node=(tag,text)=>new Element(tag,text);
-const context=vm.createContext({node,makeCodeBlock:code=>node('pre',code),generation:3,purchased:true});
-const html=fs.readFileSync(process.argv[2]||'index.html','utf8');
-const helper=html.slice(html.indexOf(' function appendPracticeCases('),html.indexOf(' function clearPrivate(){'));
-assert.ok(helper.includes('function appendPremiumReview'));
-vm.runInContext(helper,context);
-const parent=node('article');
-const exam={title:'Synthetic review',notice:'Test fixture',questions:[
- {domain:'Identity',question:'Synthetic Q1',options:['A','B'],answer:1,explanation:'Explanation one'},
- {domain:'State',question:'Synthetic Q2',options:['C','D'],answer:0,explanation:'Explanation two'}]};
-context.appendPremiumReview(parent,exam,3);
-const block=parent.children[0],form=block.children.find(e=>e.tag==='form');
-const fields=form.children.filter(e=>e.tag==='fieldset');
-const radios=fields.map(f=>f.children.filter(e=>e.tag==='label').map(l=>l.children[0]));
-const buttons=form.children.filter(e=>e.tag==='button');
-const feedback=form.children.at(-1);
-let prevented=0;const event={preventDefault(){prevented++;}};
-form.handlers.submit(event);
-assert.match(feedback.textContent,/Answer every/);
-assert.equal(radios[0][0].focused,true);
-radios[0][1].checked=true;radios[1][1].checked=true;
-form.handlers.submit(event);
-assert.match(feedback.children[0].textContent,/1\/2 correct · 50%/);
-assert.match(feedback.children[1].textContent,/State \(0\/1\)/);
-assert.equal(radios.every(row=>row.every(r=>r.disabled)),true);
-assert.equal(fields.every(f=>!f.children.at(-1).hidden),true);
-assert.equal(buttons[0].disabled,true);assert.equal(buttons[1].hidden,false);
-buttons[1].handlers.click();
-assert.equal(radios.flat().some(r=>r.checked||r.disabled),false);
-assert.equal(fields.every(f=>f.children.at(-1).hidden),true);
-assert.equal(buttons[0].disabled,false);
-for(let i=0;i<radios.length;i++)radios[i][exam.questions[i].answer].checked=true;
-form.handlers.submit(event);
-assert.match(feedback.children[0].textContent,/2\/2 correct · 100%/);
-assert.match(feedback.children[1].textContent,/All answers correct/);
-context.generation=4;
-const old=feedback.children[0];buttons[1].handlers.click();
-assert.equal(feedback.children[0],old,'stale account callbacks are ignored');
-context.generation=3;context.purchased=false;
-buttons[1].handlers.click();assert.equal(feedback.children[0],old);
-const cases=node('article');context.appendPracticeCases(cases,'Cases',[{title:'Example',scenario:'Scenario',steps:['First'],code:'<script>not executed</script>',solution:'Reasoning'}]);
-assert.equal(cases.children[1].tag,'details');
-assert.equal(cases.children[1].children[1].children.find(e=>e.tag==='pre').textContent,'<script>not executed</script>');
-console.log('PASS: review scoring, weak topics, answer explanations, retry, account guards, and safe scenario rendering');
+const html=fs.readFileSync(process.argv[2]||'index.html','utf8'),helper=html.slice(html.indexOf(' function appendPracticeCases('),html.indexOf(' function clearPrivate(){'));
+const node=(tag,text)=>new Element(tag,text),saved=new Map();
+const context=vm.createContext({node,account:{identity:()=> 'fixture-member'},localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)},makeCodeBlock:code=>node('pre',code),generation:3,purchased:true});vm.runInContext(helper,context);
+const exam={title:'Fixture quiz',questions:Array.from({length:12},(_,i)=>({domain:'Fixture',question:'Question '+i,options:['A','B','C','D'],answer:i%4,explanation:'Reason '+i}))};
+const parent=node('article');context.appendPremiumReview(parent,exam,3,'fixture-guide');const launch=parent.children[0].children.at(-1);
+launch.click();let dialog=parent.children.at(-1),body=dialog.children[1],status=dialog.children[2],controls=dialog.children[3];
+assert.equal(dialog.open,true);controls.children[1].click();assert.match(status.textContent,/Choose an answer/);
+const seen=[];
+for(let step=0;step<5;step++){
+ const field=body.children.find(e=>e.tag==='fieldset'),id=Number(field.children[0].textContent.split(' ').at(-1));seen.push(id);
+ const inputs=field.children.filter(e=>e.tag==='label').map(e=>e.children[0]);const answer=inputs.find(e=>Number(e.value)===id%4);answer.checked=true;answer.handlers.change();
+ if(step===0){controls.children[1].click();controls.children[0].click();assert.ok(body.children[1].children.filter(e=>e.tag==='label').some(e=>e.children[0].checked));}
+ controls.children[1].click();
+}
+assert.equal(new Set(seen).size,5);assert.equal(body.children[0].textContent,'5 / 5 correct');assert.equal(body.children.filter(e=>e.tag==='details').length,5);
+assert.ok(body.children.filter(e=>e.tag==='details').every(e=>e.children.some(c=>c.textContent.startsWith('Reason '))));
+controls.children[0].click();dialog=parent.children.at(-1);assert.equal(dialog.open,true);
+const stored=JSON.parse([...saved.values()][0]);assert.equal(stored.last.length,5);assert.ok(stored.last.every(i=>!seen.includes(i)));
+assert.ok([...saved.values()].every(text=>!text.includes('Question')&&!text.includes('Reason')),'only question indexes are persisted');
+context.closePremiumQuiz();assert.equal(dialog.open,false);const count=parent.children.length;context.purchased=false;launch.click();assert.equal(parent.children.length,count);
+context.purchased=true;context.generation=4;launch.click();assert.equal(parent.children.length,count);
+context.generation=3;launch.click();dialog=parent.children.at(-1);context.generation=4;const oldBody=dialog.children[1].children[0];dialog.children[3].children[1].click();assert.equal(dialog.children[1].children[0],oldBody);
+context.closePremiumQuiz();
+assert.doesNotMatch(html,/Architecture reasoning lab|See how you’ll learn|id="linform-public-preview"/);
+assert.match(html,/Mentoring with an engineer/);
+console.log('PASS: protected five-question dialog, required answers, back navigation, scoring, explanations, fresh non-repeating sets, close/reset, stale/unpaid guards and index-only persistence.');
