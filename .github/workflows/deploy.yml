@@ -51,6 +51,7 @@ jobs:
           node tests/validate-site.mjs
           node --test tests/account-progress.mjs
           node tests/premium-member-flow.mjs
+          node tests/premium-review.mjs
           LINFORM_TEST_OWNER=1 node tests/premium-member-flow.mjs
           node --test tests/terminal.mjs
           node --test tests/terraform.mjs
