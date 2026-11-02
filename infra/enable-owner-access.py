@@ -57,6 +57,46 @@ def build_template(template, subject):
     props['Environment']['Variables']['LINFORM_OWNER_SUB'] = subject
     return updated
 
+def expected_changes(change, template):
+    """Accept the function edit and only its observed ARN dependency reevaluation."""
+    if change.get('NextToken'):
+        return False
+    rows = [item.get('ResourceChange', {}) for item in change.get('Changes', [])]
+    names = [row.get('LogicalResourceId') for row in rows]
+    if any(not isinstance(name, str) for name in names):
+        return False
+    if sorted(names) not in (['Function'], ['Function', 'Integration']):
+        return False
+    for row in rows:
+        if row.get('Action') != 'Modify' or row.get('Replacement') != 'False' or row.get('Scope') != ['Properties']:
+            return False
+        details = row.get('Details', [])
+        if not details:
+            return False
+        if row['LogicalResourceId'] == 'Function':
+            if row.get('ResourceType') != 'AWS::Lambda::Function':
+                return False
+            for detail in details:
+                target = detail.get('Target', {})
+                if (target.get('Attribute') != 'Properties' or target.get('Name') not in ('Code', 'Environment')
+                        or target.get('RequiresRecreation') != 'Never' or detail.get('Evaluation') != 'Static'
+                        or detail.get('ChangeSource') != 'DirectModification'):
+                    return False
+        else:
+            integration = template.get('Resources', {}).get('Integration', {})
+            if (row.get('ResourceType') != 'AWS::ApiGatewayV2::Integration'
+                    or integration.get('Type') != 'AWS::ApiGatewayV2::Integration'
+                    or integration.get('Properties', {}).get('IntegrationUri') != {'Fn::GetAtt': ['Function', 'Arn']}
+                    or len(details) != 1):
+                return False
+            detail = details[0]
+            target = detail.get('Target', {})
+            if (target.get('Attribute') != 'Properties' or target.get('Name') != 'IntegrationUri'
+                    or target.get('RequiresRecreation') != 'Never' or detail.get('Evaluation') != 'Dynamic'
+                    or detail.get('ChangeSource') != 'ResourceAttribute' or detail.get('CausingEntity') != 'Function.Arn'):
+                return False
+    return True
+
 def aws(*args):
     result = subprocess.run(['aws', '--region', REGION, *args, '--output', 'json', '--no-cli-pager'], capture_output=True, text=True)
     if result.returncode:
@@ -114,9 +154,7 @@ def main():
         aws('cloudformation', 'wait', 'change-set-create-complete', '--stack-name', stack_name, '--change-set-name', change_id)
         change = aws('cloudformation', 'describe-change-set', '--stack-name', stack_name, '--change-set-name', change_id)
         resources = [item.get('ResourceChange', {}) for item in change.get('Changes', [])]
-        safe = (len(resources) == 1 and resources[0].get('LogicalResourceId') == 'Function'
-                and resources[0].get('Action') == 'Modify' and resources[0].get('Replacement') == 'False'
-                and not change.get('NextToken'))
+        safe = expected_changes(change, template)
         if review_only or not safe:
             summary = []
             for resource in resources:
@@ -153,4 +191,5 @@ if __name__ == '__main__':
         main()
     except (RuntimeError, ValueError, KeyError) as error:
         raise SystemExit(str(error))
+
 
