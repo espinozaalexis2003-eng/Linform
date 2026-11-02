@@ -1763,16 +1763,6 @@ No installation or cloud account needed.</pre></div>
   .cert-table th { color:#dce7ff; }
   .cert-table td { color:#b2c1da; }
   .cert-table button { background:transparent; border:0; padding:0; color:var(--cert-accent); text-decoration:underline; text-align:left; }
-  .cert-option { display:flex; align-items:flex-start; gap:10px; padding:13px; border:1px solid #344663; border-radius:7px; margin:8px 0; cursor:pointer; font-weight:400; font-size:14px; }
-  .cert-option input { width:auto; margin:5px 0 0; flex-shrink:0; accent-color:var(--cert-accent); }
-  .cert-question { border:0; padding:0; margin:22px 0; min-width:0; }
-  .cert-question legend { font-weight:700; color:#eef3ff; margin-bottom:10px; }
-  .cert-result { border-left:3px solid var(--cert-accent); padding:12px 16px; margin:14px 0; background:#19253e; }
-  .cert-result p { margin:6px 0; }
-  .cert-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
-  .cert-actions .cert-option { border:0; margin:0; padding:8px 0; }
-  .cert-summary { font-weight:700; color:#edf2ff; }
-  #architecture-check select { margin-bottom:12px; }
   @media(max-width:600px) { .cert-panel { padding:18px; } .cert-table th,.cert-table td { padding:10px 6px; } }
 </style>
 <script>
@@ -1817,31 +1807,6 @@ No installation or cloud account needed.</pre></div>
   });
   renderCourses();
 
-  // Original questions: each high-level certification domain has a review item.
-  const questions = {
-    aws: [
-      ["1","A ticketing site has short, unpredictable traffic spikes. Which property best describes increasing and reducing capacity to match demand?",["Elasticity","A fixed annual hardware purchase","A single failure domain"],0,"Elasticity adapts capacity to changing demand. The design still needs scaling rules and cost review."],
-      ["2","Who normally patches the guest operating system on a customer-managed EC2 instance?",["Only the physical data center operator","The customer","No one, because every cloud server is fully managed"],1,"For EC2, guest OS maintenance generally belongs to the customer. More managed services change the boundary."],
-      ["3","Which storage category fits lesson images retrieved as individual objects?",["An EC2 boot disk only","An object store such as Amazon S3","A database administrator's password file"],1,"S3 supplies object storage. Authentication and appropriate content-delivery permissions still need deliberate design."],
-      ["4","What does a budget alert normally provide?",["A universal hard stop on every service's spending","A guarantee that reporting is instantaneous","A notification based on configured spending or usage conditions"],2,"Alerts support monitoring; they are not a universal automatic spending cap. Check current usage, reporting delays, and remaining resources."]
-    ],
-    azure: [
-      ["1","A team deploys application code while the provider maintains the underlying platform. Which model is the best starting classification?",["PaaS","Buying a private physical server","A guarantee of zero customer security duties"],0,"PaaS reduces platform management. Application logic, data handling, and permissions still need customer attention."],
-      ["2","Which statement separates identity from authorization?",["A resource group automatically authenticates every user","Authentication establishes identity; RBAC grants permitted actions","Knowing a subscription's name grants control"],1,"Identity proof and action permissions are distinct. Resource organization does not replace either control."],
-      ["3","You want new deployments restricted to approved Azure locations. Which tool is designed to express that restriction?",["A descriptive cost tag alone","An application performance graph alone","An appropriate Azure Policy assignment"],2,"Policy can evaluate and enforce configured resource rules. Tags label resources, and monitoring observes behavior."]
-    ],
-    terraform: [
-      ["1","What is a practical advantage of infrastructure as code?",["It removes the need for any review","It makes intended changes reviewable and repeatable","It makes every cloud provider use identical resources"],1,"Configuration can be reviewed and reused. Provider schemas and real-world effects still differ."],
-      ["2","What does a provider primarily supply to Terraform?",["Resource and data-source implementations for a service","A replacement for every API permission","An unlimited cloud spending allowance"],0,"Providers connect configuration to service APIs. Credentials and permissions are separate concerns."],
-      ["3","Which action previews proposed infrastructure changes?",["terraform fmt","Deleting the state file","terraform plan"],2,"Plan proposes changes for review. Formatting changes layout, while deleting state risks breaking management associations."],
-      ["4","A variable is marked sensitive. What must you still assume?",["State and saved plans may contain sensitive values","The value is automatically absent from every artifact","All resource access has been disabled"],0,"Sensitive marking redacts some display. Protect state and plan artifacts and review supported secret handling."],
-      ["5","How does a child module normally receive an input value from its caller?",["By guessing the caller's variable names","Through an argument in the module call","By reading every variable from every workspace"],1,"A module call passes inputs through an explicit interface. Matching names alone do not assign values."],
-      ["6","Why is backend locking useful?",["It replaces code review","It guarantees every configuration is correct","It helps prevent concurrent state writers"],2,"Locking coordinates writers where supported. It does not determine whether a proposed infrastructure change is desirable."],
-      ["7","An import succeeds but the next plan proposes deleting important data. What should happen next?",["Apply immediately","Stop and investigate the configuration and proposed changes","Publish the state publicly"],1,"Import establishes management association. It is not approval for destructive actions; inspect the plan and correct the intended configuration."],
-      ["8","What is an HCP Terraform project useful for?",["Grouping related workspaces and organizing access","Making all workspace credentials public","Replacing every workspace with a local folder"],0,"Projects help organize workspaces and access. Environment-specific permissions and secrets still need careful scope."]
-    ]
-  };
-
   function el(tag,text,className) {
     const node = document.createElement(tag);
     if (text !== undefined) node.textContent = text;
@@ -1854,38 +1819,15 @@ No installation or cloud account needed.</pre></div>
     button.addEventListener("click",handler);
     return button;
   }
-  function shuffle(items) {
-    const copy = [...items];
-    for (let i=copy.length-1; i>0; i--) {
-      const j = Math.floor(Math.random()*(i+1));
-      [copy[i],copy[j]] = [copy[j],copy[i]];
-    }
-    return copy;
-  }
-  function gradeQuiz(bank,answers) {
-    const domains = {};
-    let correct = 0;
-    bank.forEach((q,index) => {
-      const passed = answers[index] === q[3];
-      const domain = domains[q[0]] || (domains[q[0]] = {correct:0,total:0});
-      domain.total++;
-      if (passed) { domain.correct++; correct++; }
-    });
-    return { correct,total:bank.length,domains };
-  }
-
   const section = el("section",undefined,"section");
   section.id = "certifications";
-  section.append(el("span","Certification foundations","kicker"),el("h2","Learn the concept. Test your reasoning."),el("p","Follow lessons mapped to the published certification domains, then try a short original review quiz. These introductory paths do not cover every exam subobjective; use the official guides to plan the rest of your study."));
+  section.append(el("span","Certification foundations","kicker"),el("h2","Learn the concept. Test your reasoning."),el("p","Explore the exam domains and the lessons that build your foundations."));
   const tabs = el("div",undefined,"cert-tabs");
   tabs.setAttribute("role","group");
   tabs.setAttribute("aria-label","Certification path");
   const panel = el("div",undefined,"cert-panel");
-  const quizPanel = el("div",undefined,"cert-panel");
-  let selected = "aws", timer = null, generation = 0;
-  function stopTimer() { if (timer !== null) clearInterval(timer); timer = null; }
+  let selected = "aws";
   function renderPath() {
-    stopTimer(); generation++;
     const path = paths[selected];
     section.style.setProperty("--cert-accent",path.color);
     Array.from(tabs.children).forEach(button => button.setAttribute("aria-pressed",String(button.dataset.path===selected)));
@@ -1910,108 +1852,18 @@ No installation or cloud account needed.</pre></div>
       row.append(cell); body.append(row);
     });
     table.append(caption,head,body); wrap.append(table); panel.append(wrap);
-    renderQuizStart();
-  }
-  function renderQuizStart() {
-    stopTimer(); generation++;
-    quizPanel.replaceChildren(el("h3","Practice review"),el("p",`${questions[selected].length} original questions, with explanations and a domain breakdown. This is a short review, not a full-length exam simulation or a prediction of your certification score.`));
-    const actions = el("div",undefined,"cert-actions");
-    const label = el("label",undefined,"cert-option"), timed=el("input");
-    timed.type="checkbox";
-    label.append(timed,el("span","Timed practice · one minute per question"));
-    actions.append(action("Start review ↗",()=>startQuiz(timed.checked)),label);
-    quizPanel.append(actions);
-  }
-  function startQuiz(timed) {
-    stopTimer();
-    const run = ++generation, key=selected, bank=shuffle(questions[key]);
-    quizPanel.replaceChildren(el("h3",`${paths[key].exam} · Review`));
-    const clock=el("p",timed ? "Timer starting…" : "Untimed practice","small-note");
-    clock.setAttribute("role","timer");
-    const form=el("form"), fields=[], answerInputs=[];
-    let submitted=false, deadline=Date.now()+bank.length*60000;
-    bank.forEach((q,index)=> {
-      const field=el("fieldset",undefined,"cert-question");
-      field.append(el("legend",`${index+1}. ${q[1]}`));
-      const inputs=[];
-      shuffle(q[2].map((text,value)=>({text,value}))).forEach(choice=>{
-        const label=el("label",undefined,"cert-option"), input=el("input");
-        input.type="radio"; input.name=`quiz-${run}-${index}`; input.value=String(choice.value);
-        label.append(input,el("span",choice.text)); field.append(label); inputs.push(input);
-      });
-      fields.push(field); answerInputs.push(inputs); form.append(field);
-    });
-    const status=el("p","","status-message"); status.setAttribute("role","status");
-    const result=el("div");
-    const submit=el("button","Submit review","button"); submit.type="submit";
-    form.append(submit,status);
-    function submitQuiz(expired=false) {
-      if (submitted || run!==generation) return;
-      const answers=answerInputs.map(inputs=>{const input=inputs.find(item=>item.checked); return input ? Number(input.value) : null;});
-      if (!expired && answers.some(answer=>answer===null)) { status.textContent="Choose an answer for every question before submitting."; return; }
-      submitted=true; stopTimer(); submit.disabled=true;
-      answerInputs.flat().forEach(input=>input.disabled=true);
-      const report=gradeQuiz(bank,answers);
-      result.replaceChildren(el("h3",`${report.correct} of ${report.total} correct`));
-      result.tabIndex=-1;
-      result.append(el("p",expired ? "Time ended. Unanswered questions count as incorrect. Review the explanations below." : "Review both correct and incorrect answers, then revisit the relevant lessons."));
-      const domains=el("ul");
-      Object.entries(report.domains).forEach(([domain,score])=>domains.append(el("li",`${key === "terraform" ? "Objective" : "Domain"} ${domain}: ${score.correct}/${score.total}`)));
-      result.append(domains,el("p","Use your results to choose what to review next.","small-note"));
-      bank.forEach((q,index)=> {
-        const explanation=el("div",undefined,"cert-result");
-        explanation.append(el("strong",answers[index]===q[3] ? "Correct" : "Review this concept"),el("p",`Answer: ${q[2][q[3]]}`),el("p",q[4]));
-        fields[index].append(explanation);
-      });
-      result.append(action("Try a fresh order",()=>startQuiz(timed),true));
-      clock.textContent=expired ? "Time ended" : "Review submitted";
-      result.focus();
-    }
-    form.addEventListener("submit",event=>{event.preventDefault(); submitQuiz();});
-    quizPanel.append(clock,form,result);
-    if (timed) {
-      const tick=()=>{
-        if (run!==generation) return;
-        const seconds=Math.max(0,Math.ceil((deadline-Date.now())/1000));
-        clock.textContent=`Time remaining: ${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,"0")}`;
-        if (!seconds) submitQuiz(true);
-      };
-      tick(); timer=setInterval(tick,1000);
-    }
   }
   Object.entries(paths).forEach(([key,path])=>{
     const button=action(path.exam,()=>{ selected=key; renderPath(); },true);
     button.dataset.path=key; button.setAttribute("aria-pressed","false"); tabs.append(button);
   });
-  section.append(tabs,panel,quizPanel);
+  section.append(tabs,panel);
 
-  const architecture=el("div",undefined,"cert-panel"); architecture.id="architecture-check";
-  architecture.append(el("h3","Architecture reasoning lab"),el("p","Plan the connections between a public website, private app servers and a database."));
-  const designForm=el("form"), designControls=[];
-  [
-    ["Public entry point",["Choose an answer","Public load balancer / application gateway","Public database port"],1],
-    ["Application server reachability",["Choose an answer","Every inbound port open to the internet","Only required application traffic from the entry layer"],2],
-    ["Database access",["Choose an answer","Required database traffic from the application layer","Anonymous direct internet access"],1]
-  ].forEach(([title,choices,correct],index)=>{
-    const label=el("label",title),select=el("select"); select.id=`architecture-choice-${index}`; label.htmlFor=select.id;
-    choices.forEach((choice,value)=>{const option=el("option",choice); option.value=String(value); select.append(option);});
-    designForm.append(label,select); designControls.push({select,correct});
-  });
-  const check=el("button","Check the design","button");check.type="submit";
-  const designResult=el("p","","status-message");designResult.setAttribute("role","status");
-  designForm.addEventListener("submit",event=>{
-    event.preventDefault();
-    if (designControls.some(({select})=>select.value==="0")) { designResult.textContent="Choose all three connection boundaries."; return; }
-    const correct=designControls.filter(({select,correct})=>Number(select.value)===correct).length;
-    designResult.textContent=correct===3 ? "3/3 intended boundaries selected. Next verify actual network rules, identity permissions, encryption, logs, backups, and recovery behavior. A diagram is only one part of validation." : `${correct}/3 intended boundaries selected. Keep the public entry separate from private application and database layers. Permit only the connections each layer needs, then try again.`;
-  });
-  designForm.append(check,designResult);architecture.append(designForm);section.append(architecture);
   document.getElementById("commands").before(section);
   const nav=document.querySelector('nav[aria-label="Main navigation"]');
   const certLink=el("a","Certifications");certLink.href="#certifications";nav.append(certLink);
   renderPath();
-  // Pure functions and original bank exposed only for regression verification.
-  window.LinformLearning = Object.freeze({ gradeQuiz,shuffle,questions,paths });
+  window.LinformLearning = Object.freeze({ paths });
 })();
 </script>
 
@@ -2471,7 +2323,7 @@ No installation or cloud account needed.</pre></div>
   for (const [route,eyebrow,title,description] of [
     ['learn','Choose your path','Build your foundation ↗','Linux, AWS, Azure, and Terraform. One lesson at a time.'],
     ['practice','Try a command','Open the browser lab ↗','A temporary shell for hands-on practice.'],
-    ['certifications','Test your reasoning','Explore exam foundations ↗','Mapped lessons and short practice quizzes.']
+    ['certifications','Test your reasoning','Explore exam foundations ↗','Exam domains and guided foundation lessons.']
   ]) {
     const link = document.createElement('a'); link.href='#'+route; link.className='home-link';
     const label=document.createElement('span'); label.textContent=eyebrow;
@@ -3016,6 +2868,20 @@ output "project_name" {
 .premium-mode[data-premium-member="true"] .linform-brand-mark{filter:drop-shadow(0 2px 7px #e6b75a30);}
 .premium-mode[data-premium-member="true"] .linform-logo-cloud{stroke:url(#linform-header-gold);}
 .premium-mode[data-premium-member="true"] .linform-logo-arrow{stroke:url(#linform-header-gold);}
+
+.premium-quiz-dialog{width:min(690px,calc(100% - 28px));max-height:85dvh;overflow-y:auto;overscroll-behavior:contain;border:1px solid #bb9451;border-radius:18px;background:linear-gradient(145deg,#142c5a,#0b162d);color:#e6efff;padding:26px;box-shadow:0 25px 100px #0009;}
+.premium-quiz-dialog::backdrop{background:#030914cc;backdrop-filter:blur(5px);}
+.premium-quiz-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px;}
+.premium-quiz-header h2{font-size:24px;color:#f5d58a;margin:0;}
+.premium-quiz-dialog fieldset{border:0;padding:0;margin:14px 0;min-width:0;}
+.premium-quiz-dialog legend{font-size:18px;line-height:1.6;font-weight:700;margin-bottom:12px;}
+.premium-quiz-dialog details{border-top:1px solid #35507b;padding:14px 0;}
+.premium-quiz-dialog summary{cursor:pointer;font-weight:700;line-height:1.6;}
+.premium-quiz-dialog p{color:#bfd0ec;line-height:1.7;}
+.premium-quiz-controls{display:flex;justify-content:space-between;gap:12px;margin-top:20px;}
+.premium-quiz-dialog .button{min-height:44px;white-space:normal;}
+.premium-quiz-dialog button:focus-visible,.premium-quiz-dialog label:focus-within{outline:2px solid #f5d58a;outline-offset:3px;}
+@media(max-width:600px){.premium-quiz-dialog{padding:20px 16px;}.premium-quiz-header h2{font-size:21px;}.premium-quiz-dialog .premium-review-option{font-size:16px;}.premium-quiz-dialog legend{font-size:17px;}}
 </style>
 <script id="linform-premium-ui">
 (() => {
@@ -3041,7 +2907,7 @@ output "project_name" {
  <div class="premium-disclosure"><strong>What’s included</strong><br>Three certification study guides, practice questions, six guided projects, mentoring, resume-building guidance and resume reviews.</div></div>
 
  <section class="premium-mentoring premium-mentor-spotlight" aria-labelledby="premium-mentor-title">
- <div class="premium-mentor-heading"><div><span class="kicker">MENTORING / INCLUDED IN PREMIUM</span><h2 id="premium-mentor-title">3. Mentoring with Alexis</h2><p class="premium-mentor-role">Cloud engineer · Founder of Linform</p><p>You bring the questions.<br>I’ll help you find your next step.</p></div><div class="premium-mentor-emblem" aria-hidden="true"><svg class="premium-mentor-logo" viewBox="0 0 60 40" fill="none" aria-hidden="true"><defs><linearGradient id="linform-mentor-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2c4"/><stop offset=".5" stop-color="#f4cd7b"/><stop offset="1" stop-color="#c68c35"/></linearGradient></defs><path d="M13 26H10a7 7 0 0 1-1-14 10 10 0 0 1 19-3 7.5 7.5 0 0 1 9 7" stroke="url(#linform-mentor-gold)" stroke-width="2" stroke-linecap="round"/><path d="M15 32C32 35 46 25 48 8M40 13l8-5 5 8" stroke="url(#linform-mentor-gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><small>BUILD. LEARN. REPEAT.</small></div></div>
+ <div class="premium-mentor-heading"><div><span class="kicker">MENTORING / INCLUDED IN PREMIUM</span><h2 id="premium-mentor-title">3. Mentoring with an engineer</h2><p class="premium-mentor-role">Cloud engineer · Founder of Linform</p><p>You bring the questions.<br>I’ll help you find your next step.</p></div><div class="premium-mentor-emblem" aria-hidden="true"><svg class="premium-mentor-logo" viewBox="0 0 60 40" fill="none" aria-hidden="true"><defs><linearGradient id="linform-mentor-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2c4"/><stop offset=".5" stop-color="#f4cd7b"/><stop offset="1" stop-color="#c68c35"/></linearGradient></defs><path d="M13 26H10a7 7 0 0 1-1-14 10 10 0 0 1 19-3 7.5 7.5 0 0 1 9 7" stroke="url(#linform-mentor-gold)" stroke-width="2" stroke-linecap="round"/><path d="M15 32C32 35 46 25 48 8M40 13l8-5 5 8" stroke="url(#linform-mentor-gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><small>BUILD. LEARN. REPEAT.</small></div></div>
  <div class="premium-catalog"><article class="premium-card"><span class="kicker">01 / GET UNSTUCK</span><h3>Make it click.</h3><p>Work through AWS, Azure and Terraform concepts together.</p></article><article class="premium-card"><span class="kicker">02 / BUILD WITH CONFIDENCE</span><h3>A fresh pair of eyes.</h3><p>Get feedback on your architecture, code and project decisions.</p></article><article class="premium-card"><span class="kicker">03 / SHOW YOUR WORK</span><h3>Tell your project story.</h3><p>Turn what you built into clear resume bullet points.</p></article></div>
  <div class="premium-mentor-actions"><button class="button premium-contact-action" id="premium-mentor-cta" type="button">Ask Alexis</button></div><p class="small-note" id="premium-mentoring-availability">Premium members can request study, project and resume feedback.</p></section>
  <section class="premium-mentoring" aria-labelledby="premium-resume-title"><span class="kicker">CAREER SUPPORT / INCLUDED IN PREMIUM</span><h2 id="premium-resume-title">4. Resume building &amp; review</h2><p>Turn completed projects into resume bullet points and get feedback on your draft.</p></section>
@@ -3066,43 +2932,69 @@ output "project_name" {
    parent.append(details);
   }
  }
- function appendPremiumReview(parent,exam,before){
+ let activeQuizDialog=null,quizSequence=0;
+ const quizDecks=new Map();
+ function closePremiumQuiz(){if(activeQuizDialog){const dialog=activeQuizDialog;activeQuizDialog=null;if(dialog.open)dialog.close();dialog.remove();}}
+ function shuffleReview(values){const result=[...values];for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result;}
+ function selectReviewSet(exam,guideId){
+  const count=Math.min(5,exam.questions.length),key='linform-premium-quiz-v1:'+String(account?.identity()||'')+':'+guideId;
+  let state=quizDecks.get(key);
+  if(!state){try{state=JSON.parse(localStorage.getItem(key)||'null');}catch{}}
+  const valid=list=>Array.isArray(list)&&list.every(i=>Number.isInteger(i)&&i>=0&&i<exam.questions.length)&&new Set(list).size===list.length;
+  if(!state||state.size!==exam.questions.length||!valid(state.remaining)||!valid(state.last)||state.remaining.some(i=>state.last.includes(i)))state={size:exam.questions.length,remaining:[],last:[]};
+  let remaining=[...state.remaining];
+  if(remaining.length<count){
+   const candidates=exam.questions.map((_,i)=>i).filter(i=>!remaining.includes(i)&&!state.last.includes(i));
+   remaining.push(...shuffleReview(candidates));
+   if(remaining.length<count)remaining.push(...shuffleReview(state.last.filter(i=>!remaining.includes(i))));
+  }
+  const chosen=remaining.splice(0,count),next={size:exam.questions.length,remaining,last:chosen};
+  quizDecks.set(key,next);try{localStorage.setItem(key,JSON.stringify(next));}catch{}
+  return chosen.map(index=>({index,question:exam.questions[index]}));
+ }
+ function appendPremiumReview(parent,exam,before,guideId='study-guide'){
   if(!exam?.questions?.length)return;
-  const block=node('section',null,'premium-review');block.append(node('h3',exam.title),node('p',exam.notice,'small-note'));
-  const form=node('form'),entries=[],feedback=node('div');feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');feedback.tabIndex=-1;
-  exam.questions.forEach((question,index)=>{
-   const field=node('fieldset'),legend=node('legend',(index+1)+'. '+question.question),choices=[];
-   field.append(legend,node('p',question.domain,'small-note'));
-   question.options.forEach((option,choice)=>{
-    const label=node('label',null,'premium-review-option'),radio=node('input');
-    radio.type='radio';radio.name='premium-question-'+index;radio.value=String(choice);radio.required=true;
-    label.append(radio,node('span',option));field.append(label);choices.push(radio);
-   });
-   const explanation=node('div',null,'checkpoint');explanation.hidden=true;field.append(explanation);form.append(field);entries.push({question,choices,explanation});
-  });
-  const submit=node('button','Check my answers','button'),retry=node('button','Retry review','button secondary');submit.type='submit';retry.type='button';retry.hidden=true;
-  form.append(submit,retry,feedback);
-  form.addEventListener('submit',event=>{
-   event.preventDefault();if(before!==generation||!purchased)return;
-   const missing=entries.find(entry=>!entry.choices.some(input=>input.checked));
-   if(missing){feedback.textContent='Answer every question before checking your results.';missing.choices[0].focus();return;}
-   let correct=0;const domains={};
-   for(const entry of entries){
-    const {question,choices,explanation}=entry,selected=choices.findIndex(input=>input.checked),right=selected===question.answer;
-    if(right)correct++;const domain=domains[question.domain]||(domains[question.domain]={correct:0,total:0});domain.total++;if(right)domain.correct++;
-    explanation.replaceChildren(node('strong',right?'Correct.':'Review this topic.'),node('p','Best answer: '+question.options[question.answer]),node('p',question.explanation));explanation.hidden=false;
-    for(const input of choices)input.disabled=true;
+  const block=node('section',null,'premium-review');
+  block.append(node('h3','Practice quiz'),node('p','Five questions. A fresh set each time.','small-note'));
+  const launch=node('button','Start 5-question quiz','button');launch.type='button';
+  launch.addEventListener('click',()=>{
+   if(before!==generation||!purchased)return;
+   closePremiumQuiz();
+   const bank=selectReviewSet(exam,guideId),answers=bank.map(()=>null),choices=bank.map(({question})=>shuffleReview(question.options.map((text,value)=>({text,value}))));
+   const dialog=node('dialog',null,'premium-quiz-dialog'),titleId='premium-quiz-title-'+(++quizSequence);
+   activeQuizDialog=dialog;dialog.setAttribute('aria-labelledby',titleId);
+   const header=node('div',null,'premium-quiz-header'),heading=node('h2',exam.title||'Practice quiz');heading.id=titleId;
+   const close=node('button','Close','button secondary');close.type='button';close.addEventListener('click',()=>closePremiumQuiz());header.append(heading,close);
+   const body=node('div'),status=node('p','','small-note');status.setAttribute('role','status');
+   const controls=node('div',null,'premium-quiz-controls'),previous=node('button','Back','button secondary'),next=node('button','Next question','button');previous.type=next.type='button';controls.append(previous,next);
+   let current=0,submitted=false,currentInputs=[];
+   const allowed=()=>before===generation&&purchased&&activeQuizDialog===dialog;
+   function draw(){
+    if(!allowed())return;
+    status.textContent='';body.replaceChildren(node('p','Question '+(current+1)+' of '+bank.length,'kicker'));
+    const question=bank[current].question,field=node('fieldset'),legend=node('legend',question.question);field.append(legend);currentInputs=[];
+    for(const choice of choices[current]){
+     const label=node('label',null,'premium-review-option'),input=node('input');input.type='radio';input.name='premium-quick-'+quizSequence+'-'+current;input.value=String(choice.value);input.checked=answers[current]===choice.value;
+     input.addEventListener('change',()=>{if(!allowed()||submitted)return;answers[current]=choice.value;status.textContent='';});
+     label.append(input,node('span',choice.text));field.append(label);currentInputs.push(input);
+    }
+    body.append(field);previous.disabled=current===0;next.textContent=current===bank.length-1?'Check answers':'Next question';
    }
-   const weak=Object.entries(domains).filter(([,score])=>score.correct<score.total).map(([name,score])=>name+' ('+score.correct+'/'+score.total+')');
-   feedback.replaceChildren(node('h3',correct+'/'+entries.length+' correct · '+Math.round(100*correct/entries.length)+'%'),node('p',weak.length?'Revisit: '+weak.join('; '):'All answers correct on this review. Explain the reasoning again without looking at the choices.'),node('p','Practice score · This session.','small-note'));
-   submit.disabled=true;retry.hidden=false;feedback.focus();
+   previous.addEventListener('click',()=>{if(!allowed()||submitted||current===0)return;current--;draw();});
+   next.addEventListener('click',()=>{
+    if(!allowed()||submitted)return;
+    if(answers[current]===null){status.textContent='Choose an answer to continue.';currentInputs[0].focus();return;}
+    if(current<bank.length-1){current++;draw();return;}
+    submitted=true;const score=bank.filter(({question},index)=>answers[index]===question.answer).length;
+    const summary=node('h3',score+' / '+bank.length+' correct');summary.tabIndex=-1;
+    body.replaceChildren(summary,node('p','Review the explanations, then try a fresh set.','small-note'));
+    bank.forEach(({question},index)=>{const details=node('details'),right=answers[index]===question.answer;details.open=!right;details.append(node('summary',(right?'Correct · ':'Review · ')+question.question),node('p','Your answer: '+question.options[answers[index]]),node('p','Best answer: '+question.options[question.answer]),node('p',question.explanation));body.append(details);});
+    controls.replaceChildren();const retry=node('button','Try 5 new questions','button');retry.type='button';retry.addEventListener('click',()=>{if(!allowed())return;closePremiumQuiz();launch.click();});controls.append(retry);status.textContent='Practice complete.';summary.focus();
+   });
+   dialog.addEventListener('close',()=>{if(activeQuizDialog===dialog)activeQuizDialog=null;dialog.remove();});
+   dialog.append(header,body,status,controls,node('p','Original Linform practice questions.','small-note'));parent.append(dialog);draw();dialog.showModal();
   });
-  retry.addEventListener('click',()=>{
-   if(before!==generation||!purchased)return;form.reset();feedback.replaceChildren();
-   for(const entry of entries){for(const input of entry.choices)input.disabled=false;entry.explanation.replaceChildren();entry.explanation.hidden=true;}
-   submit.disabled=false;retry.hidden=true;entries[0].choices[0].focus();
-  });
-  block.append(form);parent.append(block);
+  block.append(launch);parent.append(block);
  }
  function syncPremiumFeedbackPrompt(){
   const resume=el('premium-mentor-topic').value==='resume-review';
@@ -3161,8 +3053,9 @@ output "project_name" {
   el('premium-intro').textContent=enabled?'Study with purpose. Build something you’re proud of. Your Premium library is ready.':'AWS, Azure and Terraform certification prep—with guided projects, mentoring and resume building.';
  }
  function jumpTo(id){const target=el(id);if(!target)return;target.scrollIntoView({behavior:'smooth',block:'start'});}
- function clearPrivate(){contentRequest++;purchased=false;memberPresentation(false);reload.hidden=true;el('premium-mentor-form').reset();syncPremiumFeedbackPrompt();el('premium-mentor-status').textContent='';el('premium-mentor-submit').disabled=false;el('premium-mentoring-availability').textContent='Premium members can request mentoring with Alexis.';el('premium-access-label').textContent='Private learning library';el('premium-signin').hidden=!!account?.identity();el('premium-buy').textContent=account?.identity()?'Checking Premium access…':'Sign in to check out';el('premium-buy').disabled=true;el('premium-private').hidden=true;el('premium-public').hidden=false;el('premium-reader').replaceChildren();el('premium-reader').hidden=true;el('premium-guide-cards').replaceChildren();el('premium-project-cards').replaceChildren();}
+ function clearPrivate(){closePremiumQuiz();contentRequest++;purchased=false;memberPresentation(false);reload.hidden=true;el('premium-mentor-form').reset();syncPremiumFeedbackPrompt();el('premium-mentor-status').textContent='';el('premium-mentor-submit').disabled=false;el('premium-mentoring-availability').textContent='Premium members can request mentoring with Alexis.';el('premium-access-label').textContent='Private learning library';el('premium-signin').hidden=!!account?.identity();el('premium-buy').textContent=account?.identity()?'Checking Premium access…':'Sign in to check out';el('premium-buy').disabled=true;el('premium-private').hidden=true;el('premium-public').hidden=false;el('premium-reader').replaceChildren();el('premium-reader').hidden=true;el('premium-guide-cards').replaceChildren();el('premium-project-cards').replaceChildren();}
  async function loadContent(id){
+  closePremiumQuiz();
   const before=generation,requestId=++contentRequest;const reader=el('premium-reader');reader.hidden=false;reader.replaceChildren(node('p','Loading your private content…'));
   try{
    const data=await account.request('/premium/content/'+encodeURIComponent(id));if(before!==generation||requestId!==contentRequest||!purchased)return;
@@ -3176,7 +3069,7 @@ output "project_name" {
     }
     appendPracticeCases(reader,'Worked examples',data.workedExamples);
     appendPracticeCases(reader,'Troubleshooting practice',data.troubleshooting);
-    appendPremiumReview(reader,data.practiceExam,before);
+    appendPremiumReview(reader,data.practiceExam,before,data.id);
     const source=node('a','Compare with the official exam outline ↗','text-link');source.href=data.reference;source.target='_blank';source.rel='noopener noreferrer';reader.append(source);
    }else{
     reader.append(node('p',data.summary));appendProjectCareerSupport(reader,data,before);for(const [index,step]of data.steps.entries())reader.append(node('h3',(index+1)+'. '+step[0]),node('p',step[1]),node('p',step[2],'small-note'));
@@ -3443,188 +3336,9 @@ output "project_name" {
 })();
 
 </script>
-<style id="linform-public-preview-styles">
-.premium-preview{margin:26px 0 38px;border:1px solid #355e9d;border-radius:16px;overflow:hidden;background:#0b1931;scroll-margin-top:24px;}
-.preview-heading{display:flex;align-items:end;justify-content:space-between;gap:18px;padding:26px 26px 20px;flex-wrap:wrap;}
-.preview-heading h2{font-size:30px;margin:10px 0 0;letter-spacing:-1px;}
-.preview-heading>p{font-size:13px;color:#a7bcde;margin:0;}
-.preview-tabs{display:flex;gap:6px;padding:0 26px 20px;border-bottom:1px solid #2b4772;}
-.preview-tabs button,.preview-flow-controls button,.preview-answers button{font:inherit;border:1px solid #36567f;border-radius:8px;background:#122440;color:#bccfe9;padding:11px 15px;min-height:44px;cursor:pointer;}
-.preview-tabs button{font-size:13px;font-weight:600;}
-.preview-tabs button[aria-selected=true],.preview-flow-controls button[aria-pressed=true]{background:#254f94;border-color:#75a9fc;color:white;}
-.premium-preview button:focus-visible,.premium-preview a:focus-visible{outline:2px solid #a1c5ff;outline-offset:3px;}
-.preview-lesson-intro{display:flex;align-items:start;justify-content:space-between;gap:16px;padding:24px 26px 18px;flex-wrap:wrap;}
-.preview-tag{font-size:10px;letter-spacing:1.4px;color:#a4c7ff;font-weight:700;}
-.preview-lesson-intro h3{font-size:24px;margin:10px 0 8px;letter-spacing:-.5px;}
-.preview-lesson-intro p{font-size:13px;margin:0;color:#b0c3e1;}
-.preview-simulation{font-size:10px;border:1px solid #3b5a83;border-radius:20px;padding:5px 9px;color:#a7bad9;white-space:nowrap;}
-.preview-lesson-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;padding:0 26px;}
-.preview-code,.preview-state{min-width:0;background:#091322;border:1px solid #2e4870;border-radius:10px;overflow:hidden;}
-.preview-panel-label{display:flex;justify-content:space-between;gap:10px;padding:12px 14px;background:#14253f;color:#c4dbfa;font:11px ui-monospace,Consolas,monospace;}
-.preview-panel-label span{color:#809abd;font:10px system-ui;}
-.preview-code pre{font:13px/1.85 ui-monospace,Consolas,monospace;color:#c9defb;padding:18px;margin:0;border:0;background:transparent;white-space:pre-wrap;overflow-wrap:anywhere;}
-.preview-resource{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 14px;padding:16px 12px;border:1px solid #376e65;border-radius:8px;background:#142f2b;}
-.preview-resource-dot{width:8px;height:8px;border-radius:50%;background:#85dfb9;flex:none;}
-.preview-resource strong{display:block;font:12px ui-monospace,Consolas,monospace;color:#cfede5;overflow-wrap:anywhere;}
-.preview-resource code{display:block;background:transparent;padding:0;margin-top:6px;font:18px ui-monospace,Consolas,monospace;color:#9bf4cf;}
-#preview-state-match{font-size:10px;color:#a1d7c7;margin-left:auto;}
-#preview-state-match[data-pending=true]{color:#f4cf81;}
-#preview-lesson-note{font-size:12px;color:#a4bbda;padding:0 15px;}
-.preview-lesson-actions{display:flex;gap:9px;flex-wrap:wrap;padding:18px 26px 0;}
-.preview-lesson-actions .button{font-size:12px;padding:11px 14px;min-height:44px;}
-.premium-preview button:disabled{opacity:.42;cursor:default;}
-.preview-reset{background:transparent;border:0;color:#acc8f4;font-size:12px;cursor:pointer;padding:10px;min-height:44px;}
-.preview-plan-result{font:12px/1.7 ui-monospace,Consolas,monospace;color:#b8d1f4;margin:16px 26px;padding:16px;background:#101f38;border:1px solid #2c4770;border-radius:9px;white-space:pre-wrap;overflow-wrap:anywhere;}
-.preview-check{margin:0 26px 24px;padding-top:16px;border-top:1px solid #2b4772;}
-.preview-check summary{color:#bad5ff;font-weight:600;font-size:13px;cursor:pointer;min-height:44px;}
-.preview-check p{font-size:13px;}
-.preview-answers{display:grid;gap:8px;}
-.preview-answers button{text-align:left;font-size:13px;}
-#preview-answer-feedback{color:#b7e7d3;min-height:20px;}
-.preview-flow-controls{display:flex;gap:8px;flex-wrap:wrap;padding:0 26px 20px;}
-.preview-flow-controls button{font-size:12px;}
-.preview-architecture{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0 26px;}
-.preview-architecture>div{border:1px solid #304867;background:#0c172a;border-radius:10px;padding:17px 14px;transition:border-color .2s,background .2s;min-width:0;}
-.preview-architecture small{display:block;font-size:9px;letter-spacing:1px;color:#7e97bd;}
-.preview-architecture strong{display:block;font-size:15px;margin:9px 0 6px;color:#a8bddb;}
-.preview-architecture span{font-size:11px;color:#829abf;}
-.preview-architecture>div[data-active=true]{border-color:#84adf2;background:#193969;box-shadow:inset 0 2px 0 #88b8ff;}
-.preview-architecture>div[data-active=true] strong{color:#e5f0ff;}
-.preview-architecture>div[data-active=true] span{color:#bad4fa;}
-.preview-flow-detail{margin:18px 26px;padding:16px;border-radius:9px;border:1px solid #34537e;background:#142744;}
-.preview-flow-detail strong{font-size:13px;color:#d3e4ff;overflow-wrap:anywhere;}
-.preview-flow-detail p{font-size:12px;color:#a9bfdf;margin:9px 0 0;}
-.preview-evidence{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 26px 24px;font-size:11px;color:#8da8cf;}
-.preview-evidence .text-link{font-size:12px;}
-.preview-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 26px;border-top:1px solid #2b4772;font-size:12px;color:#9eb6da;}
-.preview-bottom .text-link{font-size:12px;}
-.premium-preview [hidden]{display:none!important;}
-.hook-next{align-items:center;}
-@media(max-width:700px){.preview-heading,.preview-lesson-intro{padding:20px 16px 16px;}.preview-heading h2{font-size:26px;}.preview-tabs{padding:0 16px 16px;}.preview-tabs button{flex:1;}.preview-lesson-grid{grid-template-columns:1fr;padding:0 16px;}.preview-code pre{font-size:14px;}.preview-panel-label span{font-size:10px;}.preview-lesson-actions{padding:16px 16px 0;}.preview-lesson-actions .button{flex:1;min-width:120px;}.preview-plan-result{margin:16px;}.preview-check{margin:0 16px 20px;}.preview-flow-controls{padding:0 16px 16px;}.preview-flow-controls button{flex:1;}.preview-architecture{grid-template-columns:repeat(2,minmax(0,1fr));padding:0 16px;gap:9px;}.preview-architecture>div{padding:14px 10px;}.preview-architecture strong{font-size:13px;}.preview-flow-detail{margin:16px;}.preview-evidence{margin:0 16px 20px;}.preview-bottom{padding:16px;}.preview-answers button{font-size:16px;}.premium-purchase>.button.secondary{min-height:44px;}}
-@media(prefers-reduced-motion:reduce){.preview-architecture>div{transition:none;}}
-
-</style>
-<script id="linform-public-preview">
-/* Public guided review case. Plan behavior verified separately with Terraform 1.12.2; this browser case uses illustrative fixtures. */
-(() => {
-  'use strict';
-  const host=document.getElementById('premium-public');if(!host)return;
-  const sample=document.createElement('section');sample.id='premium-preview';sample.className='premium-preview';sample.setAttribute('aria-labelledby','preview-title');
-  sample.innerHTML=`
-    <div class="preview-heading"><div><span class="kicker">TRY BEFORE YOU BUY</span><h2 id="preview-title">See how you’ll learn.</h2></div><p>Review a risky change. Explore a real build.</p></div>
-    <div class="preview-tabs" role="tablist" aria-label="Premium public previews"><button type="button" role="tab" id="preview-lesson-tab" aria-controls="preview-lesson" aria-selected="true">Try a lesson</button><button type="button" role="tab" id="preview-project-tab" aria-controls="preview-project" aria-selected="false" tabindex="-1">Explore a project</button></div>
-    <div role="tabpanel" id="preview-lesson" aria-labelledby="preview-lesson-tab">
-      <div class="preview-lesson-intro"><div><span class="preview-tag">TERRAFORM / CHANGE REVIEW</span><h3>Catch the risky change.</h3><p>A teammate renamed a resource. Keep the existing object.</p></div><span class="preview-simulation">Guided review simulation</span></div>
-      <div class="risk-brief"><span>YOUR BRIEF</span><p>Rename <code>web</code> to <code>app</code> without recreating it. Review the plan before approving anything.</p></div>
-      <div class="preview-lesson-grid"><div class="preview-code"><div class="preview-panel-label">main.tf <span>proposed refactor</span></div><pre id="preview-config"></pre></div><div class="preview-state"><div class="preview-panel-label">State before apply <span>existing object</span></div><div class="preview-resource"><span class="preview-resource-dot" aria-hidden="true"></span><div><strong>terraform_data.web</strong><code>portfolio</code></div><span id="risk-object-id">ID: local-object-001</span></div><p id="preview-lesson-note">A new label is a new resource address unless you explain the move.</p></div></div>
-      <div class="risk-plan-heading"><strong id="risk-plan-label">Proposed plan · illustrative excerpt</strong><span id="risk-plan-badge" data-safe="false">1 destruction to review</span></div>
-      <pre id="preview-plan-result" class="preview-plan-result"></pre>
-      <section class="risk-question" aria-labelledby="risk-flag-title"><h4 id="risk-flag-title">1. What would you flag?</h4><div class="preview-answers" role="group" aria-label="Identify the risk"><button type="button" data-risk-flag="destroy" aria-pressed="false">The existing resource is scheduled for destruction</button><button type="button" data-risk-flag="format" aria-pressed="false">The file needs formatting</button><button type="button" data-risk-flag="region" aria-pressed="false">The resource needs an AWS Region</button></div><p id="risk-flag-feedback" class="risk-feedback" role="status"></p></section>
-      <section class="risk-question" id="risk-fix-section" aria-labelledby="risk-fix-title" hidden><h4 id="risk-fix-title">2. Choose a safer change.</h4><div class="preview-answers" role="group" aria-label="Choose the correction"><button type="button" data-risk-fix="move" aria-pressed="false">Add a moved block from web to app</button><button type="button" data-risk-fix="delete" aria-pressed="false">Delete the state and start over</button><button type="button" data-risk-fix="apply" aria-pressed="false">Apply the plan and recreate the resource</button></div><p id="risk-fix-feedback" class="risk-feedback" role="status"></p></section>
-      <div class="risk-review-actions"><button class="button" id="risk-verify" type="button" disabled>3. Re-run the plan</button><button class="preview-reset" id="preview-reset" type="button">Start again</button></div>
-      <p id="risk-review-status" class="risk-review-status" role="status">Flag the risk, choose a fix, then verify the new plan.</p>
-      <section class="risk-handoff" id="risk-handoff" aria-labelledby="risk-handoff-title" hidden><span class="preview-tag">TURN THE DECISION INTO EVIDENCE</span><h4 id="risk-handoff-title">Write the project handoff.</h4><dl><div><dt>Risk</dt><dd>A label-only refactor proposed deleting and creating a resource.</dd></div><div><dt>Correction</dt><dd>Map the old address to the new address with a moved block.</dd></div><div><dt>Verification</dt><dd>The revised plan proposes zero resource additions, changes or destructions. Applying it would record the address move.</dd></div></dl><details><summary>Example portfolio wording</summary><p>Practiced reviewing a simulated Terraform refactor, identified unintended resource recreation, and verified a moved-block correction.</p><p class="small-note">Use wording that matches your completed work. The full project takes this review into a local Terraform lab with your own evidence.</p></details></section>
-    </div>
-    <div role="tabpanel" id="preview-project" aria-labelledby="preview-project-tab" hidden>
-      <div class="preview-lesson-intro"><div><span class="preview-tag">BUILT HERE / LINFORM</span><h3>You’re using the project.</h3><p>Trace the code, the website and a learner’s progress.</p></div><a class="text-link" href="https://github.com/espinozaalexis2003-eng/Linform" target="_blank" rel="noopener noreferrer">View the source ↗</a></div>
-      <div class="preview-flow-controls" role="group" aria-label="Choose an architecture path"><button type="button" data-preview-flow="ship" aria-pressed="true">Ship code</button><button type="button" data-preview-flow="visit" aria-pressed="false">Serve a page</button><button type="button" data-preview-flow="save" aria-pressed="false">Save progress</button></div>
-      <div class="preview-architecture" aria-label="Linform architecture"><div data-preview-node="github"><small>SOURCE</small><strong>GitHub</strong><span>Versioned website</span></div><div data-preview-node="actions"><small>DEPLOYMENT</small><strong>GitHub Actions</strong><span>AWS OIDC role</span></div><div data-preview-node="s3"><small>CONTENT</small><strong>Amazon S3</strong><span>Website files</span></div><div data-preview-node="cloudfront"><small>DELIVERY</small><strong>CloudFront</strong><span>HTTPS website</span></div><div data-preview-node="cognito"><small>IDENTITY</small><strong>Cognito</strong><span>Student sign-in</span></div><div data-preview-node="progress"><small>LEARNING DATA</small><strong>API + DynamoDB</strong><span>Per-user progress</span></div></div>
-      <div class="preview-flow-detail" role="status"><strong id="preview-flow-path"></strong><p id="preview-flow-explanation"></p></div>
-      <div class="preview-evidence"><a class="text-link" href="https://github.com/espinozaalexis2003-eng/Linform/actions" target="_blank" rel="noopener noreferrer">Inspect the deployment runs ↗</a><span>Real source. Working site. Explainable decisions.</span></div>
-    </div>
-    <div class="preview-bottom"><span>Premium adds full guides, six guided builds and personal feedback.</span><a class="text-link" href="#contact">Something unclear? Tell Alexis ↗</a></div>`;
-  host.prepend(sample);
-  const el=id=>document.getElementById(id),tabs=[el('preview-lesson-tab'),el('preview-project-tab')],panels=[el('preview-lesson'),el('preview-project')];
-  function choose(index,focus=false){tabs.forEach((tab,i)=>{tab.setAttribute('aria-selected',String(i===index));tab.tabIndex=i===index?0:-1;panels[i].hidden=i!==index;});if(focus)tabs[index].focus();}
-  tabs.forEach((tab,index)=>{tab.addEventListener('click',()=>choose(index));tab.addEventListener('keydown',event=>{let next;if(event.key==='ArrowRight'||event.key==='ArrowLeft')next=1-index;else if(event.key==='Home')next=0;else if(event.key==='End')next=1;else return;event.preventDefault();choose(next,true);});});
-
-  const renamed='resource "terraform_data" "app" {\n  input = "portfolio"\n}\n';
-  const migration='\nmoved {\n  from = terraform_data.web\n  to   = terraform_data.app\n}\n';
-  const riskyPlan='# terraform_data.web will be destroyed\n- resource "terraform_data" "web"\n\n# terraform_data.app will be created\n+ resource "terraform_data" "app"\n\nPlan: 1 to add, 0 to change, 1 to destroy.';
-  const saferPlan='# terraform_data.web has moved to terraform_data.app\n  resource "terraform_data" "app" {\n    id    = "local-object-001"\n    input = "portfolio"\n  }\n\nPlan: 0 to add, 0 to change, 0 to destroy.';
-  let riskFound=false,moveChosen=false,verified=false;
-  const flags=[...sample.querySelectorAll('[data-risk-flag]')],fixes=[...sample.querySelectorAll('[data-risk-fix]')];
-  function reset(){
-    riskFound=false;moveChosen=false;verified=false;
-    el('preview-config').textContent=renamed;el('preview-plan-result').textContent=riskyPlan;
-    el('risk-plan-label').textContent='Proposed plan · illustrative excerpt';el('risk-plan-badge').textContent='1 destruction to review';el('risk-plan-badge').dataset.safe='false';
-    el('preview-lesson-note').textContent='A new label is a new resource address unless you explain the move.';
-    el('risk-flag-feedback').textContent='';el('risk-fix-feedback').textContent='';
-    el('risk-fix-section').hidden=true;el('risk-handoff').hidden=true;el('risk-verify').disabled=true;
-    el('risk-review-status').textContent='Flag the risk, choose a fix, then verify the new plan.';
-    for(const button of [...flags,...fixes]){button.disabled=false;button.setAttribute('aria-pressed','false');}
-  }
-  for(const button of flags)button.addEventListener('click',()=>{
-    if(riskFound)return;
-    if(button.dataset.riskFlag!=='destroy'){
-      el('risk-flag-feedback').textContent=button.dataset.riskFlag==='format'?'Formatting changes layout. Read the plan’s destroy action: it removes the object at the old address.':'terraform_data is local and provider-free. An AWS Region is unrelated to this rename. Look for a destructive action.';return;
-    }
-    riskFound=true;button.setAttribute('aria-pressed','true');for(const choice of flags)choice.disabled=true;
-    el('risk-flag-feedback').textContent='Correct. Terraform sees two different addresses: remove web, create app.';
-    el('risk-fix-section').hidden=false;el('risk-review-status').textContent='Risk identified. Choose a correction that preserves the object.';
-  });
-  for(const button of fixes)button.addEventListener('click',()=>{
-    if(!riskFound||moveChosen)return;
-    if(button.dataset.riskFix!=='move'){
-      el('risk-fix-feedback').textContent=button.dataset.riskFix==='delete'?'Deleting state loses Terraform’s ownership records; it does not explain the rename. Keep state and map the addresses.':'That accepts the recreation you were asked to avoid. Preserve the existing object by declaring the address move.';return;
-    }
-    moveChosen=true;button.setAttribute('aria-pressed','true');for(const choice of fixes)choice.disabled=true;
-    el('preview-config').textContent=renamed+migration;el('risk-plan-label').textContent='Previous plan · re-run required';
-    el('risk-fix-feedback').textContent='Moved block added. Now generate a fresh plan to check its effect.';
-    el('risk-verify').disabled=false;el('risk-review-status').textContent='Configuration corrected. The previous plan is stale.';
-  });
-  el('risk-verify').addEventListener('click',()=>{
-    if(!riskFound||!moveChosen||verified)return;verified=true;
-    el('preview-plan-result').textContent=saferPlan;el('risk-plan-label').textContent='Revised plan · illustrative excerpt';
-    el('risk-plan-badge').textContent='0 resource destructions';el('risk-plan-badge').dataset.safe='true';
-    el('preview-lesson-note').textContent='State is unchanged in this review. Apply would record the new address while preserving the object.';
-    el('risk-review-status').textContent='Review complete: the plan preserves the object. Document the correction before a separately reviewed apply.';
-    el('risk-verify').disabled=true;el('risk-handoff').hidden=false;
-    el('risk-plan-label').tabIndex=-1;el('risk-plan-label').scrollIntoView({block:'center',behavior:'auto'});el('risk-plan-label').focus({preventScroll:true});
-  });
-  el('preview-reset').addEventListener('click',reset);
-  const flows={ship:{nodes:['github','actions','s3'],path:'GitHub → GitHub Actions → S3',explanation:'A commit starts the deployment. Actions assumes an AWS role through OIDC and publishes the website files.'},visit:{nodes:['cloudfront','s3'],path:'Visitor → CloudFront → S3 content',explanation:'CloudFront delivers the website over HTTPS. The browser then runs Linform’s interactive lessons and local labs.'},save:{nodes:['cognito','progress'],path:'Student → Cognito → authenticated API → DynamoDB',explanation:'After sign-in, the progress API uses the verified student identity to read and save that student’s completed lesson IDs.'}};
-  function showFlow(name){const flow=flows[name];for(const node of sample.querySelectorAll('[data-preview-node]'))node.dataset.active=String(flow.nodes.includes(node.dataset.previewNode));for(const button of sample.querySelectorAll('[data-preview-flow]'))button.setAttribute('aria-pressed',String(button.dataset.previewFlow===name));el('preview-flow-path').textContent=flow.path;el('preview-flow-explanation').textContent=flow.explanation;}
-  for(const button of sample.querySelectorAll('[data-preview-flow]'))button.addEventListener('click',()=>showFlow(button.dataset.previewFlow));showFlow('ship');
-  reset();
-
-  function openPreview(){if(!sample.getClientRects().length)return;sample.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});el('preview-title').tabIndex=-1;el('preview-title').focus({preventScroll:true});}
-  let previewIntent=false;
-  const homeNext=document.querySelector('.hook-next');
-  if(homeNext){const tagline=homeNext.querySelector(':scope > span');if(tagline)tagline.remove();const link=document.createElement('a');link.className='text-link';link.href='#premium';link.textContent='Preview Premium ↗';link.addEventListener('click',()=>{previewIntent=true;if(location.hash==='#premium'){previewIntent=false;openPreview();}});homeNext.append(link);}
-  const heroLink=document.createElement('button');heroLink.type='button';heroLink.className='button secondary';heroLink.textContent='Preview a lesson';heroLink.addEventListener('click',openPreview);document.querySelector('.premium-purchase').append(heroLink);
-  window.addEventListener('hashchange',()=>{if(previewIntent&&location.hash==='#premium'){previewIntent=false;requestAnimationFrame(openPreview);}});
-})();
-
-</script>
-<style id="linform-risk-review-styles">
-.risk-brief{margin:0 26px 18px;padding:14px 16px;border:1px solid #355681;border-left:3px solid #8eb8fa;border-radius:8px;background:#132642;}
-.risk-brief>span{font-size:9px;letter-spacing:1.3px;font-weight:700;color:#94b8ed;}
-.risk-brief p{font-size:13px;margin:7px 0 0;color:#bed0e8;}
-.risk-plan-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 26px 0;font-size:12px;color:#c5dbfb;}
-#risk-plan-badge{font-size:10px;color:#ffd495;background:#4a321b;border:1px solid #906530;border-radius:20px;padding:5px 10px;}
-#risk-plan-badge[data-safe=true]{color:#b0edce;background:#163b2d;border-color:#437e65;}
-#risk-object-id{color:#98b5a9;font:10px ui-monospace,Consolas,monospace;margin-top:8px;}
-.risk-question{margin:20px 26px;border-top:1px solid #2e4b74;padding-top:18px;}
-.risk-question h4,.risk-handoff h4{font-size:17px;margin:0 0 15px;color:#deebff;letter-spacing:-.3px;}
-.risk-feedback{color:#b6d8f1;font-size:12px;line-height:1.7;min-height:18px;}
-.risk-question button[aria-pressed=true]{border-color:#74c4a1;background:#183d32;color:#d1f6e4;}
-.risk-review-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:0 26px;}
-.risk-review-actions .button{font-size:13px;padding:12px 17px;min-height:44px;}
-.risk-review-status{font-size:12px;line-height:1.7;color:#aac4e7;margin:12px 26px 24px;}
-.risk-handoff{margin:0 26px 24px;border:1px solid #3a6d66;background:#112d2c;border-radius:10px;padding:20px;}
-.risk-handoff h4{margin:10px 0 16px;}
-.risk-handoff dl{display:grid;gap:12px;margin:0 0 16px;}
-.risk-handoff dl>div{display:grid;grid-template-columns:90px minmax(0,1fr);gap:12px;}
-.risk-handoff dt{font-size:12px;font-weight:700;color:#a7e0ce;}
-.risk-handoff dd{margin:0;font-size:12px;line-height:1.7;color:#b9d8d0;}
-.risk-handoff summary{min-height:44px;font-size:13px;color:#b8e8d8;cursor:pointer;}
-.risk-handoff p{font-size:13px;line-height:1.7;color:#beddd5;}
-@media(max-width:700px){.risk-brief{margin:0 16px 16px;}.risk-plan-heading{margin:18px 16px 0;}.risk-question{margin:18px 16px;}.risk-review-actions{padding:0 16px;}.risk-review-status{margin:12px 16px 20px;}.risk-handoff{margin:0 16px 20px;padding:16px;}.risk-handoff dl>div{grid-template-columns:1fr;gap:4px;}.risk-question .preview-answers button{font-size:16px;}}
-
-</style>
 </body>
 </html>
+
 
 
 
