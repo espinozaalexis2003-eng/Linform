@@ -13,12 +13,12 @@ const script=html.match(/<script id="linform-premium-ui">([\s\S]*?)<\/script>/)[
 const settle=async()=>{for(let i=0;i<5;i++)await new Promise(setImmediate);};
 const elements=new Map(),events={},docEvents={};
 class Element{
- constructor(tag='div'){this.tag=tag;this.children=[];this.listeners={};this.hidden=false;this.disabled=false;this.value='';this._text='';}
+ constructor(tag='div'){this.tag=tag;this.children=[];this.listeners={};this.hidden=false;this.disabled=false;this.value='';this._text='';this.attributes={};}
  set id(v){this._id=v;elements.set(v,this)}get id(){return this._id}
  set textContent(v){this._text=v??'';this.children=[]}get textContent(){return this._text+this.children.map(e=>e.textContent).join(' ')}
- set innerHTML(s){this.html=s;for(const m of s.matchAll(/<([a-z]+)\b([^>]*\bid="([^"]+)"[^>]*)>/g)){const e=new Element(m[1]);e.id=m[3];e.hidden=/\bhidden\b/.test(m[2]);}}
+ set innerHTML(s){this.html=s;for(const m of s.matchAll(/<([a-z][a-z0-9]*)\b([^>]*\bid="([^"]+)"[^>]*)>/g)){const e=new Element(m[1]);e.id=m[3];e.hidden=/\bhidden\b/.test(m[2]);}}
  append(...items){this.children.push(...items)}replaceChildren(...items){this._text='';this.children=[...items]}
- after(e){this.sibling=e}setAttribute(){}scrollIntoView(){}focus(){}remove(){}click(){return this.listeners.click?.({preventDefault(){}})}
+ after(e){this.sibling=e}setAttribute(name,value){this.attributes[name]=value}scrollIntoView(){this.scrolled=true}focus(){this.focused=true}remove(){}click(){return this.listeners.click?.({preventDefault(){}})}
  addEventListener(n,f){this.listeners[n]=f}reset(){this.value=''}
 }
 const view=new Element();view.id='view-premium';
@@ -30,9 +30,14 @@ const context=vm.createContext({document:{getElementById:id=>elements.get(id),cr
 vm.runInContext(script,context);await settle();
 const el=id=>elements.get(id);const walk=e=>[e,...e.children.flatMap(walk)];
 if(ownerGranted)assert.equal(el('premium-access-label').textContent,'Owner access');
-assert.equal(el('premium-private').hidden,false);assert.equal(el('premium-public').hidden,true);assert.equal(el('premium-library-cards').children.length,9);
+assert.equal(el('premium-private').hidden,false);assert.equal(el('premium-public').hidden,true);assert.equal(el('premium-guide-cards').children.length,3);assert.equal(el('premium-project-cards').children.length,6);
+assert.equal(view.attributes['data-member'],'true');assert.equal(el('premium-purchase').hidden,true);assert.equal(el('premium-status').hidden,true);assert.equal(el('premium-member-nav').hidden,false);assert.equal(el('premium-status').sibling.hidden,true);
+await el('premium-go-contact').click();assert.ok(el('premium-contact').scrolled);assert.ok(el('premium-mentor-message').focused);
+await el('premium-go-guides').click();assert.ok(el('premium-guides').scrolled);
+await el('premium-go-projects').click();assert.ok(el('premium-projects').scrolled);
+const cardFor=item=>el(item.kind==='guide'?'premium-guide-cards':'premium-project-cards').children[catalog.items.filter(i=>i.kind===item.kind).findIndex(i=>i.id===item.id)];
 for(const [index,item]of catalog.items.entries()){
- const button=el('premium-library-cards').children[index].children.at(-1);await button.click();await settle();
+ const button=cardFor(item).children.at(-1);await button.click();await settle();
  const reader=el('premium-reader');assert.equal(reader.hidden,false);assert.match(reader.textContent,new RegExp(item.title.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
  const marks=walk(reader).filter(e=>e.tag==='button'&&/Mark .*complete/.test(e.textContent));
  assert.ok(marks.length>0,item.id+' has completion controls');await marks[0].click();assert.ok(saves>0);
@@ -43,13 +48,18 @@ console.log('PASS: paid-member catalog, all 3 complete guide readers, 6 guided p
 el('premium-mentor-topic').value='resume-review';el('premium-mentor-topic').listeners.change();el('premium-mentor-message').value='A redacted resume with enough detail to request useful feedback.';el('premium-mentor-email').value='fixture@example.com';el('premium-mentor-project').value='';el('premium-mentor-consent').checked=true;
 await el('premium-mentor-form').listeners.submit({preventDefault(){}});assert.ok(calls.some(c=>c.path==='/premium/mentoring'&&c.value.topic==='learning-plan'&&c.value.message.startsWith('[Resume review]')));
 let release;pending.set('aws-guide',new Promise(resolve=>release=resolve));
-const slow=el('premium-library-cards').children[0].children.at(-1).click();await settle();
-await el('premium-library-cards').children[1].children.at(-1).click();await settle();
+const slow=cardFor(catalog.items[0]).children.at(-1).click();await settle();
+await cardFor(catalog.items[1]).children.at(-1).click();await settle();
 release();await slow;await settle();pending.delete('aws-guide');
 assert.ok(el('premium-reader').textContent.includes(catalog.items[1].title),'latest selected guide wins a slow-request race');
 console.log('PASS: switching guides ignores a slower previous selection.');
 let lateRelease;pending.set('aws-guide',new Promise(resolve=>lateRelease=resolve));
-const late=el('premium-library-cards').children[0].children.at(-1).click();await settle();
-paid=false;ownerGranted=false;await el('premium-buy').click();await settle();lateRelease();await late;await settle();
+const late=cardFor(catalog.items[0]).children.at(-1).click();await settle();
+paid=false;ownerGranted=false;await docEvents.visibilitychange();await settle();lateRelease();await late;await settle();
 await settle();assert.equal(el('premium-private').hidden,true);assert.equal(el('premium-reader').hidden,true);assert.equal(el('premium-reader').children.length,0);
 console.log('PASS: resume-review request mapping and revoked access clear private content.');
+
+
+assert.equal(view.attributes['data-member'],'false');assert.equal(el('premium-purchase').hidden,false);assert.equal(el('premium-member-nav').hidden,true);assert.equal(el('premium-guide-cards').children.length,0);assert.equal(el('premium-project-cards').children.length,0);
+assert.match(html,/fill="#f2c66d"/);assert.doesNotMatch(html,/Refresh purchase access/);
+console.log('PASS: member and owner presentation hides pricing/retry, separates guides/projects, routes contact shortcuts and restores prospect state after revoked access.');
