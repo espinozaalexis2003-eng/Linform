@@ -68,7 +68,7 @@ class OwnerSetupTests(unittest.TestCase):
   with patch.object(m,'aws',return_value={'Account':'wrong'}),patch('sys.argv',ARGV):
    with self.assertRaises(RuntimeError):m.main()
  def test_only_expected_function_update_can_execute(self):
-  for target,should_execute in [('Function',True),('Keep',False)]:
+  for target,should_execute,review_only in [('Function',True,False),('Keep',False,False),('Function',False,True),('Keep',False,True)]:
    calls=[]
    def aws(*args):
     calls.append(args)
@@ -80,9 +80,15 @@ class OwnerSetupTests(unittest.TestCase):
     if operation=='create-change-set':return {'Id':'fixture-change'}
     if operation=='describe-change-set':return {'Changes':[{'ResourceChange':{'LogicalResourceId':target,'Action':'Modify','Replacement':'False'}}]}
     return {}
-   with patch.object(m,'aws',aws),patch('sys.argv',ARGV),redirect_stdout(io.StringIO()):
-    if should_execute:m.main()
+   with patch.object(m,'aws',aws),patch('sys.argv',ARGV+(['--review-only'] if review_only else [])),redirect_stdout(io.StringIO()) as output:
+    if should_execute or review_only:m.main()
     else:
      with self.assertRaises(RuntimeError):m.main()
    self.assertEqual(any(c[1]=='execute-change-set' for c in calls),should_execute)
+   if not should_execute:
+    self.assertTrue(any(c[1]=='delete-change-set' for c in calls))
+    self.assertIn('PROPOSED CHANGE SUMMARY',output.getvalue())
+    self.assertNotIn(EMAIL,output.getvalue())
+    self.assertNotIn(SUBJECT,output.getvalue())
 if __name__=='__main__':unittest.main()
+
