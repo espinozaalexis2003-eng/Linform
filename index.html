@@ -3096,10 +3096,12 @@ output "project_name" {
 @media(prefers-reduced-motion:reduce){.premium-card{transition:none;}.premium-card:hover{transform:none;}}
 
 /* The member logo treatment is scoped to the active Premium route. */
-.premium-mode[data-premium-member="true"] .site-header .brand{color:#f5d58a;}
-.premium-mode[data-premium-member="true"] .linform-brand-mark{filter:drop-shadow(0 2px 7px #e6b75a30);}
-.premium-mode[data-premium-member="true"] .linform-logo-cloud{stroke:url(#linform-header-gold);}
-.premium-mode[data-premium-member="true"] .linform-logo-arrow{stroke:url(#linform-header-gold);}
+.premium-mode[data-premium-member="true"] .site-header .brand{color:var(--member-logo-color);}
+.premium-mode[data-premium-member="true"]{--member-logo-color:#63a6ff;--member-logo-stroke:#63a6ff;--member-logo-glow:#438cf53a;}
+.premium-mode[data-premium-tier="mentorship"]{--member-logo-color:#f5d58a;--member-logo-stroke:url(#linform-header-gold);--member-logo-glow:#e6b75a30;}
+.premium-mode[data-premium-member="true"] .linform-brand-mark{filter:drop-shadow(0 2px 7px var(--member-logo-glow));}
+.premium-mode[data-premium-member="true"] .linform-logo-cloud{stroke:var(--member-logo-stroke);}
+.premium-mode[data-premium-member="true"] .linform-logo-arrow{stroke:var(--member-logo-stroke);}
 
 .premium-quiz-dialog{width:min(690px,calc(100% - 28px));max-height:85dvh;overflow-y:auto;overscroll-behavior:contain;border:1px solid #bb9451;border-radius:18px;background:linear-gradient(145deg,#142c5a,#0b162d);color:#e6efff;padding:26px;box-shadow:0 25px 100px #0009;}
 .premium-quiz-dialog::backdrop{background:#030914cc;backdrop-filter:blur(5px);}
@@ -3301,6 +3303,7 @@ output "project_name" {
  function memberPresentation(enabled){
   view.setAttribute('data-member',String(enabled));
   document.body.setAttribute('data-premium-member',String(enabled));
+  document.body.setAttribute('data-premium-tier',enabled?(personalAccess?'mentorship':'digital'):'none');
   el('premium-purchase').hidden=enabled;el('premium-member-nav').hidden=!enabled;el('premium-status').hidden=enabled;
   const legacy=enabled&&personalAccess&&(supportState?.mode==='legacy-monthly'||!tierPolicy);
   el('premium-call-limit').textContent=legacy?'One mentoring request per month':'One 30–45-minute mentorship call';
