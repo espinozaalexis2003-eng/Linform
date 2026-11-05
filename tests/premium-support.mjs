@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
+const html=fs.readFileSync('index.html','utf8');
+const block=html.slice(html.indexOf(' function supportAllowance('),html.indexOf(' function projectStarterZip('));
+const elements=new Map(),el=id=>{if(!elements.has(id))elements.set(id,{value:'study-question',textContent:'',disabled:false});return elements.get(id);};
+const context=vm.createContext({el,supportState:{policyVersion:1,mentoringUsed:0,customProjectUsed:0,resumeUsed:0}});vm.runInContext(block,context);
+assert.equal(context.supportAllowance('study-question').blocked,false);
+assert.equal(context.supportAllowance('custom-project').blocked,false);
+assert.equal(context.supportAllowance('resume-review').blocked,false);
+assert.equal(context.supportAllowance('resume-revision').blocked,true);
+context.supportState={policyVersion:1,mentoringUsed:1,customProjectUsed:0,resumeUsed:1};
+assert.equal(context.supportAllowance('study-question').blocked,true);assert.equal(context.supportAllowance('project-feedback').blocked,true);assert.equal(context.supportAllowance('learning-plan').blocked,true);
+assert.equal(context.supportAllowance('custom-project').blocked,false);assert.equal(context.supportAllowance('resume-review').blocked,true);assert.equal(context.supportAllowance('resume-revision').blocked,false);
+el('premium-mentor-topic').value='resume-revision';context.syncPremiumFeedbackPrompt();assert.equal(el('premium-mentor-submit').disabled,false);assert.match(el('premium-mentor-message').placeholder,/initial feedback/);
+context.supportState.resumeUsed=2;context.syncPremiumFeedbackPrompt();assert.equal(el('premium-mentor-submit').disabled,true);
+context.supportState.customProjectUsed=1;assert.equal(context.supportAllowance('custom-project').blocked,true);
+for(const [topic,prefix,mapped]of [['resume-review','[Resume review]','learning-plan'],['resume-revision','[Resume final revision]','learning-plan'],['custom-project','[Custom project]','project-feedback']]){const result=context.premiumResumePayload(topic,'  A useful request with enough context.  ');assert.equal(result.topic,mapped);assert.equal(result.message,prefix+'\nA useful request with enough context.');}
+context.supportState=null;assert.equal(context.supportAllowance('study-question').blocked,false,'legacy API remains compatible until owner installs server update');
+const mentoring=html.match(/<section class="premium-mentoring premium-mentor-spotlight"[\s\S]*?<\/section>/)[0];
+assert.match(mentoring,/id="premium-custom-project-title"/);assert.match(mentoring,/id="premium-resume-title"/);assert.match(mentoring,/One initial review \+ one final revision/);
+assert.equal((html.match(/id="premium-custom-project-title"/g)||[]).length,1);assert.equal((html.match(/id="premium-resume-title"/g)||[]).length,1);
+assert.ok(html.indexOf('id="premium-project-preview"')>html.indexOf('id="premium-public"'));
+assert.match(html,/Illustrative project preview/);assert.match(html,/5\. More coming to Premium/);
+console.log('PASS: monthly support and one-time resume states, final-revision prerequisites, legacy-compatible request payloads, grouped blue support cards and prospect-only project preview.');

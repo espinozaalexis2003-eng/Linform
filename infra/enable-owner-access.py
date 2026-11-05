@@ -34,7 +34,7 @@ def patch_code(source):
         "if entitled(client,subject):return respond(409,": "if has_premium_access(client,subject):return respond(409,",
         "{'purchased':entitled(client,subject),'checkoutReady':ready(client),": "{'purchased':entitled(client,subject),'owner':owner_access(subject),'checkoutReady':ready(client),",
     }
-    if source.count('if not entitled(client,subject):') != 2:
+    if source.count('if not entitled(client,subject):') != (1 if '# Linform support allowances v1' in source else 2):
         raise ValueError('Unexpected library or mentoring access checks')
     for old, new in replacements.items():
         if old not in source:
