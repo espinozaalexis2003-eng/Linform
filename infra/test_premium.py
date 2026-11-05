@@ -62,7 +62,7 @@ class PremiumTests(unittest.TestCase):
   for key,value in [('refunded',True),('amount_refunded',100),('disputed',True)]:
    self.grant();charge[key]=value;self.assertFalse(p.entitled(self.client,'student-a'));charge[key]=False if key!='amount_refunded' else 0
  def test_checkout_closed_and_client_values_rejected(self):
-  self.assertEqual(self.call(self.event('/premium/checkout','POST',body='{}'))[0],503);self.assertEqual(self.call(self.event('/premium/checkout','POST',body='{"amount":1}'))[0],400)
+  self.assertEqual(self.call(self.event('/premium/checkout','POST',body='{"tier":"digital"}'))[0],503);self.assertEqual(self.call(self.event('/premium/checkout','POST',body='{"amount":1}'))[0],400)
   e=self.event('/premium/checkout','POST');e['headers']['origin']='https://evil.example';self.assertEqual(self.call(e)[0],403)
  def test_raw_signature_tolerance_and_multiple_signatures(self):
   stamp=str(int(time.time()));raw=b'{}';digest=hmac.new(b'signature-fixture',stamp.encode()+b'.'+raw,hashlib.sha256).hexdigest();signature='t='+stamp+',v1=bad,v1='+digest
@@ -132,5 +132,52 @@ class PremiumTests(unittest.TestCase):
   with patch.object(p.boto3,'client',return_value=types.SimpleNamespace(transact_write_items=racing_write)):
    self.assertEqual(self.support_request('custom')[0],429)
   self.assertFalse(any(key[1].startswith('MENTOR#') for key in table.items))
+
+ def set_offer(self,tier):
+  self.client.session['metadata']['bundle']=p.TIERS[tier]['bundle'];self.client.session['amount_subtotal']=p.TIERS[tier]['amount'];self.client.lines['data'][0]['price']['id']=p.TIERS[tier]['price']
+ def test_digital_tier_unlocks_library_but_never_personal_support(self):
+  self.set_offer('digital');self.grant();code,data=self.call(self.event());self.assertEqual(code,200);self.assertTrue(data['purchased']);self.assertEqual(data['tier'],'digital');self.assertFalse(data['supportAccess']);self.assertIsNone(data['support'])
+  self.assertEqual(self.call(self.event('/premium/catalog'))[0],200);self.assertEqual(self.support_request('mentoring')[0],403)
+ def test_mentorship_bundle_has_one_time_not_monthly_allowances(self):
+  self.set_offer('mentorship');self.grant();self.assertEqual(self.support_request('mentoring')[0],201);self.assertEqual(self.support_request('custom')[0],201)
+  with patch.object(p.time,'time',return_value=1800000000):
+   self.assertEqual(self.support_request('mentoring')[0],429);self.assertEqual(self.support_request('custom')[0],429)
+  data=self.call(self.event())[1];self.assertEqual(data['tier'],'mentorship');self.assertTrue(data['supportAccess']);self.assertEqual(data['support']['mode'],'bundle')
+  self.assertEqual(self.support_request('resume')[0],201);self.assertEqual(self.support_request('revision')[0],201);self.assertEqual(self.support_request('revision')[0],429)
+ def test_new_offers_require_exact_bundle_price_and_amount(self):
+  for tier in ('digital','mentorship'):
+   self.set_offer(tier);self.assertIsNotNone(self.grant())
+   self.client.session['amount_subtotal']=1;self.assertIsNone(self.grant());self.set_offer(tier)
+   self.client.session['metadata']['bundle']='forged';self.assertIsNone(self.grant())
+ def test_original_price_preserves_legacy_personal_benefits(self):
+  self.grant();data=self.call(self.event())[1];self.assertTrue(data['legacyBenefits']);self.assertTrue(data['supportAccess']);self.assertEqual(data['tier'],'legacy');self.assertEqual(data['support']['mode'],'legacy-monthly')
+ def test_tier_checkout_uses_server_price_and_verified_identity(self):
+  calls=[]
+  def request(path,params=None):
+   if path.startswith('/v1/prices/'):
+    offer=next(details for details in p.TIERS.values() if details['price'] in path)
+    return {'active':True,'livemode':False,'type':'one_time','currency':'usd','unit_amount':offer['amount'],'product':{'active':True}}
+   if path=='/v1/checkout/sessions':calls.append(params);return {'url':'https://checkout.stripe.com/c/pay/fixture'}
+   return self.client.session
+  with patch.object(self.client,'request',side_effect=request),patch.dict(os.environ,{'SALES_ENABLED':'true'}):
+   for tier in ('digital','mentorship'):
+    self.assertEqual(self.call(self.event('/premium/checkout','POST',body=json.dumps({'tier':tier})))[0],200)
+    self.assertEqual(calls[-1]['line_items[0][price]'],p.TIERS[tier]['price']);self.assertEqual(calls[-1]['client_reference_id'],'student-a')
+   for data in ({},{'tier':'digital','price':'forged'},{'tier':'legacy'},{'tier':'mentorship','userId':'student-b'}):
+    self.assertEqual(self.call(self.event('/premium/checkout','POST',body=json.dumps(data)))[0],400)
+ def test_mentorship_refund_removes_support_but_separate_digital_purchase_survives(self):
+  self.set_offer('digital');digital=copy.deepcopy(self.client.session);digital_lines=copy.deepcopy(self.client.lines)
+  self.set_offer('mentorship');mentor=copy.deepcopy(self.client.session);mentor['payment_intent']['id']='pi_mentor';mentor_lines=copy.deepcopy(self.client.lines)
+  def request(path,params=None):
+   if '/line_items' in path:return copy.deepcopy(mentor_lines if 'cs_test_mentor' in path else digital_lines)
+   return copy.deepcopy(mentor if 'cs_test_mentor' in path else digital)
+  with patch.object(self.client,'request',side_effect=request):
+   p.paid_order(self.client,'cs_test_digital','student-a');p.paid_order(self.client,'cs_test_mentor','student-a')
+   self.assertTrue(p.purchase_rights(self.client,'student-a')['personal']);mentor['payment_intent']['latest_charge']['amount_refunded']=6000
+   rights=p.purchase_rights(self.client,'student-a');self.assertTrue(rights['digital']);self.assertFalse(rights['personal']);self.assertEqual(rights['tier'],'digital')
+ def test_owners_keep_both_tiers_without_a_payment(self):
+  with patch.dict(os.environ,{'LINFORM_OWNER_SUB':'student-a'}):
+   rights=p.purchase_rights(self.client,'student-a');self.assertTrue(rights['digital']);self.assertTrue(rights['personal']);self.assertTrue(rights['owner'])
+   self.assertEqual(self.call(self.event('/premium/catalog'))[0],200)
 
 if __name__=='__main__':unittest.main()

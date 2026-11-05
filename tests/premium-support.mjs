@@ -15,7 +15,7 @@ context.supportState.resumeUsed=2;context.syncPremiumFeedbackPrompt();assert.equ
 context.supportState.customProjectUsed=1;assert.equal(context.supportAllowance('custom-project').blocked,true);
 for(const [topic,prefix,mapped]of [['resume-review','[Resume review]','learning-plan'],['resume-revision','[Resume final revision]','learning-plan'],['custom-project','[Custom project]','project-feedback']]){const result=context.premiumResumePayload(topic,'  A useful request with enough context.  ');assert.equal(result.topic,mapped);assert.equal(result.message,prefix+'\nA useful request with enough context.');}
 context.supportState=null;assert.equal(context.supportAllowance('study-question').blocked,false,'legacy API remains compatible until owner installs server update');
-const mentoring=html.match(/<section class="premium-mentoring premium-mentor-spotlight"[\s\S]*?<\/section>/)[0];
+const mentoring=html.match(/<section id="premium-personal-section" class="premium-mentoring premium-mentor-spotlight"[\s\S]*?<\/section>/)[0];
 assert.match(mentoring,/id="premium-custom-project-title"/);assert.match(mentoring,/id="premium-resume-title"/);assert.match(mentoring,/One initial review \+ one final revision/);
 assert.equal((html.match(/id="premium-custom-project-title"/g)||[]).length,1);assert.equal((html.match(/id="premium-resume-title"/g)||[]).length,1);
 assert.ok(html.indexOf('id="premium-project-preview"')>html.indexOf('id="premium-public"'));

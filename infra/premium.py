@@ -24,6 +24,21 @@ secret_store=boto3.client('secretsmanager')
 SUB=re.compile(r'[a-zA-Z0-9-]{1,128}\Z')
 ID=re.compile(r'[a-z][a-z0-9-]{0,79}\Z')
 
+# Prices identify the purchased offer; the original PRICE remains valid for legacy buyers.
+TIERS = {
+ 'digital': {'price': 'price_1UYXmgR3GqiWlMaKNVW7qXpn' if LIVE else 'price_1UYXrcJ6R4GUUH3bbGsZ7dwk', 'amount': 1500, 'bundle': 'linform-digital-v2'},
+ 'mentorship': {'price': 'price_1UYXmmR3GqiWlMaKkZ50VQEZ' if LIVE else 'price_1UYXrgJ6R4GUUH3b4B9psAut', 'amount': 6000, 'bundle': 'linform-mentorship-v2'},
+}
+# Linform owner access v1
+def owner_access(subject):
+    configured = os.environ.get('LINFORM_OWNER_SUB', '')
+    return bool(isinstance(subject, str) and SUB.fullmatch(subject) and configured and hmac.compare_digest(configured, subject))
+
+def has_premium_access(client, subject):
+    return owner_access(subject) or entitled(client, subject)
+
+
+
 def respond(code,value):
     return {'statusCode':code,'headers':{'content-type':'application/json','cache-control':'private, no-store, max-age=0','pragma':'no-cache','x-content-type-options':'nosniff'},'body':json.dumps(value)}
 
@@ -62,34 +77,54 @@ def paid_order(client,session_id,expected_subject=None):
     subject=session.get('client_reference_id','')
     if not SUB.fullmatch(subject) or (expected_subject and subject!=expected_subject):return None
     if session.get('livemode') is not LIVE or session.get('mode')!='payment':return None
-    if session.get('metadata',{}).get('bundle')!=BUNDLE:return None
     lines=client.request('/v1/checkout/sessions/'+session_id+'/line_items?limit=2')
     rows=lines.get('data',[])
-    if len(rows)!=1 or lines.get('has_more') or rows[0].get('price',{}).get('id')!=PRICE or rows[0].get('quantity')!=1:return None
-    if session.get('currency')!='usd' or session.get('amount_subtotal')!=1500:return None
+    if len(rows)!=1 or lines.get('has_more') or rows[0].get('quantity')!=1:return None
+    price_id=rows[0].get('price',{}).get('id')
+    bundle=session.get('metadata',{}).get('bundle')
+    offer=next(((name,details) for name,details in TIERS.items() if price_id==details['price'] and bundle==details['bundle']),None)
+    if price_id==PRICE and bundle==BUNDLE:tier,amount='legacy',1500
+    elif offer:tier,amount=offer[0],offer[1]['amount']
+    else:return None
+    if session.get('currency')!='usd' or session.get('amount_subtotal')!=amount:return None
     intent=session.get('payment_intent')
     if not isinstance(intent,dict):return None
     charge=intent.get('latest_charge')
     if not isinstance(charge,dict):return None
     active=(session.get('payment_status')=='paid' and intent.get('status')=='succeeded' and charge.get('paid') is True and not charge.get('refunded') and not charge.get('disputed') and charge.get('amount_refunded',0)==0)
-    row={'pk':'USER#'+subject,'sk':'ORDER#'+session_id,'sessionId':session_id,'paymentIntent':intent['id'],'active':active,'bundle':BUNDLE,'created':session.get('created',0)}
+    row={'pk':'USER#'+subject,'sk':'ORDER#'+session_id,'sessionId':session_id,'paymentIntent':intent['id'],'active':active,'bundle':bundle,'tier':tier,'created':session.get('created',0)}
     table.put_item(Item=row)
     table.put_item(Item={'pk':'PAYMENT#'+intent['id'],'sk':'ORDER','subject':subject,'sessionId':session_id})
     return row
 
-def entitled(client,subject):
-    # Check the current payment, not only a cached entitlement. Refunds/disputes
-    # revoke access even if a webhook was delayed. Fail closed on provider errors.
+def purchase_rights(client,subject):
+    if owner_access(subject):return {'digital':True,'personal':True,'legacy':False,'owner':True,'tier':'owner','supportScope':'OWNER'}
+    active=[]
     for row in order_items(subject):
         current=paid_order(client,row['sessionId'],subject)
-        if current and current['active']:return True
-    return False
+        if current and current['active']:active.append(current)
+    legacy=any(row['tier']=='legacy' for row in active)
+    mentorship=next((row for row in sorted(active,key=lambda row:row['created'],reverse=True) if row['tier']=='mentorship'),None)
+    return {'digital':bool(active),'personal':legacy or bool(mentorship),'legacy':legacy,'owner':False,
+            'tier':'legacy' if legacy else 'mentorship' if mentorship else 'digital' if active else 'none',
+            'supportScope':'LEGACY' if legacy else mentorship['sessionId'] if mentorship else ''}
 
-def ready(client):
-    if os.environ.get('SALES_ENABLED')!='true':return False
-    price=client.request('/v1/prices/'+PRICE+'?expand[]=product')
+def entitled(client,subject):
+    return purchase_rights(client,subject)['digital']
+
+def ready(client,tier='digital'):
+    if os.environ.get('SALES_ENABLED')!='true' or tier not in TIERS:return False
+    offer=TIERS[tier]
+    price=client.request('/v1/prices/'+offer['price']+'?expand[]=product')
     product=price.get('product',{})
-    return bool(price.get('active') and price.get('livemode') is LIVE and price.get('type')=='one_time' and price.get('currency')=='usd' and price.get('unit_amount')==1500 and isinstance(product,dict) and product.get('active'))
+    return bool(price.get('active') and price.get('livemode') is LIVE and price.get('type')=='one_time' and price.get('currency')=='usd' and price.get('unit_amount')==offer['amount'] and isinstance(product,dict) and product.get('active'))
+
+def checkout_options(client):
+    options={}
+    for tier in TIERS:
+        try:options[tier]=ready(client,tier)
+        except Exception:options[tier]=False
+    return options
 
 def content_object(key):
     raw=s3.get_object(Bucket=os.environ['CONTENT_BUCKET'],Key=key)['Body'].read(1500001)
@@ -122,15 +157,18 @@ def webhook(event,client,signing_secret):
 def support_period(now=None):
     return time.strftime('%Y-%m', time.gmtime(time.time() if now is None else now))
 
-def support_usage(subject):
+def support_usage(subject, rights=None):
+    rights = rights or {'personal':True,'legacy':True,'supportScope':'LEGACY'}
     period = support_period()
+    prefix = 'SUPPORT#' if rights.get('legacy') else 'SUPPORT#BUNDLE#'+rights.get('supportScope','')+'#'
+    suffix = '#'+period if rights.get('legacy') else ''
     def used(key):
         row = table.get_item(Key={'pk': 'USER#'+subject, 'sk': key}, ConsistentRead=True).get('Item') or {}
         return int(row.get('used', 0))
-    return {'policyVersion': 1, 'month': period,
-            'mentoringUsed': used('SUPPORT#MENTORING#'+period),
-            'customProjectUsed': used('SUPPORT#CUSTOM#'+period),
-            'resumeUsed': used('SUPPORT#RESUME')}
+    return {'policyVersion': 2, 'mode': 'legacy-monthly' if rights.get('legacy') else 'bundle', 'month': period,
+            'mentoringUsed': used(prefix+'MENTORING'+suffix),
+            'customProjectUsed': used(prefix+'CUSTOM'+suffix),
+            'resumeUsed': used(prefix+'RESUME')}
 
 def support_kind(topic, message):
     # Preserve compatibility with the existing public request contract.
@@ -142,16 +180,19 @@ def support_kind(topic, message):
         return 'custom-project'
     return 'mentoring'
 
-def save_support_request(subject, kind, row):
+def save_support_request(subject, kind, row, rights=None):
+    rights = rights or {'personal':True,'legacy':True,'supportScope':'LEGACY'}
     period = support_period(row['created'])
-    key = 'SUPPORT#RESUME' if kind.startswith('resume-') else ('SUPPORT#CUSTOM#' if kind == 'custom-project' else 'SUPPORT#MENTORING#')+period
+    prefix = 'SUPPORT#' if rights.get('legacy') else 'SUPPORT#BUNDLE#'+rights.get('supportScope','')+'#'
+    category = 'RESUME' if kind.startswith('resume-') else 'CUSTOM' if kind == 'custom-project' else 'MENTORING'
+    key = prefix+category+('#'+period if rights.get('legacy') and category!='RESUME' else '')
     current = table.get_item(Key={'pk': 'USER#'+subject, 'sk': key}, ConsistentRead=True).get('Item') or {}
     used = int(current.get('used', 0))
     if kind == 'resume-revision' and used == 0:
         return respond(409, {'error': 'Submit your initial resume review before the final revision.'})
     limit = 2 if kind == 'resume-revision' else 1
     if used >= limit:
-        label = 'Your resume review and final revision have been used.' if kind == 'resume-revision' else 'Your initial resume review has been requested; use the final revision option after receiving feedback.' if kind == 'resume-review' else 'Your custom-project request for this calendar month has been used.' if kind == 'custom-project' else 'Your mentoring request for this calendar month has been used.'
+        label = 'Your resume review and final revision have been used.' if kind == 'resume-revision' else 'Your initial resume review has been requested; use the final revision option after receiving feedback.' if kind == 'resume-review' else 'Your custom-project request allowance has been used.' if kind == 'custom-project' else 'Your mentorship request allowance has been used.'
         return respond(429, {'error': label})
     marker = {'pk': 'USER#'+subject, 'sk': key, 'used': used+1, 'policyVersion': 1,
               'lastRequestId': row['requestId'], 'created': row['created']}
@@ -174,16 +215,16 @@ def save_support_request(subject, kind, row):
         if response.get('Error', {}).get('Code') == 'TransactionCanceledException' and any(reason.get('Code') == 'ConditionalCheckFailed' for reason in reasons):
             return respond(429, {'error': 'Another request used this allowance. Refresh Premium to see your remaining support.'})
         raise
-    return respond(201, {'requestId': row['requestId'], 'status': 'requested', 'support': support_usage(subject),
+    return respond(201, {'requestId': row['requestId'], 'status': 'requested', 'support': support_usage(subject, rights),
                          'message': 'Saved for Alexis. Reply timing and availability are confirmed individually.'})
 
 def save_mentoring(event, client, subject):
     headers = {k.lower(): v for k, v in event.get('headers', {}).items()}
     if headers.get('origin') != ORIGIN:
         return respond(403, {'error': 'Invalid origin'})
-    allowed = has_premium_access(client, subject) if 'has_premium_access' in globals() else entitled(client, subject)
-    if not allowed:
-        return respond(403, {'error': 'A verified Premium purchase is required'})
+    rights = purchase_rights(client, subject)
+    if not rights['personal']:
+        return respond(403, {'error': 'A verified personal-support bundle or legacy membership is required'})
     raw = event.get('body', '')
     if not isinstance(raw, str) or len(raw) > 16000:
         return respond(400, {'error': 'Invalid mentoring request'})
@@ -210,7 +251,7 @@ def save_mentoring(event, client, subject):
     row = {'pk': 'USER#'+subject, 'sk': 'MENTOR#'+request_id, 'requestId': request_id, 'created': now,
            'status': 'requested', 'topic': data['topic'], 'message': message.strip(),
            'replyEmail': email, 'projectUrl': url, 'consent': True}
-    return save_support_request(subject, support_kind(data['topic'], message.strip()), row)
+    return save_support_request(subject, support_kind(data['topic'], message.strip()), row, rights)
 
 
 def handler(event,context):
@@ -227,20 +268,28 @@ def handler(event,context):
             # whose client_reference_id matches this authenticated student.
             session=(event.get('queryStringParameters') or {}).get('session_id')
             if session:paid_order(client,session,subject)
-            return respond(200,{'purchased':entitled(client,subject),'checkoutReady':ready(client),'amount':1500,'currency':'usd','support':support_usage(subject)})
+            rights=purchase_rights(client,subject)
+            options=checkout_options(client)
+            return respond(200,{'purchased':rights['digital'],'owner':rights['owner'],'tierPolicyVersion':2,'tier':rights['tier'],'supportAccess':rights['personal'],'legacyBenefits':rights['legacy'],'checkoutOptions':options,'checkoutReady':False,'amount':1500,'currency':'usd','support':support_usage(subject,rights) if rights['personal'] else None})
         if path=='/premium/checkout' and method=='POST':
             headers={k.lower():v for k,v in event.get('headers',{}).items()}
             if headers.get('origin')!=ORIGIN:return respond(403,{'error':'Invalid origin'})
-            if (event.get('body') or '') not in ('','{}'):return respond(400,{'error':'Checkout accepts no client-supplied price or identity'})
-            if entitled(client,subject):return respond(409,{'error':'Already purchased; refresh Premium access'})
-            if not ready(client):return respond(503,{'error':'Premium checkout is not open yet'})
+            raw=event.get('body','')
+            if not isinstance(raw,str) or len(raw)>200:return respond(400,{'error':'Choose a tier'})
+            if event.get('isBase64Encoded'):raw=base64.b64decode(raw,validate=True).decode('utf-8')
+            try:data=json.loads(raw)
+            except (ValueError,TypeError):return respond(400,{'error':'Choose a tier'})
+            if not isinstance(data,dict) or set(data)!={'tier'} or not isinstance(data.get('tier'),str) or data['tier'] not in TIERS:return respond(400,{'error':'Refresh Linform and choose a valid tier; prices and identity are server-controlled'})
+            tier=data['tier'];offer=TIERS[tier];rights=purchase_rights(client,subject)
+            if rights['digital'] and tier=='digital' or rights['personal'] and tier=='mentorship':return respond(409,{'error':'This account already has that access'})
+            if not ready(client,tier):return respond(503,{'error':'This checkout is temporarily unavailable'})
             session=client.request('/v1/checkout/sessions',{
-                'mode':'payment','line_items[0][price]':PRICE,'line_items[0][quantity]':'1',
-                'client_reference_id':subject,'metadata[bundle]':BUNDLE,
-                'payment_intent_data[metadata][bundle]':BUNDLE,
+                'mode':'payment','line_items[0][price]':offer['price'],'line_items[0][quantity]':'1',
+                'client_reference_id':subject,'metadata[bundle]':offer['bundle'],
+                'payment_intent_data[metadata][bundle]':offer['bundle'],
                 'success_url':ORIGIN+'/?premium_session={CHECKOUT_SESSION_ID}#premium',
                 'cancel_url':ORIGIN+'/#premium','customer_creation':'always',
-                'integration_identifier':'linform_premium_'+''.join(secrets.choice(string.ascii_lowercase) for _ in range(8))})
+                'integration_identifier':'linform_'+tier+'_'+''.join(secrets.choice(string.ascii_lowercase) for _ in range(8))})
             url=session.get('url','')
             if not url.startswith('https://checkout.stripe.com/'):raise ValueError('Unexpected checkout URL')
             return respond(200,{'url':url})
