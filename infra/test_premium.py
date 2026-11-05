@@ -7,10 +7,23 @@ class Table:
  def get_item(self,Key,**kw):return {'Item':self.items.get((Key['pk'],Key['sk']))}
  def query(self,**kw):return {'Items':[copy.deepcopy(v) for (pk,sk),v in self.items.items() if pk==kw['ExpressionAttributeValues'][':u'] and sk.startswith(kw['ExpressionAttributeValues'].get(':m','ORDER#'))]}
 table=Table();reads=[]
+def transact_write_items(TransactItems):
+ def decode(item):
+  return {key:(value['S'] if 'S' in value else int(value['N']) if 'N' in value else value['BOOL']) for key,value in item.items()}
+ pending=[]
+ for operation in TransactItems:
+  put=operation['Put'];row=decode(put['Item']);existing=table.items.get((row['pk'],row['sk']))
+  valid=not existing if put['ConditionExpression']=='attribute_not_exists(pk)' else bool(existing and existing['used']==int(put['ExpressionAttributeValues'][':expected']['N']))
+  if not valid:
+   error=RuntimeError('Conditional write rejected');error.response={'Error':{'Code':'TransactionCanceledException'},'CancellationReasons':[{'Code':'ConditionalCheckFailed'}]};raise error
+  pending.append(row)
+ for row in pending:table.put_item(Item=row)
+ return {}
+
 def object_read(**kw):
  reads.append(kw);return {'Body':io.BytesIO(json.dumps({'items':[{'id':'aws-guide'}]} if kw['Key']=='catalog.json' else {'title':'private fixture'}).encode())}
 secret=types.SimpleNamespace(get_secret_value=lambda **kw:{'SecretString':json.dumps({'api_key':'fixture','webhook_secret':'signature-fixture'})})
-fake=types.SimpleNamespace(resource=lambda name:types.SimpleNamespace(Table=lambda name:table),client=lambda name:types.SimpleNamespace(get_object=object_read) if name=='s3' else secret)
+fake=types.SimpleNamespace(resource=lambda name:types.SimpleNamespace(Table=lambda name:table),client=lambda name:types.SimpleNamespace(get_object=object_read) if name=='s3' else types.SimpleNamespace(transact_write_items=transact_write_items) if name=='dynamodb' else secret)
 spec=importlib.util.spec_from_file_location('premium_under_test',Path(__file__).with_name('premium.py'));p=importlib.util.module_from_spec(spec)
 with patch.dict(sys.modules,{'boto3':fake}),patch.dict(os.environ,{'ENTITLEMENTS_TABLE':'fixture'}):spec.loader.exec_module(p)
 class Client:
@@ -24,7 +37,7 @@ class PremiumTests(unittest.TestCase):
  def setUp(self):
   table.items.clear();reads.clear();p.PRICE='price_fixture';p.LIVE=False;self.client=Client()
   self.gateway=patch.object(p,'StripeGateway',lambda key:self.client);self.gateway.start();self.addCleanup(self.gateway.stop)
-  self.env=patch.dict(os.environ,{'STRIPE_SECRET_ARN':'fixture','CONTENT_BUCKET':'fixture','SALES_ENABLED':'false'});self.env.start();self.addCleanup(self.env.stop)
+  self.env=patch.dict(os.environ,{'ENTITLEMENTS_TABLE':'fixture','STRIPE_SECRET_ARN':'fixture','CONTENT_BUCKET':'fixture','SALES_ENABLED':'false'});self.env.start();self.addCleanup(self.env.stop)
  def event(self,path='/premium/access',method='GET',subject='student-a',body=None):return {'rawPath':path,'requestContext':{'http':{'method':method},'authorizer':{'jwt':{'claims':{'sub':subject,'token_use':'access'}}}},'headers':{'origin':p.ORIGIN},'body':body}
  def call(self,event):
   response=p.handler(event,None);self.assertIn('no-store',response['headers']['cache-control']);return response['statusCode'],json.loads(response['body'])
@@ -80,7 +93,44 @@ class PremiumTests(unittest.TestCase):
   for field,value in [('consent',False),('message','short'),('replyEmail','not-email'),('projectUrl','https://evil.example/a')]:
    data=self.mentoring_data();data[field]=value;self.assertEqual(self.call(self.event('/premium/mentoring','POST',body=json.dumps(data)))[0],400)
   e=self.event('/premium/mentoring','POST',body=json.dumps(self.mentoring_data()));e['headers']['origin']='https://evil.example';self.assertEqual(self.call(e)[0],403)
-  for i in range(5):self.assertEqual(self.call(self.event('/premium/mentoring','POST',body=json.dumps(self.mentoring_data())))[0],201)
+  self.assertEqual(self.call(self.event('/premium/mentoring','POST',body=json.dumps(self.mentoring_data())))[0],201)
   self.assertEqual(self.call(self.event('/premium/mentoring','POST',body=json.dumps(self.mentoring_data())))[0],429)
+
+ def support_request(self,kind):
+  data=self.mentoring_data()
+  if kind=='custom':data['message']='[Custom project]\n'+data['message']
+  if kind in ('resume','revision'):
+   data['topic']='learning-plan';data['message']=('[Resume review]\n' if kind=='resume' else '[Resume final revision]\n')+data['message']
+  return self.call(self.event('/premium/mentoring','POST',body=json.dumps(data)))
+ def test_support_categories_have_separate_monthly_allowances(self):
+  self.grant();self.assertEqual(self.support_request('mentoring')[0],201);self.assertEqual(self.support_request('custom')[0],201)
+  self.assertEqual(self.support_request('custom')[0],429);self.assertEqual(self.support_request('mentoring')[0],429)
+  self.assertEqual(p.support_usage('student-a')['customProjectUsed'],1)
+  self.assertEqual(p.support_usage('student-b')['customProjectUsed'],0)
+ def test_resume_requires_initial_then_only_one_final_revision(self):
+  self.grant();self.assertEqual(self.support_request('revision')[0],409)
+  self.assertEqual(self.support_request('resume')[0],201);self.assertEqual(self.support_request('resume')[0],429)
+  self.assertEqual(self.support_request('revision')[0],201);self.assertEqual(self.support_request('revision')[0],429)
+  self.assertEqual(p.support_usage('student-a')['resumeUsed'],2)
+ def test_month_boundary_resets_monthly_but_not_resume_allowance(self):
+  self.grant()
+  with patch.object(p.time,'time',return_value=1793491200):
+   self.assertEqual(self.support_request('mentoring')[0],201);self.assertEqual(self.support_request('resume')[0],201)
+  with patch.object(p.time,'time',return_value=1796083200):
+   self.assertEqual(self.support_request('mentoring')[0],201);self.assertEqual(self.support_request('resume')[0],429);self.assertEqual(self.support_request('revision')[0],201)
+ def test_failed_transaction_does_not_consume_an_allowance(self):
+  self.grant()
+  with patch.object(p.boto3,'client',return_value=types.SimpleNamespace(transact_write_items=lambda **kw:(_ for _ in ()).throw(RuntimeError('write failed')))):
+   self.assertEqual(self.support_request('custom')[0],503)
+  self.assertEqual(p.support_usage('student-a')['customProjectUsed'],0)
+  self.assertEqual(self.support_request('custom')[0],201)
+ def test_concurrent_quota_claim_is_rejected_atomically(self):
+  self.grant()
+  def racing_write(**kwargs):
+   table.put_item(Item={'pk':'USER#student-a','sk':'SUPPORT#CUSTOM#'+p.support_period(),'used':1})
+   return transact_write_items(**kwargs)
+  with patch.object(p.boto3,'client',return_value=types.SimpleNamespace(transact_write_items=racing_write)):
+   self.assertEqual(self.support_request('custom')[0],429)
+  self.assertFalse(any(key[1].startswith('MENTOR#') for key in table.items))
 
 if __name__=='__main__':unittest.main()
