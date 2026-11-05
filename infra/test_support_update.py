@@ -19,7 +19,7 @@ class SupportUpdateTests(unittest.TestCase):
     def test_patch_preserves_verified_owner_and_unrelated_functions(self):
         source=owner.patch_code(self.old_source());patched=update.patch_code(source)
         self.assertIn('def owner_access(subject):',patched);self.assertIn('def has_premium_access(client, subject):',patched)
-        self.assertIn("'owner':owner_access(subject)",patched);self.assertIn("'support':support_usage(subject)",patched)
+        self.assertIn("'owner':rights['owner']",patched);self.assertIn("'support':support_usage(subject)",patched)
         self.assertEqual(source[source.index('def webhook('):source.index('def save_mentoring(')],patched[patched.index('def webhook('):patched.index('# Linform support allowances v1')])
         self.assertEqual(update.patch_code(patched),patched)
     def test_template_changes_only_inline_code(self):

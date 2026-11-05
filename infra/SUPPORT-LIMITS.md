@@ -1,3 +1,5 @@
+> Legacy policy: this document describes the original Premium support benefits. New offers use the one-time bundle policy in TIER-ROLLOUT.md. Existing buyers keep their original benefits.
+
 # Premium personal-support policy
 
 The public page groups personal support inside the existing blue mentoring box. Custom-project guidance and resume support appear there for prospects and members. The illustrative project preview is prospect-only; the complete private guides remain authenticated.
