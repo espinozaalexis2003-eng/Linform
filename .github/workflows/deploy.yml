@@ -7,6 +7,7 @@ on:
       - index.html
       - .github/workflows/deploy.yml
       - tests/**
+      - scripts/**
       - infra/**
   workflow_dispatch:
 
@@ -49,6 +50,7 @@ jobs:
       - name: Check learning platform
         run: |
           node tests/validate-site.mjs
+          node --test tests/git-practice.mjs
           node --test tests/account-progress.mjs
           node tests/premium-member-flow.mjs
           node tests/premium-review.mjs

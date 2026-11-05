@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Learn Linux, AWS, Azure, and Terraform with Linform. Practical lessons, commands, and hands-on projects with a real engineer.">
+<meta name="description" content="Learn Linux, AWS, Azure, Terraform, Git, and CI/CD with Linform. Practical lessons, commands, and hands-on projects with a real engineer.">
 <title>Linform | Learn by building</title>
 
 <style>
@@ -436,7 +436,7 @@ summary { color: #c7d4ff; cursor: pointer; font-weight: 600; font-size: 13px; }
 
   <section class="hero" aria-labelledby="hero-title">
     <div class="hook-copy">
-      <span class="kicker">AWS · Azure · Terraform · Linux</span>
+      <span class="kicker">AWS · Azure · Terraform · Linux · Git · CI/CD</span>
       <h1 id="hero-title">Stop memorizing.<br><span class="gradient">Start building.</span></h1>
       <p>Try a command. See what changes.</p>
     </div>
@@ -520,9 +520,9 @@ Type pwd or ls—or tap a command below.</pre></div>
       <div class="section-heading">
         <div>
           <span class="kicker">01 / Choose your path</span>
-          <h2>Four skills. One foundation.</h2>
+          <h2>Five skills. One foundation.</h2>
         </div>
-        <p>Start with Linux. Explore AWS and Azure. Bring the pieces together with Terraform.</p>
+        <p>Linux, AWS, Azure, Terraform and Git. Build your foundation, one step at a time.</p>
       </div>
       <div class="course-grid" id="course-grid"></div>
 
@@ -833,6 +833,105 @@ const courses = {
   }
 };
 
+courses.git = {
+  "title": "Git essentials",
+  "icon": "git",
+  "description": "Track changes, stage snapshots, branch, merge, and understand where CI/CD begins.",
+  "level": "Beginner · 6 lessons",
+  "lessons": [
+    {
+      "id": "git-first-repository",
+      "title": "1. Start a repository",
+      "intro": "Git records snapshots of your project. GitHub hosts repositories; Git and GitHub are different tools.",
+      "concepts": [
+        "Working files are the files you edit.",
+        "The staging area holds the exact contents for your next commit.",
+        "A commit records a staged snapshot and its history."
+      ],
+      "code": "git init\ngit status",
+      "explanation": "Run these in Git practice or inside a dedicated local project directory. The browser lab is a teaching simulation.",
+      "challenge": "Initialize the practice workspace, then inspect its status.",
+      "answer": "git init\ngit status",
+      "answerText": "The repository has no commits yet. README.md and checklist.txt start as untracked files."
+    },
+    {
+      "id": "git-stage-commit",
+      "title": "2. Stage and commit",
+      "intro": "Saving a file and committing it are separate actions. Stage only the changes you want to include.",
+      "concepts": [
+        "git add copies current content into the index.",
+        "Editing a staged file again creates a newer working version.",
+        "git commit saves the index, not every current file."
+      ],
+      "code": "git add README.md\ngit diff --staged\ngit commit -m \"Start cloud notes\"\ngit status",
+      "explanation": "The staged diff is your final review before committing.",
+      "challenge": "Commit README.md with a clear message without including checklist.txt.",
+      "answer": "git add README.md\ngit commit -m \"Start cloud notes\"",
+      "answerText": "README.md is committed. checklist.txt remains untracked unless you stage it too."
+    },
+    {
+      "id": "git-review-changes",
+      "title": "3. See what changed",
+      "intro": "A useful Git habit is to inspect changes before saving them to history.",
+      "concepts": [
+        "git diff compares tracked working files with the index.",
+        "git diff --staged compares the index with the current commit.",
+        "git log --oneline summarizes the history on your current branch."
+      ],
+      "code": "git diff\ngit diff --staged\ngit log --oneline",
+      "explanation": "Untracked files are listed by status; they do not appear in a normal git diff until staged.",
+      "challenge": "Edit README.md in the practice editor. Compare the two diffs before and after staging it.",
+      "answer": "git diff\ngit add README.md\ngit diff --staged",
+      "answerText": "Before staging, the edit appears in the working diff. After staging, it appears in the staged diff."
+    },
+    {
+      "id": "git-branch-merge",
+      "title": "4. Branch and merge",
+      "intro": "A branch names a line of development. Use a feature branch to keep a change separate while you work on it.",
+      "concepts": [
+        "git switch -c creates a branch and switches to it.",
+        "Commit your feature before returning to main.",
+        "A fast-forward merge moves the target branch to a descendant commit."
+      ],
+      "code": "git switch -c feature/checklist\n# Edit README.md in the practice editor, then save it.\ngit add README.md\ngit commit -m \"Add deployment checklist\"\ngit switch main\ngit merge feature/checklist",
+      "explanation": "The practice terminal supports fast-forward merges. Diverged histories and conflict resolution are explored in the Premium Git guide.",
+      "challenge": "Create a feature branch, commit an edit, and merge it back into main.",
+      "answer": "git switch -c feature/checklist\n# Save an edit, stage it and commit it.\ngit switch main\ngit merge feature/checklist",
+      "answerText": "Main now includes the feature commit. Use git log --oneline to check the history."
+    },
+    {
+      "id": "git-undo-staging",
+      "title": "5. Unstage without losing edits",
+      "intro": "Undo the right layer. Removing a file from staging is different from discarding its working changes.",
+      "concepts": [
+        "git restore --staged restores the index from HEAD and keeps working edits.",
+        "git restore FILE restores a tracked working file from the index and discards unstaged edits.",
+        "Review status and diff before undoing anything."
+      ],
+      "code": "git status\ngit restore --staged README.md\ngit diff",
+      "explanation": "Practice after making your first commit. The lab only changes its temporary files.",
+      "challenge": "Stage an edit to README.md, then unstage it while keeping the edit.",
+      "answer": "git add README.md\ngit restore --staged README.md\ngit status",
+      "answerText": "The edit remains in the working tree and is no longer staged."
+    },
+    {
+      "id": "git-remote-cicd",
+      "title": "6. From Git to CI/CD",
+      "intro": "A real push shares commits with a remote repository. A configured workflow can then run checks and deploy changes.",
+      "concepts": [
+        "origin is a common name for a remote.",
+        "A push and a successful deployment are different events.",
+        "CI runs checks; a deployment workflow decides when and where to release."
+      ],
+      "code": "git remote add origin https://github.com/linform-demo/cloud-notes.git\ngit remote -v\ngit push -u origin main",
+      "explanation": "This sample URL is a label in the local simulation. No actual GitHub repository, credentials or cloud resources are used.",
+      "challenge": "Push your completed practice history to the simulated remote. Explain what would happen next in a real CI/CD setup.",
+      "answer": "git push -u origin main",
+      "answerText": "The simulated remote records your main branch. A real GitHub Actions workflow would need to be configured, run and checked separately."
+    }
+  ]
+};
+
 const caseStudy = {
   title: "FinanceCorp case study",
   lessons: [{
@@ -938,6 +1037,7 @@ function renderCourses() {
 
     const card = document.createElement("article");
     card.className = "course-card";
+    card.dataset.learning = key;
     card.innerHTML = `
       <div class="course-icon" aria-hidden="true">${escapeHtml(course.icon)}</div>
       <h3>${escapeHtml(course.title)}</h3>
@@ -1085,6 +1185,7 @@ function renderLessonNavigation() {
 }
 
 function renderLesson() {
+  dialog.dataset.learning = activeCourse === "finance" ? "aws" : activeCourse;
   const course = getActiveCourse();
   const lesson = course.lessons[activeIndex];
 
@@ -1117,7 +1218,7 @@ function renderLesson() {
 
   if (lesson.code) {
     const label = lesson.codeLabel ||
-      (activeCourse === "terraform" ? "Terraform" : "Linux / terminal");
+      (activeCourse === "git" ? "Git / terminal" : activeCourse === "terraform" ? "Terraform" : "Linux / terminal");
     lessonBody.append(makeCodeBlock(lesson.code, label));
   }
 
@@ -1147,7 +1248,7 @@ function renderLesson() {
     if (lesson.answer) {
       details.append(makeCodeBlock(
         lesson.answer,
-        activeCourse === "terraform" ? "Terminal" : "Linux / terminal"
+        activeCourse === "git" ? "Git / terminal" : activeCourse === "terraform" ? "Terminal" : "Linux / terminal"
       ));
     }
 
@@ -1159,6 +1260,14 @@ function renderLesson() {
 
     challenge.append(heading, instructions, details);
     lessonBody.append(challenge);
+  }
+
+  if (activeCourse === "git") {
+    const practiceLink = document.createElement("button");
+    practiceLink.type = "button"; practiceLink.className = "button secondary";
+    practiceLink.textContent = "Try it in Git practice";
+    practiceLink.addEventListener("click", () => { dialog.close(); location.hash = "git"; document.getElementById("git-lab")?.scrollIntoView({behavior:"smooth",block:"start"}); });
+    lessonBody.append(practiceLink);
   }
 
   previousButton.disabled = activeIndex === 0;
@@ -1215,17 +1324,17 @@ renderCommands();
   <!-- Linform learning colors -->
 <style>
   .course-card,
-  #course-dialog,
-  #commands {
-    --learning-color: #f5cf65;
-    --learning-soft: rgba(245, 207, 101, 0.08);
-    --learning-border: rgba(245, 207, 101, 0.35);
+  :where(#course-dialog),
+  :where(#commands) {
+    --learning-color: #83b2ff;
+    --learning-soft: rgba(131, 178, 255, 0.08);
+    --learning-border: rgba(131, 178, 255, 0.35);
   }
 
   [data-learning="linux"] {
-    --learning-color: #f5cf65;
-    --learning-soft: rgba(245, 207, 101, 0.08);
-    --learning-border: rgba(245, 207, 101, 0.35);
+    --learning-color: #83b2ff;
+    --learning-soft: rgba(131, 178, 255, 0.08);
+    --learning-border: rgba(131, 178, 255, 0.35);
   }
 
   [data-learning="aws"] {
@@ -1244,6 +1353,12 @@ renderCommands();
     --learning-color: #b59aff;
     --learning-soft: rgba(181, 154, 255, 0.08);
     --learning-border: rgba(181, 154, 255, 0.35);
+  }
+
+  [data-learning="git"] {
+    --learning-color: #8edbb8;
+    --learning-soft: rgba(142, 219, 184, 0.08);
+    --learning-border: rgba(142, 219, 184, 0.35);
   }
 
   /* Learning cards */
@@ -1529,7 +1644,7 @@ __linform_previous
 `:"")+r,onOutput(u,p){if(e+=u.length,e>65536)throw new Error("Output limit reached. Use head to show fewer lines.");s&&self.postMessage({type:"output",id:t,channel:p,bytes:u.slice()})}});if(s){M=i,P=c,C=h.exitCode;try{b(I.statSync(M).mode)||(M="/")}catch{M="/"}}self.postMessage({type:s?"result":"checked",id:t,cwd:M,exitCode:h.exitCode,snapshot:G()})}catch(r){self.postMessage({type:"error",id:t,message:r.message||"This command could not finish."})}};})();
 </script>
 <style>
-  #linux-lab .kicker { color:#f5cf65; }
+  #linux-lab .kicker { color:#83b2ff; }
   .practice-workspace { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:22px; align-items:start; }
   .shell-window { background:#080f1b; border:1px solid #34445f; border-radius:12px; overflow:hidden; min-width:0; }
   .shell-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:12px 17px; background:#152137; border-bottom:1px solid #34445f; }
@@ -1550,7 +1665,7 @@ __linform_previous
   .shell-input-row:focus-within { box-shadow:inset 0 0 0 2px #83b2ff; }
   .shell-input-row button { align-self:center; flex-shrink:0; }
   .shell-launch { padding:12px 18px; background:#101c2d; border-top:1px solid #25344d; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
-  .shell-launch .button { background:#f5cf65; color:#0b101b; padding:10px 16px; font-size:12px; }
+  .shell-launch .button { background:#83b2ff; color:#0b101b; padding:10px 16px; font-size:12px; }
   .shell-shortcuts { color:#8ca0be; font-size:11px; margin:0; }
   .lab-guide { padding:22px; border:1px solid var(--border); border-radius:12px; background:#121d30; }
   .lab-guide h3 { margin-top:0; font-size:19px; }
@@ -2417,7 +2532,7 @@ No installation or cloud account needed.</pre></div>
     const link=document.createElement('a'); link.href='#'+key; link.textContent=names[key];
     link.dataset.view=key; nav.append(link);
   }
-  const aliases = {courses:'learn',commands:'practice',terraform:'practice','linux-lab':'practice','student-account':'account'};
+  const aliases = {courses:'learn',commands:'practice',terraform:'practice',git:'practice','linux-lab':'practice','student-account':'account'};
   document.querySelector('.brand').href='#home';
   for (const link of document.querySelectorAll('a[href^="#"]')) {
     const target=link.getAttribute('href').slice(1);
@@ -3007,7 +3122,7 @@ output "project_name" {
  <div class="premium-topline"><span class="premium-badge"><svg class="premium-tag-logo" viewBox="0 0 60 40" fill="none" aria-hidden="true"><defs><linearGradient id="linform-tag-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2c4"/><stop offset=".5" stop-color="#f4cd7b"/><stop offset="1" stop-color="#c68c35"/></linearGradient></defs><path d="M13 26H10a7 7 0 0 1-1-14 10 10 0 0 1 19-3 7.5 7.5 0 0 1 9 7" stroke="url(#linform-tag-gold)" stroke-width="2" stroke-linecap="round"/><path d="M15 32C32 35 46 25 48 8M40 13l8-5 5 8" stroke="url(#linform-tag-gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>LINFORM PREMIUM</span><span class="small-note" id="premium-access-label">Private learning library</span></div>
  <h1 id="premium-title">Certification prep.<br><span>Build your cloud portfolio.</span></h1>
  <p id="premium-intro">AWS, Azure and Terraform certification prep—with guided projects, mentoring and resume building.</p>
- <nav class="premium-member-nav" id="premium-member-nav" aria-label="Your Premium library" hidden><button class="button" id="premium-go-guides" type="button">Study guides</button><button class="button secondary" id="premium-go-projects" type="button">Build a project</button><button class="button secondary" id="premium-go-contact" type="button">Ask Alexis</button></nav>
+ <nav class="premium-member-nav" id="premium-member-nav" aria-label="Your Premium library" hidden><button class="button" id="premium-go-guides" type="button">Study guides</button><button class="button secondary" id="premium-go-projects" type="button">Build a project</button><button class="button secondary" id="premium-go-git" type="button">Git workflows</button><button class="button secondary" id="premium-go-contact" type="button">Ask Alexis</button></nav>
  <div class="premium-purchase" id="premium-purchase"><div class="premium-price">$15<small>USD · One-time bundle · No subscription</small></div><button class="button" type="button" id="premium-buy" disabled>Sign in to check out</button><a class="text-link" href="#account" id="premium-signin">Sign in / Create account ↗</a></div>
  <p class="small-note" id="premium-status" role="status">Checking Premium access…</p></section>
  <section id="premium-private" class="premium-library" hidden aria-labelledby="premium-library-title">
@@ -3015,20 +3130,22 @@ output "project_name" {
  <div id="premium-library-cards">
  <section class="premium-library-group" id="premium-guides" aria-labelledby="premium-guides-title"><div class="premium-group-heading"><span class="premium-section-number">01</span><div><span class="kicker">LEARN THE WHY</span><h2 id="premium-guides-title">Certification study guides</h2><p>Choose your path. Build your understanding.</p></div></div><div class="premium-catalog premium-guides-grid" id="premium-guide-cards"></div></section>
  <section class="premium-library-group" id="premium-projects" aria-labelledby="premium-projects-title"><div class="premium-group-heading"><span class="premium-section-number">02</span><div><span class="kicker">PUT IT INTO PRACTICE</span><h2 id="premium-projects-title">Your project studio</h2><p>Six guided builds. Real work for your portfolio.</p></div></div><div class="premium-catalog premium-projects-grid" id="premium-project-cards"></div></section>
+ <section class="premium-library-group premium-git-group" id="premium-git" aria-labelledby="premium-git-title"><div class="premium-group-heading"><span class="premium-section-number">03</span><div><span class="kicker">VERSION YOUR WORK</span><h2 id="premium-git-title">Git &amp; CI/CD workflows</h2><p>Review changes. Collaborate. Ship with confidence.</p></div></div><div class="premium-catalog" id="premium-git-cards"></div><p class="small-note" id="premium-git-pending">Your Git guide is coming soon.</p></section>
  </div>
  <article class="premium-reader" id="premium-reader" hidden aria-live="polite"></article>
  <section class="premium-mentor-request" id="premium-contact" aria-labelledby="premium-mentor-request-title"><div class="premium-contact-intro"><span class="kicker">A HUMAN IN YOUR CORNER</span><h2 id="premium-mentor-request-title">Let’s work through it.</h2><p>A question, a project, or your next resume draft. Send it to Alexis.</p></div><form id="premium-mentor-form" class="premium-mentor-form"><label>What would you like help with?<select id="premium-mentor-topic"><option value="study-question">A study question</option><option value="project-feedback">Project feedback</option><option value="learning-plan">My learning plan</option><option value="resume-review">Resume review</option></select></label><label>Email for Alexis’s reply<input id="premium-mentor-email" type="email" autocomplete="email" maxlength="254" required></label><label>Public GitHub project URL (optional)<input id="premium-mentor-project" type="url" placeholder="https://github.com/your-name/your-project" maxlength="300"></label><label>Question or redacted resume<textarea id="premium-mentor-message" rows="7" minlength="20" maxlength="2900" required placeholder="Ask a question, or paste your redacted resume and target cloud role."></textarea></label><p class="small-note">For resume reviews, paste text without your home address, phone number or other sensitive details.</p><label class="premium-consent"><input id="premium-mentor-consent" type="checkbox" required> I agree to share this request and reply email with Alexis for mentoring or resume feedback.</label><button class="button" type="submit" id="premium-mentor-submit">Send mentoring request ↗</button><p id="premium-mentor-status" role="status" class="small-note"></p></form></section></section>
  <div id="premium-public"><div class="premium-section-title"><span class="kicker">PREMIUM CERTIFICATION PREP</span><h2>1. Certification prep</h2><p>Study guides, worked examples and practice questions with explanations.</p></div>
  <div class="premium-catalog"><article class="premium-card"><span class="kicker">AWS · CLF-C02</span><h3>Cloud Practitioner</h3><p>Connect cloud concepts with architecture decisions.</p><ul><li>Cloud value and resilience</li><li>Security and responsibility</li><li>Services and workload choices</li><li>Pricing, governance and support</li></ul></article><article class="premium-card"><span class="kicker">AZURE · AZ-900</span><h3>Azure Fundamentals</h3><p>Understand the platform, identity and operations.</p><ul><li>Cloud concepts</li><li>Compute, networking and storage</li><li>Identity and access</li><li>Management and governance</li></ul></article><article class="premium-card"><span class="kicker">TERRAFORM · ASSOCIATE 004</span><h3>Infrastructure as code</h3><p>Learn the workflow and the reasoning behind it.</p><ul><li>Configuration and modules</li><li>Plans, applies and state</li><li>Secrets and lifecycle rules</li><li>Team workflows and HCP Terraform</li></ul></article></div>
  <div class="premium-section-title"><span class="kicker">TURN KNOWLEDGE INTO EVIDENCE</span><h2>2. Six guided portfolio projects</h2><p>Step-by-step instructions, starter files and resume bullets.</p></div><div class="premium-catalog"><article class="premium-card"><span class="kicker">01 / AWS DELIVERY</span><h3>A secure site, delivered with CI/CD.</h3><p>Build a secure AWS site with automated deployments.</p></article><article class="premium-card"><span class="kicker">02 / AZURE OPERATIONS</span><h3>A governed application environment.</h3><p>Practice Azure identity, governance and monitoring.</p></article><article class="premium-card"><span class="kicker">03 / TERRAFORM WORKFLOW</span><h3>Reusable infrastructure modules.</h3><p>Build reusable modules and manage state.</p></article><article class="premium-card"><span class="kicker">04 / AWS SERVERLESS</span><h3>An authenticated support-ticket API.</h3><p>Build an API with secure user access.</p></article><article class="premium-card"><span class="kicker">05 / AZURE + LINUX</span><h3>Operate it. Break it safely. Recover it.</h3><p>Run a Linux workload and practice recovery.</p></article><article class="premium-card"><span class="kicker">06 / TERRAFORM + GIT</span><h3>Change review and team handoff.</h3><p>Review changes and hand off a Terraform project.</p></article></div>
- <div class="premium-disclosure"><strong>What’s included</strong><br>Three certification study guides, practice questions, six guided projects, mentoring, resume-building guidance and resume reviews.</div></div>
+<section class="premium-public-git" data-learning="git"><span class="kicker">GIT / INCLUDED IN PREMIUM</span><h2>3. Git &amp; CI/CD workflows</h2><p>Branching, code review, recovery and a guided GitHub Actions workflow.</p></section>
+ <div class="premium-disclosure"><strong>What’s included</strong><br>Three certification study guides, Git workflow training, practice questions, six guided projects, mentoring, resume-building guidance and resume reviews.</div></div>
 
  <section class="premium-mentoring premium-mentor-spotlight" aria-labelledby="premium-mentor-title">
- <div class="premium-mentor-heading"><div><span class="kicker">MENTORING / INCLUDED IN PREMIUM</span><h2 id="premium-mentor-title">3. Mentoring with an engineer</h2><p class="premium-mentor-role">Cloud engineer · Founder of Linform</p><p>You bring the questions.<br>I’ll help you find your next step.</p></div><div class="premium-mentor-emblem" aria-hidden="true"><svg class="premium-mentor-logo" viewBox="0 0 60 40" fill="none" aria-hidden="true"><defs><linearGradient id="linform-mentor-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2c4"/><stop offset=".5" stop-color="#f4cd7b"/><stop offset="1" stop-color="#c68c35"/></linearGradient></defs><path d="M13 26H10a7 7 0 0 1-1-14 10 10 0 0 1 19-3 7.5 7.5 0 0 1 9 7" stroke="url(#linform-mentor-gold)" stroke-width="2" stroke-linecap="round"/><path d="M15 32C32 35 46 25 48 8M40 13l8-5 5 8" stroke="url(#linform-mentor-gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><small>BUILD. LEARN. REPEAT.</small></div></div>
+ <div class="premium-mentor-heading"><div><span class="kicker">MENTORING / INCLUDED IN PREMIUM</span><h2 id="premium-mentor-title">4. Mentoring with an engineer</h2><p class="premium-mentor-role">Cloud engineer · Founder of Linform</p><p>You bring the questions.<br>I’ll help you find your next step.</p></div><div class="premium-mentor-emblem" aria-hidden="true"><svg class="premium-mentor-logo" viewBox="0 0 60 40" fill="none" aria-hidden="true"><defs><linearGradient id="linform-mentor-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2c4"/><stop offset=".5" stop-color="#f4cd7b"/><stop offset="1" stop-color="#c68c35"/></linearGradient></defs><path d="M13 26H10a7 7 0 0 1-1-14 10 10 0 0 1 19-3 7.5 7.5 0 0 1 9 7" stroke="url(#linform-mentor-gold)" stroke-width="2" stroke-linecap="round"/><path d="M15 32C32 35 46 25 48 8M40 13l8-5 5 8" stroke="url(#linform-mentor-gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><small>BUILD. LEARN. REPEAT.</small></div></div>
  <div class="premium-catalog"><article class="premium-card"><span class="kicker">01 / GET UNSTUCK</span><h3>Make it click.</h3><p>Work through AWS, Azure and Terraform concepts together.</p></article><article class="premium-card"><span class="kicker">02 / BUILD WITH CONFIDENCE</span><h3>A fresh pair of eyes.</h3><p>Get feedback on your architecture, code and project decisions.</p></article><article class="premium-card"><span class="kicker">03 / SHOW YOUR WORK</span><h3>Tell your project story.</h3><p>Turn what you built into clear resume bullet points.</p></article></div>
  <div class="premium-mentor-actions"><button class="button premium-contact-action" id="premium-mentor-cta" type="button">Ask Alexis</button></div><p class="small-note" id="premium-mentoring-availability">Premium members can request study, project and resume feedback.</p></section>
- <section class="premium-mentoring" aria-labelledby="premium-resume-title"><span class="kicker">CAREER SUPPORT / INCLUDED IN PREMIUM</span><h2 id="premium-resume-title">4. Resume building &amp; review</h2><p>Turn completed projects into resume bullet points and get feedback on your draft.</p></section>
- <section class="premium-roadmap" aria-labelledby="premium-roadmap-title"><span class="premium-badge">MORE COMING TO PREMIUM</span><h2 id="premium-roadmap-title">5. More coming to Premium</h2><p>More projects, study resources and mentoring tools are on the way.</p></section>
+ <section class="premium-mentoring" aria-labelledby="premium-resume-title"><span class="kicker">CAREER SUPPORT / INCLUDED IN PREMIUM</span><h2 id="premium-resume-title">5. Resume building &amp; review</h2><p>Turn completed projects into resume bullet points and get feedback on your draft.</p></section>
+ <section class="premium-roadmap" aria-labelledby="premium-roadmap-title"><span class="premium-badge">MORE COMING TO PREMIUM</span><h2 id="premium-roadmap-title">6. More coming to Premium</h2><p>More projects, study resources and mentoring tools are on the way.</p></section>
 `;
  const el=id=>document.getElementById(id),account=window.LinformAccount;
  let owner=null,generation=0,contentRequest=0,checking=false,purchased=false;
@@ -3170,7 +3287,7 @@ output "project_name" {
   el('premium-intro').textContent=enabled?'Study with purpose. Build something you’re proud of. Your Premium library is ready.':'AWS, Azure and Terraform certification prep—with guided projects, mentoring and resume building.';
  }
  function jumpTo(id){const target=el(id);if(!target)return;target.scrollIntoView({behavior:'smooth',block:'start'});}
- function clearPrivate(){closePremiumQuiz();contentRequest++;purchased=false;memberPresentation(false);reload.hidden=true;el('premium-mentor-form').reset();syncPremiumFeedbackPrompt();el('premium-mentor-status').textContent='';el('premium-mentor-submit').disabled=false;el('premium-mentoring-availability').textContent='Premium members can request mentoring with Alexis.';el('premium-access-label').textContent='Private learning library';el('premium-signin').hidden=!!account?.identity();el('premium-buy').textContent=account?.identity()?'Checking Premium access…':'Sign in to check out';el('premium-buy').disabled=true;el('premium-private').hidden=true;el('premium-public').hidden=false;el('premium-reader').replaceChildren();el('premium-reader').hidden=true;el('premium-guide-cards').replaceChildren();el('premium-project-cards').replaceChildren();}
+ function clearPrivate(){closePremiumQuiz();contentRequest++;purchased=false;memberPresentation(false);reload.hidden=true;el('premium-mentor-form').reset();syncPremiumFeedbackPrompt();el('premium-mentor-status').textContent='';el('premium-mentor-submit').disabled=false;el('premium-mentoring-availability').textContent='Premium members can request mentoring with Alexis.';el('premium-access-label').textContent='Private learning library';el('premium-signin').hidden=!!account?.identity();el('premium-buy').textContent=account?.identity()?'Checking Premium access…':'Sign in to check out';el('premium-buy').disabled=true;el('premium-private').hidden=true;el('premium-public').hidden=false;el('premium-reader').replaceChildren();el('premium-reader').hidden=true;el('premium-guide-cards').replaceChildren();el('premium-project-cards').replaceChildren();el('premium-git-cards').replaceChildren();el('premium-git-pending').hidden=false;}
  async function loadContent(id){
   closePremiumQuiz();
   const before=generation,requestId=++contentRequest;const reader=el('premium-reader');reader.hidden=false;reader.replaceChildren(node('p','Loading your private content…'));
@@ -3187,7 +3304,7 @@ output "project_name" {
     appendPracticeCases(reader,'Worked examples',data.workedExamples);
     appendPracticeCases(reader,'Troubleshooting practice',data.troubleshooting);
     appendPremiumReview(reader,data.practiceExam,before,data.id);
-    const source=node('a','Compare with the official exam outline ↗','text-link');source.href=data.reference;source.target='_blank';source.rel='noopener noreferrer';reader.append(source);
+    const source=node('a',data.subject==='git'?'Open the official Git reference ↗':'Compare with the official exam outline ↗','text-link');source.href=data.reference;source.target='_blank';source.rel='noopener noreferrer';reader.append(source);
    }else{
     reader.append(node('p',data.summary));appendProjectCareerSupport(reader,data,before);for(const [index,step]of data.steps.entries())reader.append(node('h3',(index+1)+'. '+step[0]),node('p',step[1]),node('p',step[2],'small-note'));
     appendPracticeCases(reader,'Step-by-step guided build',data.walkthrough);
@@ -3201,7 +3318,7 @@ output "project_name" {
  async function catalog(){
   const before=generation,data=await account.request('/premium/catalog');if(before!==generation)return;
   el('premium-private').hidden=false;el('premium-public').hidden=true;el('premium-library-note').textContent='Certification prep, guided projects and personal feedback. Pick where you want to start.';
-  for(const item of data.items){const card=node('article',null,'premium-card');card.append(node('span',item.exam,'kicker'),node('h3',item.title),node('p',item.description||item.summary));const button=node('button',item.kind==='guide'?'Open study guide ↗':'Open project ↗','button secondary');button.type='button';button.addEventListener('click',()=>loadContent(item.id));card.append(button);card.setAttribute('data-kind',item.kind);el(item.kind==='guide'?'premium-guide-cards':'premium-project-cards').append(card);}
+  for(const item of data.items){const card=node('article',null,'premium-card');card.append(node('span',item.exam,'kicker'),node('h3',item.title),node('p',item.description||item.summary));const button=node('button',item.kind==='guide'?'Open study guide ↗':'Open project ↗','button secondary');button.type='button';button.addEventListener('click',()=>loadContent(item.id));card.append(button);card.setAttribute('data-kind',item.kind);const isGit=item.subject==='git'||item.id==='git-guide';if(isGit){card.setAttribute('data-learning','git');el('premium-git-pending').hidden=true;}el(isGit?'premium-git-cards':item.kind==='guide'?'premium-guide-cards':'premium-project-cards').append(card);}
  }
  async function refresh(){
   const identity=account?.identity();if(identity!==owner){owner=identity;generation++;clearPrivate();checking=false;}
@@ -3248,6 +3365,7 @@ output "project_name" {
  const reload=node('button','Try again','button secondary');reload.type='button';reload.hidden=true;reload.addEventListener('click',refresh);el('premium-status').after(reload);
  el('premium-go-guides').addEventListener('click',()=>jumpTo('premium-guides'));
  el('premium-go-projects').addEventListener('click',()=>jumpTo('premium-projects'));
+ el('premium-go-git').addEventListener('click',()=>jumpTo('premium-git'));
  el('premium-go-contact').addEventListener('click',()=>{jumpTo('premium-contact');el('premium-mentor-message').focus({preventScroll:true});});
  el('premium-mentor-cta').addEventListener('click',()=>{if(purchased){jumpTo('premium-contact');el('premium-mentor-message').focus({preventScroll:true});}else{jumpTo('premium-title');el('premium-buy').focus({preventScroll:true});}});
  window.addEventListener('linform-auth-change',()=>{if(account?.identity()!==owner)refresh();});
@@ -3451,6 +3569,142 @@ output "project_name" {
   });
   el('hook-cloud-reset').addEventListener('click',resetCloud);
   el('hook-open-terraform').href='#terraform';cloudStage('idle');
+})();
+
+</script>
+
+<style id="linform-git-styles">
+.course-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));}
+#git-lab{--learning-color:#8edbb8;--learning-border:#8edbb859;scroll-margin-top:90px;}
+#git-lab h2,#git-lab .kicker,#git-lab h3,#git-lab code{color:#8edbb8;}
+#git-lab .badge{border-color:#8edbb859;color:#b8efd7;}
+.practice-lab-nav{justify-content:flex-start;gap:10px;padding-top:25px;}
+.practice-lab-nav .button{font-size:13px;min-height:44px;}
+.git-coach{display:flex;align-items:center;justify-content:space-between;gap:22px;background:linear-gradient(120deg,#15372f,#101f2e);border:1px solid #3d7662;border-radius:12px;padding:22px;margin:0 0 22px;}
+.git-coach h3{margin:6px 0;font-size:21px;}.git-coach p{margin:7px 0;max-width:650px;font-size:14px;}.git-coach code{font-size:12px;overflow-wrap:anywhere;}
+#git-lab .button:not(.secondary){background:#8edbb8;color:#0b211a;}
+.git-lab-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;align-items:start;}
+.git-lab-grid .shell-scroll{height:330px;}.git-lab-grid .shell-scroll pre{padding:3px 0;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;}
+.git-lab-grid .shell-input-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;}.git-lab-grid .shell-input-row label{grid-column:1 / -1;color:#8edbb8;font:12px monospace;margin:0;}.git-lab-grid .shell-input-row input{font:16px/1.5 monospace;min-height:44px;background:transparent;border:0;margin:0;padding:4px;min-width:0;}
+.git-editor{border:1px solid #38594f;background:#111e2c;border-radius:12px;padding:20px;}.git-editor h3{margin-top:0;}.git-editor textarea{font:14px/1.6 monospace;min-height:180px;}.git-editor .button{font-size:12px;margin:0 5px 10px 0;min-height:44px;}.git-editor .shell-tool{min-height:44px;}
+.git-state-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0;}.git-state-grid article{border:1px solid #334d48;border-radius:10px;background:#11232b;padding:18px;min-width:0;}.git-state-grid h3{font-size:16px;margin:0;}.git-state-grid p{font-size:12px;margin:8px 0;}.git-state-grid ul,.git-state-grid ol{padding-left:18px;font:12px/1.8 monospace;overflow-wrap:anywhere;color:#c9e7da;}
+.git-reference{margin-top:22px;border-color:#3d7662;}.git-reference summary{color:#9fe4c5;}.git-command-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding-top:16px;}.git-command-grid p{font-size:12px;margin:5px 0;}
+.premium-git-group .premium-group-heading h2,.premium-public-git h2,.premium-public-git .kicker,.premium-card[data-learning="git"] h3{color:#8edbb8;}.premium-git-group .premium-section-number{color:#8edbb8;border-color:#6cb99870;background:#153c35;}.premium-public-git{padding:28px 0;}.premium-git-group .premium-card{border-color:#477c66;background:linear-gradient(145deg,#15382f,#112445);}
+@media(max-width:760px){.git-lab-grid{grid-template-columns:1fr;}.git-coach{align-items:flex-start;flex-direction:column;}.git-state-grid{grid-template-columns:1fr;}.git-lab-grid .shell-scroll{height:280px;}.git-command-grid{grid-template-columns:1fr;}}
+</style>
+
+<script id="linform-git-model">
+/* A bounded, local Git teaching model. No remote network or GitHub requests. */
+(() => {
+  'use strict';
+  const own=(object,key)=>Object.prototype.hasOwnProperty.call(object,key);
+  const equal=(a,b)=>JSON.stringify(Object.entries(a).sort())===JSON.stringify(Object.entries(b).sort());
+  function words(text){const result=[];let token='',quote='',active=false;for(let i=0;i<text.length;i++){const char=text[i];if(quote){if(char===quote)quote='';else if(char==='\\'&&quote==='"'&&i+1<text.length)token+=text[++i];else token+=char;active=true;}else if(char==='"'||char==="'"){quote=char;active=true;}else if(/\s/.test(char)){if(active){result.push(token);token='';active=false;}}else{token+=char;active=true;}}if(quote)throw Error('Close your quotation mark before running the command.');if(active)result.push(token);return result;}
+  class Simulator {
+    constructor(){this.files={'README.md':'# Cloud notes\n\nMy first version-controlled project.\n','checklist.txt':'Review the plan\nRun the tests\n'};this.index={};this.commits=[];this.branches={main:null};this.branch='main';this.initialized=false;this.remote=null;this.remoteBranches={};this.identity={name:'Linform learner',email:'learner@example.com'};this.sequence=0;this.lastPush=null;this.lastMerge=null;}
+    head(){return this.commits.find(commit=>commit.id===this.branches[this.branch])||null;}
+    tree(){return this.head()?.files||{};}
+    path(value){if(!value||!/^([A-Za-z0-9_-]+\/)*[A-Za-z0-9_.-]+$/.test(value)||value.split('/').some(part=>part==='.'||part==='..'||part==='.git'))throw Error('Use a relative practice file path such as README.md or docs/notes.txt.');return value;}
+    edit(path,value){path=this.path(path);if(Object.keys(this.files).length>=50&&!own(this.files,path))throw Error('This practice workspace supports up to 50 files.');if(value.length>12000)throw Error('Keep each practice file under 12,000 characters.');this.files[path]=value;return 'Saved '+path+' in your working files. Run git diff, then git add when ready.';}
+    dirty(){return !equal(this.index,this.tree())||Object.keys(this.index).some(path=>this.files[path]!==this.index[path]);}
+    snapshot(){const head=this.tree(),all=[...new Set([...Object.keys(head),...Object.keys(this.index),...Object.keys(this.files)])].sort();return {branch:this.branch,initialized:this.initialized,files:all.map(path=>({path,working:this.files[path],staged:this.index[path],committed:head[path],indexChanged:this.index[path]!==head[path],workingChanged:this.files[path]!==this.index[path],untracked:!own(this.index,path)&&own(this.files,path)})),commits:this.history(),branches:{...this.branches},remote:this.remote,remoteBranches:{...this.remoteBranches},lastPush:this.lastPush,lastMerge:this.lastMerge};}
+    history(){const list=[];let current=this.head();while(current){list.push({id:current.id,message:current.message});current=this.commits.find(item=>item.id===current.parent);}return list;}
+    status(){let result='On branch '+this.branch+'\n';if(!this.head())result+='\nNo commits yet\n';const state=this.snapshot(),staged=state.files.filter(file=>file.indexChanged),modified=state.files.filter(file=>file.workingChanged&&!file.untracked),untracked=state.files.filter(file=>file.untracked);if(staged.length)result+='\nChanges to be committed:\n'+staged.map(file=>'  '+(!own(this.index,file.path)?'deleted: ':!own(this.tree(),file.path)?'new file: ':'modified: ')+file.path).join('\n')+'\n';if(modified.length)result+='\nChanges not staged for commit:\n'+modified.map(file=>'  '+(!own(this.files,file.path)?'deleted: ':'modified: ')+file.path).join('\n')+'\n';if(untracked.length)result+='\nUntracked files:\n'+untracked.map(file=>'  '+file.path).join('\n')+'\n';if(!staged.length&&!modified.length&&!untracked.length)result+='\nnothing to commit, working tree clean';return result.trim();}
+    diff(before,after){let result='';for(const path of [...new Set([...Object.keys(before),...Object.keys(after)])].sort()){if(before[path]===after[path])continue;result+='diff --git a/'+path+' b/'+path+'\n--- '+(own(before,path)?'a/'+path:'/dev/null')+'\n+++ '+(own(after,path)?'b/'+path:'/dev/null')+'\n';result+=(before[path]||'').split('\n').filter(Boolean).map(line=>'-'+line).join('\n')+'\n';result+=(after[path]||'').split('\n').filter(Boolean).map(line=>'+'+line).join('\n')+'\n';}return result.trim()||'No differences.';}
+    switchTo(branch,create=false){if(!/^[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*$/.test(branch||''))throw Error('Choose a branch name such as feature/checklist.');if(this.dirty())throw Error('Commit or restore tracked changes before switching branches in this sandbox.');if(create&&own(this.branches,branch))throw Error('A branch named '+branch+' already exists.');if(!create&&!own(this.branches,branch))throw Error('Unknown branch: '+branch);const target=create?this.tree():(this.commits.find(item=>item.id===this.branches[branch])?.files||{});for(const path of Object.keys(target))if(!own(this.index,path)&&own(this.files,path))throw Error('An untracked file would be overwritten: '+path);const untracked=Object.fromEntries(Object.entries(this.files).filter(([path])=>!own(this.index,path)));if(create)this.branches[branch]=this.branches[this.branch];this.branch=branch;this.index={...target};this.files={...untracked,...target};return (create?'Switched to a new branch ':'Switched to branch ')+"'"+branch+"'";}
+    run(command){try{return {ok:true,text:this.execute(command.trim())};}catch(error){return {ok:false,text:error.message};}}
+    execute(command){
+      if(!command)return '';
+      if(command.length>1000)throw Error('Keep practice commands under 1,000 characters.');
+      const args=words(command),program=args.shift();
+      if(program==='help')return 'Practice: ls, pwd, cat FILE, touch FILE, echo "text" > FILE, echo "text" >> FILE.\nGit: init, status, add FILE|., diff [--staged], commit -m "message", log [--oneline], branch [NAME], switch [-c] NAME, merge NAME, restore [--staged] FILE, rm FILE, config user.name|user.email VALUE, remote -v, remote add origin URL, fetch, pull, push [-u] origin BRANCH.\nThis is a teaching simulation: no real GitHub connection. Merges support fast-forward histories. Use the file editor to change text.';
+      if(program==='pwd')return '/home/learner/cloud-notes';
+      if(program==='ls')return Object.keys(this.files).sort().join('\n');
+      if(program==='cat'){if(args.length!==1)throw Error('Use cat README.md');const path=this.path(args[0]);if(!own(this.files,path))throw Error('No such file: '+path);return this.files[path];}
+      if(program==='touch'){if(args.length!==1)throw Error('Use touch notes.txt');const path=this.path(args[0]);if(!own(this.files,path))this.edit(path,'');return '';}
+      if(program==='echo'){const redirect=args.findIndex(arg=>arg==='>'||arg==='>>');if(redirect<0)return args.join(' ');if(redirect!==args.length-2)throw Error('Use echo "text" > README.md');const path=this.path(args.at(-1)),text=args.slice(0,redirect).join(' ')+'\n';this.edit(path,(args[redirect]==='>>'?(this.files[path]||''):'')+text);return '';}
+      if(program!=='git')throw Error('Command not available in this Git sandbox. Type help for supported commands.');
+      const sub=args.shift();
+      if(sub==='--version')return 'Linform Git teaching simulator · not a Git executable';
+      if(sub==='init'){if(args.length)throw Error('Use git init in this practice workspace.');const previous=this.initialized;this.initialized=true;return (previous?'Reinitialized existing':'Initialized empty')+' Git repository in /home/learner/cloud-notes/.git/';}
+      if(!this.initialized)throw Error('fatal: not a git repository. Start with git init.');
+      if(sub==='status')return this.status();
+      if(sub==='add'){if(!args.length)throw Error('Choose a file: git add README.md');for(const value of args){if(value==='.'||value==='-A'){this.index={...this.files};continue;}const path=this.path(value);if(!own(this.files,path)&&!own(this.index,path))throw Error('pathspec did not match any files: '+path);if(own(this.files,path))this.index[path]=this.files[path];else delete this.index[path];}return '';}
+      if(sub==='diff'){if(args.some(arg=>!['--staged','--cached'].includes(arg)))throw Error('Use git diff or git diff --staged. This sandbox displays whole changed files.');return args.length?this.diff(this.tree(),this.index):this.diff(this.index,Object.fromEntries(Object.entries(this.files).filter(([path])=>own(this.index,path))));}
+      if(sub==='commit'){if(args.length!==2||args[0]!=='-m'||!args[1].trim())throw Error('Use git commit -m "A clear message"');if(equal(this.index,this.tree()))throw Error('No staged changes to commit. Use git add first.');const id=(++this.sequence).toString(16).padStart(7,'0');this.commits.push({id,parent:this.branches[this.branch],files:{...this.index},message:args[1]});this.branches[this.branch]=id;return '['+this.branch+' '+id+'] '+args[1];}
+      if(sub==='log'){if(args.some(arg=>arg!=='--oneline'))throw Error('Use git log --oneline');if(!this.head())throw Error('Your current branch has no commits yet.');return this.history().map(commit=>commit.id+' '+commit.message).join('\n');}
+      if(sub==='config'){if(args[0]==='--local')args.shift();if(args.length!==2||!['user.name','user.email'].includes(args[0]))throw Error('Use git config user.name "Your name" or git config user.email "you@example.com". These values stay in this tab.');this.identity[args[0].slice(5)]=args[1];return '';}
+      if(sub==='branch'){if(!args.length)return Object.keys(this.branches).sort().map(branch=>(branch===this.branch?'* ':'  ')+branch).join('\n');if(args.length!==1||!this.head())throw Error('Make a first commit, then use git branch feature/checklist');const name=args[0];if(!/^[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*$/.test(name)||own(this.branches,name))throw Error('Choose a new valid branch name.');this.branches[name]=this.branches[this.branch];return '';}
+      if(sub==='switch'||sub==='checkout'){const create=['-c','-b'].includes(args[0]);if(create)args.shift();if(args.length!==1)throw Error('Use git switch main or git switch -c feature/checklist');return this.switchTo(args[0],create);}
+      if(sub==='merge'){if(args.length!==1||!own(this.branches,args[0]))throw Error('Choose an existing branch to merge.');if(this.dirty())throw Error('Commit or restore tracked changes before merging.');const target=this.commits.find(commit=>commit.id===this.branches[args[0]]);if(!target)return 'Already up to date.';const ancestors=id=>{const found=[];let current=this.commits.find(item=>item.id===id);while(current){found.push(current.id);current=this.commits.find(item=>item.id===current.parent);}return found;};if(ancestors(this.branches[this.branch]).includes(target.id))return 'Already up to date.';if(this.branches[this.branch]&&!ancestors(target.id).includes(this.branches[this.branch]))throw Error('These branches have diverged. This teaching sandbox supports fast-forward merges; conflict resolution is covered in the Premium Git guide.');for(const path of Object.keys(target.files))if(!own(this.index,path)&&own(this.files,path))throw Error('An untracked file would be overwritten: '+path);const untracked=Object.fromEntries(Object.entries(this.files).filter(([path])=>!own(this.index,path)));this.branches[this.branch]=target.id;this.index={...target.files};this.files={...untracked,...target.files};this.lastMerge=args[0];return 'Fast-forward\nMerged '+args[0]+' into '+this.branch+'.';}
+      if(sub==='restore'){const staged=args[0]==='--staged';if(staged)args.shift();if(args.length!==1)throw Error('Use git restore --staged README.md to unstage, or git restore README.md to discard unstaged edits.');const path=this.path(args[0]),source=staged?this.tree():this.index;if(!own(source,path)&&!(staged&&own(this.index,path)))throw Error('No tracked version is available for '+path);if(staged){if(own(source,path))this.index[path]=source[path];else delete this.index[path];}else this.files[path]=source[path];return '';}
+      if(sub==='rm'){if(args.length!==1)throw Error('Use git rm notes.txt');const path=this.path(args[0]);if(!own(this.index,path))throw Error('File is not tracked: '+path);if(this.files[path]!==this.index[path]||this.index[path]!==this.tree()[path])throw Error('Commit or restore changes before removing this file.');delete this.files[path];delete this.index[path];return '';}
+      if(sub==='remote'){if(args.length===1&&args[0]==='-v')return this.remote?'origin\t'+this.remote+' (fetch)\norigin\t'+this.remote+' (push)':'';if(args.length!==3||args[0]!=='add'||args[1]!=='origin')throw Error('Use git remote add origin https://github.com/linform-demo/cloud-notes.git');if(this.remote)throw Error('remote origin already exists.');let url;try{url=new URL(args[2]);}catch{throw Error('Use a public HTTPS repository URL without credentials.');}if(url.protocol!=='https:'||url.username||url.password||url.search||url.hash)throw Error('Use a public HTTPS repository URL without credentials.');this.remote=url.href;return 'Practice remote configured. No network connection was made.';}
+      if(sub==='push'){if(args[0]==='-u'||args[0]==='--set-upstream')args.shift();if(args.length!==2||args[0]!=='origin'||!own(this.branches,args[1]))throw Error('Use git push -u origin main');if(!this.remote)throw Error('No origin remote configured. Use git remote add origin URL first.');const id=this.branches[args[1]];if(!id)throw Error('Make a commit before pushing.');this.remoteBranches[args[1]]=id;this.lastPush={branch:args[1],id};return '[simulation] Pushed '+args[1]+' to origin.\nNo files were sent to GitHub. On a real repository, a configured CI workflow could now run.';}
+      if(sub==='fetch'||sub==='pull'){if(args.length&&!(args.length===1&&args[0]==='origin'))throw Error('Use git '+sub+' or git '+sub+' origin');if(!this.remote)throw Error('No origin remote configured.');return sub==='fetch'?'[simulation] Remote references checked. This practice remote has no independent new commits.':'[simulation] Already up to date. No real remote was contacted.';}
+      throw Error('That Git command or option is outside this teaching sandbox. Type help for the supported workflow.');
+    }
+  }
+  window.LinformGit=Object.freeze({Simulator,words});
+})();
+
+</script>
+<script id="linform-git-practice">
+(() => {
+  'use strict';
+  const practice=document.getElementById('view-practice');
+  if(!practice||!window.LinformGit)return;
+  const section=document.createElement('section');section.id='git-lab';section.className='section';section.dataset.learning='git';
+  section.innerHTML=`<div class="section-heading"><div><span class="kicker">GIT / PRACTICE</span><h2>Make a change. Keep its story.</h2><p>Edit a file, stage a snapshot, and build a commit history.</p></div><span class="badge">Browser simulation · No GitHub connection</span></div>
+  <div class="git-coach"><div><span class="kicker" id="git-step-count">STEP 1 OF 12</span><h3 id="git-step-title"></h3><p id="git-step-why"></p><code id="git-step-command"></code></div><button class="button" type="button" id="git-next-command">Use this command</button></div>
+  <div class="git-lab-grid"><div class="shell-window"><div class="shell-toolbar"><span class="shell-title">Git practice <small id="git-branch-label">main · not initialized</small></span><button class="shell-tool" type="button" id="git-reset">Reset lab</button></div><div class="shell-scroll" id="git-output" role="log" aria-live="polite" aria-label="Git terminal output" tabindex="0"></div><form class="shell-input-row" id="git-form"><label for="git-input">learner:cloud-notes $</label><input id="git-input" type="text" maxlength="1000" placeholder="git init" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Git practice command"><button class="shell-tool" type="submit">Run</button></form></div>
+  <aside class="git-editor"><h3>Your working file</h3><label for="git-file">File to edit</label><select id="git-file"></select><label for="git-file-text">Contents</label><textarea id="git-file-text" maxlength="12000" rows="8" spellcheck="false"></textarea><button class="button secondary" id="git-save-file" type="button">Save working file</button><button class="shell-tool" id="git-example-edit" type="button">Add the example line</button><p class="small-note" id="git-editor-status" role="status">Saving a file changes your working tree. Staging and committing are separate.</p></aside></div>
+  <div class="git-state-grid" aria-label="Live Git state"><article><h3>1. Working files</h3><p>What you are editing.</p><ul id="git-working-files"></ul></article><article><h3>2. Staging area</h3><p>The snapshot for your next commit.</p><ul id="git-staged-files"></ul></article><article><h3>3. Commit history</h3><p>Saved snapshots on this branch.</p><ol id="git-history"></ol></article></div>
+  <p class="status-message" id="git-result" role="status"></p><button class="button secondary" id="git-check" type="button">Check my Git workflow</button>
+  <details class="git-reference"><summary>Command reference and practice challenges</summary><div id="git-command-reference" class="git-command-grid"></div><h3>Try it yourself</h3><ol><li>Run <code>git status</code> before and after staging README.md. Explain what moved.</li><li>Stage a file, edit it again, and compare <code>git diff</code> with <code>git diff --staged</code>.</li><li>Use <code>git restore --staged README.md</code>. Confirm your working edits remain.</li><li>Create a feature branch, commit a change, switch to main, and merge it.</li><li>Use <code>git log --oneline</code> to tell the story of your changes.</li><li>Push to the practice remote and explain where real CI/CD would start.</li></ol><p class="small-note">This model supports the listed commands, whole-file diffs, and fast-forward merges. Full Git, real remotes and CI jobs run outside this practice workspace. Reset or reload clears the workspace; signed-in completion progress saves with your other training.</p></details>`;
+  practice.append(section);
+  const menu=document.createElement('nav');menu.className='practice-lab-nav';menu.setAttribute('aria-label','Practice labs');
+  for(const [id,title]of [['linux-lab','Linux'],['terraform-lab','Terraform'],['git-lab','Git']]){const button=document.createElement('button');button.type='button';button.className='button secondary';button.textContent=title;button.addEventListener('click',()=>{const target=id==='terraform-lab'?document.getElementById('tf-form')?.closest('section'):document.getElementById(id);target?.scrollIntoView({behavior:'smooth',block:'start'});});menu.append(button);}practice.prepend(menu);
+  const el=id=>document.getElementById(id),input=el('git-input');let simulator=new window.LinformGit.Simulator(),step=0,history=[],cursor=0,draft='',editorDirty=false;
+  const steps=[
+    ['Initialize your repository','Git starts tracking the history of this practice workspace.','git init',s=>s.initialized],
+    ['Stage your first file','git add copies the current file contents into the staging area.','git add README.md',s=>s.snapshot().files.some(f=>f.path==='README.md'&&f.indexChanged)],
+    ['Create your first commit','A commit records the staged snapshot, not every file in the folder.','git commit -m "Start cloud notes"',s=>s.commits.length>=1],
+    ['Create a feature branch','A branch lets you work on a change before bringing it into main.','git switch -c feature/checklist',s=>s.branch==='feature/checklist'],
+    ['Edit your working file','Add the example line in the editor, then save. Your commit stays unchanged.','Edit README.md, then save the working file.',s=>s.branch==='feature/checklist'&&s.files['README.md']?.includes('Deploy with confidence')],
+    ['Inspect the change','git diff compares tracked working files with the staged versions.','git diff',(_s,c)=>c==='git diff'],
+    ['Stage the updated file','The staging area now holds the edited version.','git add README.md',s=>s.index['README.md']?.includes('Deploy with confidence')],
+    ['Commit your feature','Save a second snapshot with a message that explains the change.','git commit -m "Add deployment checklist"',s=>s.branch==='feature/checklist'&&s.history().length>=2&&s.tree()['README.md']?.includes('Deploy with confidence')],
+    ['Return to main','The working file returns to the version on main. Your feature commit still exists.','git switch main',s=>s.branch==='main'],
+    ['Merge your feature','Main can move forward to include your feature commit.','git merge feature/checklist',s=>s.branch==='main'&&s.lastMerge==='feature/checklist'&&s.history().length>=2],
+    ['Name a practice remote','origin is a conventional name for a remote. This URL is only a local teaching example.','git remote add origin https://github.com/linform-demo/cloud-notes.git',s=>!!s.remote],
+    ['Push the completed change','A real push sends commits to a remote. Here, it updates a simulated remote only.','git push -u origin main',s=>s.lastPush?.branch==='main'&&s.lastPush.id===s.branches.main]
+  ];
+  function log(text,error=false){const line=document.createElement('pre');line.textContent=text;line.className=error?'shell-error':'';el('git-output').append(line);while(el('git-output').childNodes.length>60)el('git-output').firstChild.remove();el('git-output').scrollTop=el('git-output').scrollHeight;}
+  function list(id,values){const parent=el(id);parent.replaceChildren();for(const value of values.length?values:['Nothing here yet.']){const item=document.createElement('li');item.textContent=value;parent.append(item);}}
+  function paintEditor(force=false){if(editorDirty&&!force)return;const current=el('git-file').value||'README.md';el('git-file').replaceChildren();for(const path of Object.keys(simulator.files).sort()){const option=document.createElement('option');option.value=path;option.textContent=path;el('git-file').append(option);}if(Object.hasOwn(simulator.files,current))el('git-file').value=current;el('git-file-text').value=simulator.files[el('git-file').value]||'';}
+  function render(command=''){
+    const state=simulator.snapshot();el('git-branch-label').textContent=state.branch+(state.initialized?'':' · not initialized');
+    list('git-working-files',state.files.filter(f=>f.working!==undefined).map(f=>f.path+(f.untracked?' · untracked':f.workingChanged?' · modified':' · matches index')));
+    list('git-staged-files',state.files.filter(f=>f.indexChanged).map(f=>f.path+(f.staged===undefined?' · deletion staged':' · change staged')));
+    list('git-history',state.commits.map(c=>c.id+' '+c.message));
+    if(step<steps.length&&steps[step][3](simulator,command))step++;
+    const done=step===steps.length;el('git-step-count').textContent=done?'WORKFLOW COMPLETE':'STEP '+(step+1)+' OF '+steps.length;
+    el('git-step-title').textContent=done?'You built a version-controlled workflow.':steps[step][0];el('git-step-why').textContent=done?'Working files → staging → commits → branch → merge → practice remote. Check your workflow below to save completion.':steps[step][1];el('git-step-command').textContent=done?'git log --oneline':steps[step][2];el('git-next-command').textContent=!done&&step===4?'Open the editor':'Use this command';paintEditor();
+  }
+  function run(command){if(editorDirty){el('git-result').textContent='Save the text in your editor before running a command.';el('git-file-text').focus();return;}command=command.trim();if(!command)return;if(command==='clear'){el('git-output').replaceChildren();return;}history.push(command);history=history.slice(-50);cursor=history.length;draft='';log('learner:cloud-notes $ '+command);const result=simulator.run(command);if(result.text)log(result.text,!result.ok);input.value='';el('git-result').textContent=result.ok?'Command complete. Check the working files, staging area and history.':'Read the terminal message, adjust your command, and try again.';render(result.ok?command:'');}
+  el('git-form').addEventListener('submit',event=>{event.preventDefault();run(input.value);});
+  input.addEventListener('keydown',event=>{if(event.isComposing)return;if(event.key==='ArrowUp'){event.preventDefault();if(cursor===history.length)draft=input.value;if(cursor>0)input.value=history[--cursor];}else if(event.key==='ArrowDown'){event.preventDefault();if(cursor<history.length)cursor++;input.value=cursor===history.length?draft:history[cursor];}});
+  el('git-file-text').addEventListener('input',()=>{editorDirty=true;el('git-editor-status').textContent='Unsaved editor text. Save working file to apply it.';});
+  el('git-file').addEventListener('change',()=>{if(editorDirty){el('git-editor-status').textContent='Save your current editor text before choosing another file.';el('git-file').value=el('git-file').dataset.editing||'README.md';return;}paintEditor(true);el('git-file').dataset.editing=el('git-file').value;});
+  el('git-example-edit').addEventListener('click',()=>{if(el('git-file').value!=='README.md'){if(editorDirty){el('git-editor-status').textContent='Save your current editor text first.';return;}el('git-file').value='README.md';paintEditor(true);}if(!el('git-file-text').value.includes('Deploy with confidence'))el('git-file-text').value+='\nDeploy with confidence\n';editorDirty=true;el('git-editor-status').textContent='Example line added to the editor. Save working file next.';el('git-file-text').focus();});
+  el('git-save-file').addEventListener('click',()=>{try{const message=simulator.edit(el('git-file').value,el('git-file-text').value);editorDirty=false;el('git-editor-status').textContent=message;render();}catch(error){el('git-editor-status').textContent=error.message;}});
+  el('git-next-command').addEventListener('click',()=>{if(step===4){el('git-file').value='README.md';paintEditor();el('git-file-text').focus();return;}input.value=step===steps.length?'git log --oneline':steps[step][2];input.focus();});
+  el('git-reset').addEventListener('click',()=>{simulator=new window.LinformGit.Simulator();step=0;history=[];cursor=0;editorDirty=false;input.value='';el('git-output').replaceChildren();el('git-result').textContent='Fresh practice workspace. Your saved training completions are unchanged.';paintEditor(true);render();log('Fresh Git workspace. Start with git init.');});
+  el('git-check').addEventListener('click',()=>{if(step!==steps.length){el('git-result').textContent='Follow the coach above. You are on step '+(step+1)+' of '+steps.length+'.';return;}progress['git-practice-workflow']=true;saveProgress();el('git-result').textContent='Git workflow complete. Your training progress has been saved on this device and syncs when signed in.';});
+  for(const [command,description]of [['git status','See staged, unstaged and untracked files.'],['git diff','Compare tracked working files with the index.'],['git diff --staged','Review the snapshot before committing.'],['git add .','Stage all current practice changes.'],['git log --oneline','Read commits on the current branch.'],['git branch','See your local branches.'],['git restore --staged README.md','Unstage while keeping working edits.'],['git remote -v','Inspect the practice remote.']]){const row=document.createElement('div'),button=document.createElement('button'),text=document.createElement('p');button.type='button';button.className='shell-tool';button.textContent=command;button.addEventListener('click',()=>{input.value=command;input.focus();});text.textContent=description;row.append(button,text);el('git-command-reference').append(row);}
+  function reveal(){if(location.hash==='#git')section.scrollIntoView({behavior:'smooth',block:'start'});}window.addEventListener('hashchange',reveal);
+  render();log('Welcome to Git practice. Type help or follow step 1 above.');reveal();
 })();
 
 </script>
