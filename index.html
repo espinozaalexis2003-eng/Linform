@@ -2935,7 +2935,7 @@ output "project_name" {
   const linuxButton=document.createElement('button'),tfButton=document.createElement('button');
   linuxButton.type=tfButton.type='button';linuxButton.textContent='Linux terminal';tfButton.textContent='Terraform simulator';linuxButton.setAttribute('aria-controls','linux-lab');tfButton.setAttribute('aria-controls','terraform-lab');
   switcher.append(linuxButton,tfButton);practice.prepend(switcher);
-  function choose(focus=false){const tf=location.hash==='#terraform';section.hidden=!tf;el('linux-lab').hidden=tf;el('commands').hidden=tf;linuxButton.setAttribute('aria-pressed',String(!tf));tfButton.setAttribute('aria-pressed',String(tf));if(focus){const heading=(tf?section:el('linux-lab')).querySelector('h2');heading.tabIndex=-1;heading.focus({preventScroll:true});}}
+  function choose(focus=false){const tf=location.hash==='#terraform',git=location.hash==='#git';section.hidden=!tf;el('linux-lab').hidden=tf||git;el('commands').hidden=tf||git;linuxButton.setAttribute('aria-pressed',String(!tf&&!git));tfButton.setAttribute('aria-pressed',String(tf));if(focus&&!git){const heading=(tf?section:el('linux-lab')).querySelector('h2');heading.tabIndex=-1;heading.focus({preventScroll:true});}}
   linuxButton.addEventListener('click',()=>{location.hash='practice';});tfButton.addEventListener('click',()=>{location.hash='terraform';});
   window.addEventListener('hashchange',()=>choose(true));choose();
 })();
@@ -3578,8 +3578,7 @@ output "project_name" {
 #git-lab{--learning-color:#8edbb8;--learning-border:#8edbb859;scroll-margin-top:90px;}
 #git-lab h2,#git-lab .kicker,#git-lab h3,#git-lab code{color:#8edbb8;}
 #git-lab .badge{border-color:#8edbb859;color:#b8efd7;}
-.practice-lab-nav{justify-content:flex-start;gap:10px;padding-top:25px;}
-.practice-lab-nav .button{font-size:13px;min-height:44px;}
+.practice-switch button[aria-controls="git-lab"][aria-pressed="true"]{background:#153c35;border-color:#8edbb8;color:#b8efd7;}
 .git-coach{display:flex;align-items:center;justify-content:space-between;gap:22px;background:linear-gradient(120deg,#15372f,#101f2e);border:1px solid #3d7662;border-radius:12px;padding:22px;margin:0 0 22px;}
 .git-coach h3{margin:6px 0;font-size:21px;}.git-coach p{margin:7px 0;max-width:650px;font-size:14px;}.git-coach code{font-size:12px;overflow-wrap:anywhere;}
 #git-lab .button:not(.secondary){background:#8edbb8;color:#0b211a;}
@@ -3663,8 +3662,9 @@ output "project_name" {
   <p class="status-message" id="git-result" role="status"></p><button class="button secondary" id="git-check" type="button">Check my Git workflow</button>
   <details class="git-reference"><summary>Command reference and practice challenges</summary><div id="git-command-reference" class="git-command-grid"></div><h3>Try it yourself</h3><ol><li>Run <code>git status</code> before and after staging README.md. Explain what moved.</li><li>Stage a file, edit it again, and compare <code>git diff</code> with <code>git diff --staged</code>.</li><li>Use <code>git restore --staged README.md</code>. Confirm your working edits remain.</li><li>Create a feature branch, commit a change, switch to main, and merge it.</li><li>Use <code>git log --oneline</code> to tell the story of your changes.</li><li>Push to the practice remote and explain where real CI/CD would start.</li></ol><p class="small-note">This model supports the listed commands, whole-file diffs, and fast-forward merges. Full Git, real remotes and CI jobs run outside this practice workspace. Reset or reload clears the workspace; signed-in completion progress saves with your other training.</p></details>`;
   practice.append(section);
-  const menu=document.createElement('nav');menu.className='practice-lab-nav';menu.setAttribute('aria-label','Practice labs');
-  for(const [id,title]of [['linux-lab','Linux'],['terraform-lab','Terraform'],['git-lab','Git']]){const button=document.createElement('button');button.type='button';button.className='button secondary';button.textContent=title;button.addEventListener('click',()=>{const target=id==='terraform-lab'?document.getElementById('tf-form')?.closest('section'):document.getElementById(id);target?.scrollIntoView({behavior:'smooth',block:'start'});});menu.append(button);}practice.prepend(menu);
+  const switcher=document.querySelector('.practice-switch'),gitButton=document.createElement('button');
+  gitButton.type='button';gitButton.textContent='Git practice';gitButton.setAttribute('aria-controls','git-lab');
+  gitButton.addEventListener('click',()=>{location.hash='git';});switcher.append(gitButton);
   const el=id=>document.getElementById(id),input=el('git-input');let simulator=new window.LinformGit.Simulator(),step=0,history=[],cursor=0,draft='',editorDirty=false;
   const steps=[
     ['Initialize your repository','Git starts tracking the history of this practice workspace.','git init',s=>s.initialized],
@@ -3703,7 +3703,7 @@ output "project_name" {
   el('git-reset').addEventListener('click',()=>{simulator=new window.LinformGit.Simulator();step=0;history=[];cursor=0;editorDirty=false;input.value='';el('git-output').replaceChildren();el('git-result').textContent='Fresh practice workspace. Your saved training completions are unchanged.';paintEditor(true);render();log('Fresh Git workspace. Start with git init.');});
   el('git-check').addEventListener('click',()=>{if(step!==steps.length){el('git-result').textContent='Follow the coach above. You are on step '+(step+1)+' of '+steps.length+'.';return;}progress['git-practice-workflow']=true;saveProgress();el('git-result').textContent='Git workflow complete. Your training progress has been saved on this device and syncs when signed in.';});
   for(const [command,description]of [['git status','See staged, unstaged and untracked files.'],['git diff','Compare tracked working files with the index.'],['git diff --staged','Review the snapshot before committing.'],['git add .','Stage all current practice changes.'],['git log --oneline','Read commits on the current branch.'],['git branch','See your local branches.'],['git restore --staged README.md','Unstage while keeping working edits.'],['git remote -v','Inspect the practice remote.']]){const row=document.createElement('div'),button=document.createElement('button'),text=document.createElement('p');button.type='button';button.className='shell-tool';button.textContent=command;button.addEventListener('click',()=>{input.value=command;input.focus();});text.textContent=description;row.append(button,text);el('git-command-reference').append(row);}
-  function reveal(){if(location.hash==='#git')section.scrollIntoView({behavior:'smooth',block:'start'});}window.addEventListener('hashchange',reveal);
+  function reveal(){const active=location.hash==='#git';section.hidden=!active;gitButton.setAttribute('aria-pressed',String(active));if(active)section.scrollIntoView({behavior:'smooth',block:'start'});}window.addEventListener('hashchange',reveal);
   render();log('Welcome to Git practice. Type help or follow step 1 above.');reveal();
 })();
 
