@@ -50,6 +50,8 @@ jobs:
       - name: Check learning platform
         run: |
           node tests/validate-site.mjs
+          node --test tests/build-workspace.mjs
+          node tests/build-workspace-ui.mjs
           node --test tests/git-practice.mjs
           node --test tests/account-progress.mjs
           node tests/premium-member-flow.mjs

@@ -1,0 +1,25 @@
+import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
+const html=fs.readFileSync('index.html','utf8');const elements=new Map();
+class E{
+ constructor(tag='div'){this.tag=tag;this.children=[];this.listeners={};this.dataset={};this.attributes={};this.value='';this.hidden=false;this.open=false;this.files=[];this.textContent='';}
+ set innerHTML(s){for(const m of s.matchAll(/<([a-z][a-z0-9]*)\b([^>]*\bid="([^"]+)"[^>]*)>/g)){const e=new E(m[1]);e.hidden=/\bhidden\b/.test(m[2]);elements.set(m[3],e);}}
+ append(...x){this.children.push(...x);}replaceChildren(...x){this.children=x;}get firstChild(){return {remove:()=>this.children.shift()};}setAttribute(k,v){this.attributes[k]=v;}getAttribute(k){return this.attributes[k];}addEventListener(k,f){this.listeners[k]=f;}click(){return this.listeners.click?.({preventDefault(){}});}focus(){this.focused=true;}showModal(){this.open=true;}close(){this.open=false;}
+}
+const body=new E(),host=new E();elements.set('premium-build-host',host);let subject='student-a';const saved=new Map(),downloads=[];
+const c=vm.createContext({window:{LinformAccount:{identity:()=>subject}},document:{body,getElementById:id=>elements.get(id),createElement:tag=>new E(tag)},URL:{...URL,createObjectURL:b=>{downloads.push(b);return 'blob:test';},revokeObjectURL(){}},Blob,setTimeout,confirm:()=>true,localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)}});
+// Git model needs URL as a constructor; this fixture only uses a local repo.
+c.URL=URL;
+for(const id of ['linform-terraform-engine','linform-git-model','linform-build-engine','linform-build-ui'])vm.runInContext(html.match(new RegExp('<script id="'+id+'">([\\s\\S]*?)<\\/script>'))[1],c);
+const $=id=>elements.get(id),access=c.window.LinformBuildLab;
+assert.equal($('premium-build-lab').hidden,true);const enter=async command=>{$('build-input').value=command;await $('build-form').listeners.submit({preventDefault(){}});};
+await enter('echo blocked > private.txt');assert.equal(saved.size,0);
+access.setAccess(true,subject);assert.equal($('premium-build-lab').hidden,false);await enter('echo "student A" > own.txt');assert.match(saved.get('linform-build-v1:student-a'),/student A/);
+await enter('nano own.txt');assert.equal($('build-editor').open,true);$('build-editor-text').value='updated from the editor';await $('build-editor-save').click();assert.equal($('build-editor').open,false);await enter('cat own.txt');assert.match($('build-output').children.at(-1).textContent,/updated from the editor/);
+for(const cmd of ['terraform init','terraform apply','yes'])await enter(cmd);assert.equal($('build-state').children.length,1);assert.match($('build-state').children[0].textContent,/terraform_data/);
+await $('build-tab-results').click();assert.equal($('premium-build-lab').dataset.panel,'results');assert.equal($('build-tab-results').attributes['aria-selected'],'true');await $('build-tab-results').listeners.keydown({key:'ArrowRight',preventDefault(){}});assert.equal($('premium-build-lab').dataset.panel,'terminal');
+access.setAccess(false,null);assert.equal($('premium-build-lab').hidden,true);assert.equal($('build-output').children.length,0);await enter('echo revoked > nope.txt');assert.ok(!saved.get('linform-build-v1:student-a').includes('revoked'));
+subject='student-b';access.setAccess(true,subject);await enter('ls');assert.ok(!$('build-output').children.at(-1).textContent.includes('own.txt'));await enter('echo "student B" > second.txt');access.setAccess(false,null);subject='student-a';access.setAccess(true,subject);await enter('cat own.txt');assert.match($('build-output').children.at(-1).textContent,/updated from the editor/);await enter('ls');assert.ok(!$('build-output').children.at(-1).textContent.includes('second.txt'));
+$('build-track').value='terraform';await $('build-track').listeners.change();await $('build-next').click();assert.equal($('build-input').value,'cat main.tf');await enter('cat main.tf');assert.match($('build-task').textContent,/Initialize/);
+// A failing command cannot advance a guided step.
+await enter('terraform init bad');assert.match($('build-task').textContent,/Initialize/);
+console.log('PASS: locked until verified access, file editor changes actual working files, Terraform results render, mobile panel controls work, accounts keep separate saved workspaces, and revoked access disables commands.');
