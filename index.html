@@ -1685,7 +1685,7 @@ __linform_previous
       <div>
         <div class="shell-window" id="shell-window">
           <div class="shell-toolbar"><span class="shell-title">Linform Terminal <small>Linux practice · Browser sandbox</small></span><div class="shell-tools"><button class="shell-tool" type="button" id="lab-clear">Clear</button><button class="shell-tool" type="button" id="lab-stop" disabled>Stop</button><button class="shell-tool" type="button" id="lab-reset" disabled>Reset files</button><button class="shell-tool" type="button" id="lab-expand" aria-pressed="false">Expand</button></div></div>
-          <div class="shell-scroll" id="terminal-transcript" role="log" aria-live="polite" aria-relevant="additions text" tabindex="0" aria-label="Terminal output"><pre class="shell-note">Welcome to Linform Terminal.
+          <div class="practice-console" id="linux-console"><div class="shell-scroll" id="terminal-transcript" role="log" aria-live="polite" aria-relevant="additions text" tabindex="0" aria-label="Terminal output"><pre class="shell-note">Welcome to Linform Terminal.
 
 Start a session, then try:
   pwd
@@ -1693,12 +1693,12 @@ Start a session, then try:
   cat welcome.txt
 
 No installation or cloud account needed.</pre></div>
-          <div class="lab-effects" aria-label="Linux workspace effects"><div><small>WORKING FOLDER</small><code id="lab-current-directory">/home/learner</code></div><div><small>FILES UNDER ~/</small><span id="lab-visible-files">welcome.txt</span></div></div>
           <form id="terminal-form" class="shell-input-row">
             <label id="terminal-prompt" for="terminal-input">learner:~ $</label>
-            <textarea id="terminal-input" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Terminal command" placeholder="Start your terminal to type a command" maxlength="12000" disabled></textarea>
-            <button class="shell-tool" type="submit" id="lab-run" disabled>Run ↵</button><button class="shell-tool" type="button" id="lab-finish" hidden>Finish writing</button>
-          </form>
+            <textarea id="terminal-input" enterkeyhint="go" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Terminal command" placeholder="Start your terminal to type a command" maxlength="12000" disabled></textarea>
+            <button class="shell-tool" type="submit" id="lab-run" hidden disabled>Run ↵</button><button class="shell-tool" type="button" id="lab-finish" hidden>Finish writing</button>
+          </form></div>
+          <div class="lab-effects" aria-label="Linux workspace effects"><div><small>WORKING FOLDER</small><code id="lab-current-directory">/home/learner</code></div><div><small>FILES UNDER ~/</small><span id="lab-visible-files">welcome.txt</span></div></div>
           <div class="shell-launch"><button class="button" id="lab-start" type="button">Start terminal ↗</button><p class="shell-shortcuts">Enter to run · ↑ ↓ history · Tab completes commands · Shift+Enter for a new line</p></div>
         </div>
         <p id="lab-status" role="status">Your session is private to this browser tab.</p>
@@ -1745,7 +1745,7 @@ No installation or cloud account needed.</pre></div>
     el('lab-finish').hidden=!capture;el('lab-finish').disabled=unavailable;el('lab-run').textContent=capture?'Add line':'Run';el('lab-editor-save').disabled=unavailable;
     for(const button of section.querySelectorAll('[data-command]'))button.disabled=unavailable;
   }
-  function scrollToBottom(){transcript.scrollTop=transcript.scrollHeight;}
+  function scrollToBottom(){{const pane=document.getElementById('linux-console')||transcript;pane.scrollTop=pane.scrollHeight;}}
   function line(text,className=''){
     const node=document.createElement('pre');if(className)node.className=className;node.textContent=text;transcript.append(node);
     while(transcript.childNodes.length>250)transcript.firstChild.remove();
@@ -2785,7 +2785,7 @@ output "project_name" {
     <div class="tf-file-map"><span><strong>main.tf</strong> What you want</span><span><strong>Plan</strong> What would change</span><span><strong>State</strong> What has been applied</span></div>
     <div class="tf-workspace">
       <div class="tf-editor"><div class="tf-editor-bar"><strong>main.tf</strong><button type="button" class="shell-tool" id="tf-save">Save file</button></div><label for="tf-config" class="small-note" style="padding:10px 18px 0">Practice configuration</label><textarea id="tf-config" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="16000"></textarea><p class="tf-note" id="tf-editor-status" role="status">This file holds a project name, one local practice object, and an output that displays its saved value.</p></div>
-      <div class="shell-window"><div class="shell-toolbar"><span class="shell-title">Terraform Practice <small>Simulated state · <span id="tf-workspace-name">default</span></small></span><div class="shell-tools"><button type="button" class="shell-tool" id="tf-clear">Clear</button><button type="button" class="shell-tool" id="tf-reset">Reset lab</button></div></div><div class="tf-effects" aria-label="Terraform workspace effects"><div class="tf-effects-heading"><strong>Your simulated infrastructure</strong><span id="tf-resource-count">0 resources</span></div><div id="tf-resource-cards"><p class="tf-effect-empty">Run init, plan, then apply to see your resource appear.</p></div></div><div class="shell-scroll" id="tf-transcript" role="log" aria-live="polite" aria-relevant="additions text" tabindex="0" aria-label="Terraform terminal output"></div><form class="shell-input-row" id="tf-form"><label for="tf-input" id="tf-prompt">terraform:default $</label><textarea id="tf-input" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="12000" aria-label="Terraform command" placeholder="terraform init"></textarea><button class="shell-tool" type="submit">Run ↵</button></form></div>
+      <div class="shell-window"><div class="shell-toolbar"><span class="shell-title">Terraform Practice <small>Simulated state · <span id="tf-workspace-name">default</span></small></span><div class="shell-tools"><button type="button" class="shell-tool" id="tf-clear">Clear</button><button type="button" class="shell-tool" id="tf-reset">Reset lab</button></div></div><div class="tf-effects" aria-label="Terraform workspace effects"><div class="tf-effects-heading"><strong>Your simulated infrastructure</strong><span id="tf-resource-count">0 resources</span></div><div id="tf-resource-cards"><p class="tf-effect-empty">Run init, plan, then apply to see your resource appear.</p></div></div><div class="practice-console" id="terraform-console"><div class="shell-scroll" id="tf-transcript" role="log" aria-live="polite" aria-relevant="additions text" tabindex="0" aria-label="Terraform terminal output"></div><form class="shell-input-row" id="tf-form"><label for="tf-input" id="tf-prompt">terraform:default $</label><textarea id="tf-input" enterkeyhint="go" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="12000" aria-label="Terraform command" placeholder="terraform init"></textarea></form></div></div>
     </div>
     <p id="tf-result-summary" class="tf-result-summary" role="status">The starter file is ready. Follow step 1 above.</p>
     <p class="status-message" id="tf-status" role="status">Practice is temporary. Reset or reload starts a new lab.</p>
@@ -2838,7 +2838,7 @@ output "project_name" {
    el('tf-result-summary').textContent=message;showGuidance();
   }
   const examples=['terraform init','terraform validate','terraform plan','terraform apply','terraform output','terraform state list','terraform workspace list','terraform destroy'];
-  function write(text,className='') {if(!text)return;const node=document.createElement('pre');node.className=className;node.textContent=text;transcript.append(node);while(transcript.childNodes.length>150)transcript.firstChild.remove();transcript.scrollTop=transcript.scrollHeight;}
+  function write(text,className='') {if(!text)return;const node=document.createElement('pre');node.className=className;node.textContent=text;transcript.append(node);while(transcript.childNodes.length>150)transcript.firstChild.remove();{const pane=document.getElementById('terraform-console')||transcript;pane.scrollTop=pane.scrollHeight;}}
   function resize(){input.style.height='auto';input.style.height=Math.max(28,Math.min(140,input.scrollHeight))+'px';}
   function fill(command){input.value=command;resize();input.focus();}
   function prompt(){return simulator.pending?'Enter a value:':simulator.consoleMode?'>':'terraform:'+simulator.current+' $';}
@@ -3459,7 +3459,7 @@ output "project_name" {
   const section=document.createElement('section');section.id='git-lab';section.className='section';section.dataset.learning='git';
   section.innerHTML=`<div class="section-heading"><div><span class="kicker">GIT / PRACTICE</span><h2>Make a change. Keep its story.</h2><p>Edit a file, stage a snapshot, and build a commit history.</p></div><span class="badge">Browser simulation · No GitHub connection</span></div>
   <div class="git-coach"><div><span class="kicker" id="git-step-count">STEP 1 OF 12</span><h3 id="git-step-title"></h3><p id="git-step-why"></p><code id="git-step-command"></code></div><button class="button" type="button" id="git-next-command">Use this command</button></div>
-  <div class="git-lab-grid"><div class="shell-window"><div class="shell-toolbar"><span class="shell-title">Git practice <small id="git-branch-label">main · not initialized</small></span><button class="shell-tool" type="button" id="git-reset">Reset lab</button></div><div class="shell-scroll" id="git-output" role="log" aria-live="polite" aria-label="Git terminal output" tabindex="0"></div><form class="shell-input-row" id="git-form"><label for="git-input">learner:cloud-notes $</label><input id="git-input" type="text" maxlength="1000" placeholder="git init" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Git practice command"><button class="shell-tool" type="submit">Run</button></form></div>
+  <div class="git-lab-grid"><div class="shell-window"><div class="shell-toolbar"><span class="shell-title">Git practice <small id="git-branch-label">main · not initialized</small></span><button class="shell-tool" type="button" id="git-reset">Reset lab</button></div><div class="practice-console" id="git-console"><div class="shell-scroll" id="git-output" role="log" aria-live="polite" aria-label="Git terminal output" tabindex="0"></div><form class="shell-input-row" id="git-form"><label for="git-input">learner:cloud-notes $</label><input id="git-input" enterkeyhint="go" type="text" maxlength="1000" placeholder="git init" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Git practice command"></form></div></div>
   <aside class="git-editor"><h3>Your working file</h3><label for="git-file">File to edit</label><select id="git-file"></select><label for="git-file-text">Contents</label><textarea id="git-file-text" maxlength="12000" rows="8" spellcheck="false"></textarea><button class="button secondary" id="git-save-file" type="button">Save working file</button><button class="shell-tool" id="git-example-edit" type="button">Add the example line</button><p class="small-note" id="git-editor-status" role="status">Saving a file changes your working tree. Staging and committing are separate.</p></aside></div>
   <div class="git-state-grid" aria-label="Live Git state"><article><h3>1. Working files</h3><p>What you are editing.</p><ul id="git-working-files"></ul></article><article><h3>2. Staging area</h3><p>The snapshot for your next commit.</p><ul id="git-staged-files"></ul></article><article><h3>3. Commit history</h3><p>Saved snapshots on this branch.</p><ol id="git-history"></ol></article></div>
   <p class="status-message" id="git-result" role="status"></p><button class="button secondary" id="git-check" type="button">Check my Git workflow</button>
@@ -3483,7 +3483,7 @@ output "project_name" {
     ['Name a practice remote','origin is a conventional name for a remote. This URL is only a local teaching example.','git remote add origin https://github.com/linform-demo/cloud-notes.git',s=>!!s.remote],
     ['Push the completed change','A real push sends commits to a remote. Here, it updates a simulated remote only.','git push -u origin main',s=>s.lastPush?.branch==='main'&&s.lastPush.id===s.branches.main]
   ];
-  function log(text,error=false){const line=document.createElement('pre');line.textContent=text;line.className=error?'shell-error':'';el('git-output').append(line);while(el('git-output').childNodes.length>60)el('git-output').firstChild.remove();el('git-output').scrollTop=el('git-output').scrollHeight;}
+  function log(text,error=false){const line=document.createElement('pre');line.textContent=text;line.className=error?'shell-error':'';el('git-output').append(line);while(el('git-output').childNodes.length>60)el('git-output').firstChild.remove();{const pane=el('git-console')||el('git-output');pane.scrollTop=pane.scrollHeight;}}
   function list(id,values){const parent=el(id);parent.replaceChildren();for(const value of values.length?values:['Nothing here yet.']){const item=document.createElement('li');item.textContent=value;parent.append(item);}}
   function paintEditor(force=false){if(editorDirty&&!force)return;const current=el('git-file').value||'README.md';el('git-file').replaceChildren();for(const path of Object.keys(simulator.files).sort()){const option=document.createElement('option');option.value=path;option.textContent=path;el('git-file').append(option);}if(Object.hasOwn(simulator.files,current))el('git-file').value=current;el('git-file-text').value=simulator.files[el('git-file').value]||'';}
   function render(command=''){
@@ -3720,6 +3720,14 @@ window.LinformBuildLab=Object.freeze({setAccess});setAccess(document.body.getAtt
 })();
 </script>
 
+
+<style id="linform-practice-inline-styles">
+.practice-console{height:390px;overflow:auto;overscroll-behavior:contain;background:#050505;padding:16px;cursor:text;box-sizing:border-box;}.practice-console .shell-scroll{height:auto!important;max-height:none!important;min-height:0;overflow:visible;padding:0;background:transparent;border:0;}.practice-console .shell-input-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;background:transparent;border:0;margin:0;padding:0;min-height:32px;}.practice-console .shell-input-row label{font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;color:#86d9b5;white-space:pre-wrap;overflow-wrap:anywhere;}.practice-console .shell-input-row input,.practice-console .shell-input-row textarea{flex:1 1 140px;min-width:80px;min-height:30px;max-height:160px;box-sizing:border-box;background:transparent!important;border:0!important;border-radius:0;box-shadow:none!important;outline:0;padding:0!important;margin:0;color:#e3e3e3!important;caret-color:#fff;font:16px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;resize:none;}.practice-console .shell-input-row input::placeholder,.practice-console .shell-input-row textarea::placeholder{color:#737373;}.practice-console:focus-within{box-shadow:inset 2px 0 #517caa;}.practice-console #lab-run[hidden]{display:none!important;}.practice-console .shell-input-row #lab-finish{flex-shrink:0;}.practice-console pre{overflow-wrap:anywhere;white-space:pre-wrap;}.practice-console .shell-input-row[hidden]{display:none!important;}
+@media(max-width:760px){.practice-console{height:320px;padding:12px;}.practice-console .shell-input-row{gap:5px;}.practice-console .shell-input-row label{font-size:12px;}}
+</style>
+<script id="linform-practice-inline">
+(()=>{for(const [paneId,inputId]of [['linux-console','terminal-input'],['terraform-console','tf-input'],['git-console','git-input']]){const pane=document.getElementById(paneId),input=document.getElementById(inputId);if(!pane||!input)continue;pane.addEventListener('click',event=>{if(input.disabled||event.target.closest('button,a,select'))return;if(window.getSelection?.()?.isCollapsed===false)return;input.focus();});input.addEventListener('input',()=>{pane.scrollTop=pane.scrollHeight;});}})();
+</script>
 </body>
 </html>
 
