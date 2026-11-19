@@ -616,8 +616,8 @@ footer { flex-wrap: wrap; gap: 18px; }
     <div class="lf-workbench-top"><label for="code-example">Example</label><select id="code-example"></select><span id="code-progress"></span></div>
     <div class="lf-code-goal"><h2 id="code-example-title"></h2><p id="code-task"></p><pre id="code-example-text"></pre><p id="code-explanation"></p><div class="lf-code-actions"><button class="button secondary" type="button" id="code-prev">← Back</button><button class="button secondary" type="button" id="code-next">Next example →</button></div></div>
     <div class="lf-code-panels">
-      <div><div id="code-files" class="lf-code-actions" hidden><button type="button" class="button secondary" data-file="main.tf">main.tf</button><button type="button" class="button secondary" data-file="variables.tf">variables.tf</button><button type="button" class="button secondary" data-file="outputs.tf">outputs.tf</button></div><div id="code-linux-tools" hidden><p id="code-shell-tip" class="small-note"></p><div id="code-linux-files" class="small-note"></div></div><label id="code-file" for="code-editor">main.py</label><textarea id="code-editor" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="12000" wrap="off"></textarea><details id="code-stdin"><summary>Script input (optional)</summary><label for="code-input-lines">One line per input() call</label><textarea id="code-input-lines" rows="2" maxlength="4000"></textarea></details><div class="lf-code-actions"><button class="button" type="button" id="code-run">Run Python</button><button class="button secondary" type="button" id="code-reset">Reset workspace</button><button class="button secondary" type="button" id="code-stop" hidden>Stop Python</button></div></div>
-      <div><label for="code-output">Output</label><pre id="code-output" tabindex="0" aria-label="Code output">Run your code to see results.</pre><form id="code-command" hidden><label id="code-command-label" for="code-cli">Terminal command</label><input id="code-cli" placeholder="terraform plan" autocomplete="off" spellcheck="false"><button class="button secondary" type="submit">Run command</button></form><p id="code-status" class="small-note" role="status"></p></div>
+      <div><div id="code-files" class="lf-code-actions" hidden><button type="button" class="button secondary" data-file="main.tf">main.tf</button><button type="button" class="button secondary" data-file="variables.tf">variables.tf</button><button type="button" class="button secondary" data-file="outputs.tf">outputs.tf</button><button type="button" class="button secondary" data-file="versions.tf">versions.tf</button></div><div id="code-linux-tools" hidden><p id="code-shell-tip" class="small-note"></p><div id="code-linux-files" class="small-note"></div></div><label id="code-file" for="code-editor">main.py</label><textarea id="code-editor" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="12000" wrap="off"></textarea><details id="code-stdin"><summary>Script input (optional)</summary><label for="code-input-lines">One line per input() call</label><textarea id="code-input-lines" rows="2" maxlength="4000"></textarea></details><div class="lf-code-actions"><button class="button" type="button" id="code-run">Run Python</button><button class="button secondary" type="button" id="code-reset">Reset workspace</button><button class="button secondary" type="button" id="code-stop" hidden>Stop Python</button></div></div>
+      <div><label for="code-output">Output</label><div id="code-screen"><pre id="code-output" tabindex="0" aria-label="Code output">Run your code to see results.</pre><form id="code-command" hidden><label id="code-command-label" for="code-cli">Terminal command</label><input id="code-cli" placeholder="terraform plan" autocomplete="off" spellcheck="false"><button class="button secondary" type="submit">Run command</button></form></div><p id="code-status" class="small-note" role="status"></p></div>
     </div>
     <p class="small-note" id="code-note">Python runs in an isolated browser workspace. First run downloads the runtime. Drafts save on this device.</p>
   </div>
@@ -3899,9 +3899,10 @@ python:[
  py('Handle a bad value','try:\n    number = int("not a number")\nexcept ValueError:\n    print("Enter a whole number")','The handler catches the conversion error. Replace the sample with "42" to see the successful path.'),
 ],
 terraform:[
- write('Define an input','variables.tf','variable "environment" {\n  type    = string\n  default = "staging"\n}','A variable lets you change an input without rewriting the resource.'),
  write('Describe a resource','main.tf','resource "terraform_data" "app" {\n  input = var.environment\n}','A resource block describes what you want. This local resource takes its value from variables.tf.'),
+ write('Define an input','variables.tf','variable "environment" {\n  type    = string\n  default = "staging"\n}','A variable lets you change an input without rewriting the resource.'),
  write('Expose a result','outputs.tf','output "environment" {\n  value = terraform_data.app.output\n}','An output gives a result a name. This expression reads the resource’s output.'),
+ write('Set the Terraform version','versions.tf',"terraform {\n  required_version = \">= 1.4.0\"\n}\n",'This sets the minimum Terraform CLI version for a real project. The lab uses the built-in terraform_data resource, so no external provider is needed. The simulator keeps this file as practice metadata.'),
  shell('Initialize the workspace','terraform init','Initialization prepares the workspace. This lab uses an in-browser simulator and installs no providers.'),
  shell('Format the files','terraform fmt','Format normalizes whitespace and indentation in your practice configuration.'),
  shell('Validate the configuration','terraform validate','Validate checks the parts of HCL supported here. Fix any errors before planning.'),
@@ -3929,7 +3930,7 @@ linux:[
  shell('Find files by name','find . -name notes.txt','Searches the current folder and its subfolders for notes.txt.'),
  ]};
 let track='python', index=0, file='main.tf', files={}, engine, linux, frame, pending, timer, sequence=0, history=[], cursor=0;
-const names=['main.tf','variables.tf','outputs.tf'], item=()=>lessons[track][index];
+const names=['main.tf','variables.tf','outputs.tf','versions.tf'], item=()=>lessons[track][index];
 let saved={};try{const data=JSON.parse(localStorage.getItem('linform-code-examples-v1')||'{}');if(data&&typeof data==='object')saved=data;}catch{}
 function remember(){try{localStorage.setItem('linform-code-examples-v1',JSON.stringify(saved));}catch{}}
 const pyKey=()=>String(index);
@@ -3986,11 +3987,11 @@ addEventListener('message',e=>{
 function runCommand(value){
  let result;const t=track==='terraform';
  if(t){
-  engine.config=names.map(n=>files[n]).join('\n');
+  engine.config=names.filter(n=>n!=='versions.tf').map(n=>files[n]).join('\n');
   result=engine.run(value);
   if(/^terraform fmt$/.test(value)&&result.exitCode===0){
    // Keep files separate: format each independently using the simulator's formatter.
-   for(const n of names){const temp=new tf.CloudTerraform();temp.config=files[n];if(temp.run('terraform fmt').exitCode===0)files[n]=temp.config;}
+   for(const n of names.filter(n=>n!=='versions.tf')){const temp=new tf.CloudTerraform();temp.config=files[n];if(temp.run('terraform fmt').exitCode===0)files[n]=temp.config;}
    saved.tf=files;remember();selectFile(file);
   }
  }else{
@@ -4001,6 +4002,7 @@ function runCommand(value){
  if(result.clear)output.textContent='';
  else output.textContent=(output.textContent+'\n\n$ '+value+(result.text?'\n'+result.text:'')).slice(-16000);
  output.scrollTop=output.scrollHeight;
+ if(!t){const screen=el('code-screen');screen.scrollTop=screen.scrollHeight;}
  if(!t)el('code-linux-files').textContent='Working directory: '+linux.run('pwd').text;
  status.textContent=result.ok===false||result.exitCode===1?'Read the message above and try again.':'';
 }
@@ -4022,6 +4024,7 @@ el('code-reset').onclick=()=>{
 };
 el('code-run').onclick=python;el('code-stop').onclick=()=>{cancel();output.textContent='Python stopped.';};
 el('code-command').onsubmit=e=>{e.preventDefault();const value=cli.value.trim();if(track==='python'||!value)return;history.push(value);if(history.length>60)history.shift();cursor=history.length;runCommand(value);cli.value='';cli.focus();};
+el('code-screen').addEventListener('click',e=>{if(track==='linux'&&e.target.id==='code-screen')cli.focus();});
 cli.onkeydown=e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();cursor=Math.max(0,Math.min(history.length,cursor+(e.key==='ArrowUp'?-1:1)));cli.value=history[cursor]||'';}};
 document.querySelector('a[href="#consulting-inquiry"]').onclick=e=>{e.preventDefault();el('consulting-inquiry').scrollIntoView({block:'start'});el('consult-company').focus({preventScroll:true});};
 addEventListener('hashchange',()=>{if(location.hash!=='#code'&&pending){cancel();output.textContent='Run the script to see its output here.';}});
@@ -4062,6 +4065,15 @@ newWorkspace();refresh(true);
 .consulting-mode #consulting-inquiry{padding:24px 0 0;border-top:1px solid #765499}
 .consulting-mode #consulting-inquiry :is(input,select,textarea){background:#231537;border-color:#6b478c}
 .consulting-mode footer{border-top:1px solid #553276}
+.consulting-mode .lf-consult article,.consulting-mode #consulting-inquiry{background:#2a173e;border:1px solid #684386;border-radius:18px;padding:clamp(16px,3vw,26px)}
+#code-workbench[data-track=linux] #code-screen{min-height:290px;max-height:420px;overflow:auto;cursor:text;background:#080d16;border:1px solid #3f516e;border-radius:10px;padding:12px}
+#code-workbench[data-track=linux] #code-output{padding:4px 0;margin:0;min-height:0;max-height:none;overflow:visible;border:0;background:transparent}
+#code-workbench[data-track=linux] #code-command{display:flex;align-items:center;gap:9px;margin:8px 0 0}
+#code-workbench[data-track=linux] #code-command label{font:700 14px ui-monospace,monospace;color:#90c9ff;font-size:0}
+#code-workbench[data-track=linux] #code-command label::after{content:'$';font-size:14px}
+#code-workbench[data-track=linux] #code-cli{border:0;background:transparent;padding:8px 4px;outline-offset:0;color:#edf5ff}
+#code-workbench[data-track=linux] #code-command button{min-height:40px;white-space:nowrap;padding:6px 12px}
+
 </style>
 
 </body>
