@@ -45,6 +45,6 @@ for (const [key, course] of Object.entries(courses)) {
   if (key === 'linux' || key === 'git') continue;
   for (const lesson of paths[key].lessons) assert.ok(course.lessons.some(item=>item.id===lesson.id), `mapped lesson ${key} ${lesson.id}`);
 }
-assert.equal(ids.size, 32);
-console.log(`Site validation passed: ${scripts.length} scripts parse, 32 unique lessons, every certification lesson mapped; quizzes are inside protected Premium guides.`);
+assert.equal(ids.size, 43);
+console.log(`Site validation passed: ${scripts.length} scripts parse, 43 unique lessons, every certification lesson mapped; quizzes are inside protected Premium guides.`);
 
