@@ -415,6 +415,7 @@ footer { flex-wrap: wrap; gap: 18px; }
 .tf-effects-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 16px; }
 #tf-resource-count { display:inline-block; margin-inline-start:8px; white-space:nowrap; }
 .build-results h3 + p { margin-top:8px; }
+@media(pointer:coarse){.site-view :is(h1,h2)[tabindex="-1"]:focus:not(:focus-visible){outline:none}}
 </style>
 <style>
 </style>
@@ -445,7 +446,7 @@ footer { flex-wrap: wrap; gap: 18px; }
 
   <section class="hero" aria-labelledby="hero-title">
     <div class="hook-copy">
-      <span class="kicker">AWS · Azure · Terraform · Linux · Git · CI/CD · GCP · Python</span>
+      <span class="kicker">AWS · Azure · GCP</span>
       <h1 id="hero-title">Stop memorizing.<br><span class="gradient">Start building.</span></h1>
       <p>Building a better tech world by creating true engineers</p>
     </div>
@@ -2582,7 +2583,9 @@ No installation or cloud account needed.</pre></div>
     const target=link.getAttribute('href').slice(1);
     if (aliases[target] && !['terraform','git'].includes(target)) link.setAttribute('href','#'+aliases[target]);
   }
-  let active;
+  let active, pointerNavigation=false;
+  document.addEventListener("pointerdown",()=>{pointerNavigation=true;},true);
+  document.addEventListener("keydown",()=>{pointerNavigation=false;},true);
   function renderRoute(focus=false) {
     let requested;
     try { requested=decodeURIComponent(location.hash.slice(1)); } catch { requested='home'; }
@@ -2599,7 +2602,7 @@ No installation or cloud account needed.</pre></div>
     document.title=key==='home' ? 'Linform | Learn by building' : names[key]+' | Linform';
     if (changed && focus) {
       const heading=views[key].querySelector('h1,h2');
-      if(heading) { heading.tabIndex=-1; heading.focus({preventScroll:true}); }
+      if(heading && !pointerNavigation) { heading.tabIndex=-1; heading.focus({preventScroll:true}); }
       window.scrollTo({top:0,behavior:'auto'});
     }
   }
@@ -2980,7 +2983,7 @@ output "project_name" {
   const linuxButton=document.createElement('button'),tfButton=document.createElement('button');
   linuxButton.type=tfButton.type='button';linuxButton.textContent='Linux terminal';tfButton.textContent='Terraform simulator';linuxButton.setAttribute('aria-controls','linux-lab');tfButton.setAttribute('aria-controls','terraform-lab');
   switcher.append(linuxButton,tfButton);const intro=el('skills-intro');if(intro)intro.after(switcher);else practice.prepend(switcher);
-  function choose(focus=false){const tf=location.hash==='#terraform',git=location.hash==='#git';section.hidden=!tf;el('linux-lab').hidden=tf||git;el('commands').hidden=tf||git;linuxButton.setAttribute('aria-pressed',String(!tf&&!git));tfButton.setAttribute('aria-pressed',String(tf));if(focus&&!git){const heading=(tf?section:el('linux-lab')).querySelector('h2');heading.tabIndex=-1;heading.focus({preventScroll:true});}}
+  function choose(focus=false){const tf=location.hash==='#terraform',git=location.hash==='#git';section.hidden=!tf;el('linux-lab').hidden=tf||git;el('commands').hidden=tf||git;linuxButton.setAttribute('aria-pressed',String(!tf&&!git));tfButton.setAttribute('aria-pressed',String(tf));if(focus&&!git&&(location.hash==='#terraform'||location.hash==='#practice'||location.hash==='#skills')&&!matchMedia('(pointer: coarse)').matches){const heading=(tf?section:el('linux-lab')).querySelector('h2');heading.tabIndex=-1;heading.focus({preventScroll:true});}}
   linuxButton.addEventListener('click',()=>{location.hash='practice';});tfButton.addEventListener('click',()=>{location.hash='terraform';});
   window.addEventListener('hashchange',()=>choose(true));choose();
 })();
@@ -4059,7 +4062,7 @@ newWorkspace();refresh(true);
 #code-workbench[data-track=linux] .lf-code-panels{display:flex;flex-direction:column-reverse}.lf-code-panels label[for=code-output]{cursor:default}
 .consulting-mode{background:linear-gradient(155deg,#28123f,#180c2b 70%);background-attachment:fixed}
 .consulting-mode .site-header,.consulting-mode footer,.consulting-mode .lf-consult,.consulting-mode #consulting-inquiry{background:transparent;box-shadow:none;border:0;border-radius:0}
-.consulting-mode .site-header nav a[aria-current=page]{background:transparent;color:#e2c6ff;text-decoration:underline;text-underline-offset:6px}
+.consulting-mode .site-header nav a[aria-current=page]{background:#472463;color:#f0dfff;border-radius:9px;text-decoration:none}
 .consulting-mode .lf-consult{padding-inline:0}
 .consulting-mode .lf-consult article{background:none;box-shadow:none;border:0;border-radius:0;border-top:1px solid #765499;padding:18px 0}
 .consulting-mode #consulting-inquiry{padding:24px 0 0;border-top:1px solid #765499}
