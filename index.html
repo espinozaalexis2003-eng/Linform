@@ -523,7 +523,6 @@ footer { flex-wrap: wrap; gap: 18px; }
         <span class="kicker">04 / Learn together</span>
         <h2>What do you<br>want to learn?</h2>
         <p>Ask a question, suggest a tutorial, or share what you’re building.</p>
-        <a class="email-link" href="mailto:alexise2003@outlook.com">alexise2003@outlook.com</a>
       </div>
 
       <form action="https://formsubmit.co/alexise2003@outlook.com" method="POST">
@@ -560,7 +559,7 @@ footer { flex-wrap: wrap; gap: 18px; }
       <span class="kicker">LINFORM / PRIVACY POLICY</span>
       <h1 id="privacy-title">Your information at Linform.</h1>
       <p class="small-note">Updated November 18, 2026</p>
-      <p>Linform is operated by Alexis Espinosa, cloud engineer and founder. For privacy questions or account and progress deletion requests, email <a class="text-link" href="mailto:alexise2003@outlook.com">alexise2003@outlook.com</a>.</p>
+      <p>Linform is operated by Alexis Espinosa, cloud engineer and founder. For privacy questions or account and progress deletion requests, use the <a class="text-link" href="#contact">inquiry form</a>.</p>
       <h2>Accounts and learning progress</h2>
       <p>Amazon Cognito manages sign-in and password recovery. Your account includes the name and email you provide. Completed lesson IDs are stored in Linform’s AWS account to sync your progress across devices. Guest progress and account progress caches are also saved in your browser.</p>
       <h2>Browser storage and practice files</h2>
@@ -634,7 +633,6 @@ footer { flex-wrap: wrap; gap: 18px; }
       <a class="text-link" href="#terms">Terms of use</a>
       <a class="text-link" href="#privacy">Privacy Policy</a>
       <a class="text-link" href="#contact">Contact</a>
-      <a class="text-link" href="mailto:alexise2003@outlook.com">alexise2003@outlook.com</a>
     </div>
   </footer>
 </div>
@@ -2564,7 +2562,7 @@ No installation or cloud account needed.</pre></div>
   views.about.append(document.getElementById('about'),document.querySelector('.case'));
   const terms=document.createElement('section');terms.className='section';terms.setAttribute('aria-labelledby','terms-title');
   terms.innerHTML='<span class="kicker">LINFORM / TERMS OF USE</span><h1 id="terms-title">Learn safely. Build responsibly.</h1><h2>Educational use</h2><p>Linform is an educational tool for learning Linux, AWS, Azure, Google Cloud, Python, Git and Terraform.</p><h2>Browser labs</h2><p>Linform’s built-in browser labs run locally or as simulations. They do not deploy paid resources to your cloud accounts.</p><h2>Your external cloud accounts</h2><p>Commands and projects you run outside Linform can create paid resources or change real systems. You are responsible for your accounts, permissions, spending, backups and the actions you take.</p><p>To the extent permitted by applicable law, Linform and its creator are not responsible for actions you take in external cloud accounts or resulting charges, data loss, security incidents or service interruptions.</p><a class="text-link" href="#practice">Back to Practice ↗</a>';
-  terms.insertAdjacentHTML('beforeend', "<details><summary>Privacy</summary><p class=\"small-note\">Linform is operated by Alexis Espinosa. Guest progress and per-account progress caches stay in this browser until you clear its site data. Cognito manages sign-in and password recovery; completed lesson IDs are stored in Linform's AWS account to provide sync. Terminal files and quiz answers are not sent to the progress service. Sign-in credentials stay in tab-scoped session storage so refreshing keeps you signed in. Signing out clears them; browser storage settings control whether a restored tab retains its session. Contact alexise2003@outlook.com to request account and progress deletion. Mentoring requests, reply email and project links are stored privately in Linform’s AWS account for Alexis to review. Form inquiries use FormSubmit, which processes the information you submit. Do not enter passwords or private information into the practice lab.</p></details>");
+  terms.insertAdjacentHTML('beforeend', "<details><summary>Privacy</summary><p class=\"small-note\">Linform is operated by Alexis Espinosa. Guest progress and per-account progress caches stay in this browser until you clear its site data. Cognito manages sign-in and password recovery; completed lesson IDs are stored in Linform's AWS account to provide sync. Terminal files and quiz answers are not sent to the progress service. Sign-in credentials stay in tab-scoped session storage so refreshing keeps you signed in. Signing out clears them; browser storage settings control whether a restored tab retains its session. Use the inquiry form to request account and progress deletion. Mentoring requests, reply email and project links are stored privately in Linform’s AWS account for Alexis to review. Form inquiries use FormSubmit, which processes the information you submit. Do not enter passwords or private information into the practice lab.</p></details>");
   views.terms.append(terms);
   views.privacy.append(document.getElementById("privacy-policy"));
   const termsLink=document.createElement('p');termsLink.innerHTML='<a class="text-link" href="#terms">Terms of use ↗</a>';views.about.querySelector('#about').append(termsLink);
