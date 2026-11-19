@@ -606,20 +606,20 @@ footer { flex-wrap: wrap; gap: 18px; }
 </section>
 <section class="section" id="linform-code">
   <span class="kicker">Code Lab</span><h1>Write it. Run it. Make it work.</h1>
-  <p>Pick a track, build toward a goal, and see what your code actually does.</p>
+  <p>Pick a track. Type the example, read the output, and move on at your own pace.</p>
   <div class="lf-code-tabs" role="group" aria-label="Coding track">
     <button type="button" id="code-python" aria-pressed="true">Python <small>Automation &amp; logic</small></button>
     <button type="button" id="code-terraform" aria-pressed="false">Terraform <small>Infrastructure as code</small></button>
     <button type="button" id="code-linux" aria-pressed="false">Linux <small>Terminal essentials</small></button>
   </div>
   <div id="code-workbench" data-track="python">
-    <div class="lf-workbench-top"><label for="code-goal">Choose a goal</label><select id="code-goal"></select><span id="code-progress"></span><strong id="code-points"></strong></div>
-    <div class="lf-code-goal"><h2 id="code-goal-title"></h2><p id="code-task"></p><ol id="code-steps"></ol><details><summary>Show a hint</summary><p id="code-hint"></p></details></div>
+    <div class="lf-workbench-top"><label for="code-example">Example</label><select id="code-example"></select><span id="code-progress"></span></div>
+    <div class="lf-code-goal"><h2 id="code-example-title"></h2><p id="code-task"></p><pre id="code-example-text"></pre><p id="code-explanation"></p><div class="lf-code-actions"><button class="button secondary" type="button" id="code-prev">← Back</button><button class="button secondary" type="button" id="code-next">Next example →</button></div></div>
     <div class="lf-code-panels">
-      <div><div id="code-files" class="lf-code-actions" hidden><button type="button" class="button secondary" data-file="main.tf">main.tf</button><button type="button" class="button secondary" data-file="variables.tf">variables.tf</button><button type="button" class="button secondary" data-file="outputs.tf">outputs.tf</button></div><div id="code-linux-tools" hidden><label for="code-shell">Command style</label><select id="code-shell"><option value="bash">Bash / Linux</option><option value="cloud">CloudShell-style Bash (local)</option><option value="ps">PowerShell essentials (simulated)</option></select><p id="code-shell-tip" class="small-note"></p><div id="code-linux-files" class="small-note"></div></div><label id="code-file" for="code-editor">main.py</label><textarea id="code-editor" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="12000" wrap="off"></textarea><details id="code-stdin"><summary>Script input (optional)</summary><label for="code-input-lines">One line per input() call</label><textarea id="code-input-lines" rows="2" maxlength="4000"></textarea></details><div class="lf-code-actions"><button class="button" type="button" id="code-run">Run Python</button><button class="button secondary" type="button" id="code-check">Check goal</button><button class="button secondary" type="button" id="code-reset">Reset starter</button><button class="button secondary" type="button" id="code-stop" hidden>Stop Python</button><button class="button secondary" type="button" id="code-next" hidden>Next goal →</button></div></div>
-      <div><label for="code-output">Output</label><pre id="code-output" tabindex="0" aria-label="Code output">Run your code to see results.</pre><form id="code-command" hidden><label for="code-cli">Terraform command</label><input id="code-cli" placeholder="terraform plan" autocomplete="off" spellcheck="false"><button class="button secondary" type="submit">Run command</button></form><div id="code-quick" class="lf-code-actions" hidden></div><p id="code-status" class="small-note" role="status"></p></div>
+      <div><div id="code-files" class="lf-code-actions" hidden><button type="button" class="button secondary" data-file="main.tf">main.tf</button><button type="button" class="button secondary" data-file="variables.tf">variables.tf</button><button type="button" class="button secondary" data-file="outputs.tf">outputs.tf</button></div><div id="code-linux-tools" hidden><p id="code-shell-tip" class="small-note"></p><div id="code-linux-files" class="small-note"></div></div><label id="code-file" for="code-editor">main.py</label><textarea id="code-editor" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="12000" wrap="off"></textarea><details id="code-stdin"><summary>Script input (optional)</summary><label for="code-input-lines">One line per input() call</label><textarea id="code-input-lines" rows="2" maxlength="4000"></textarea></details><div class="lf-code-actions"><button class="button" type="button" id="code-run">Run Python</button><button class="button secondary" type="button" id="code-reset">Reset workspace</button><button class="button secondary" type="button" id="code-stop" hidden>Stop Python</button></div></div>
+      <div><label for="code-output">Output</label><pre id="code-output" tabindex="0" aria-label="Code output">Run your code to see results.</pre><form id="code-command" hidden><label id="code-command-label" for="code-cli">Terminal command</label><input id="code-cli" placeholder="terraform plan" autocomplete="off" spellcheck="false"><button class="button secondary" type="submit">Run command</button></form><p id="code-status" class="small-note" role="status"></p></div>
     </div>
-    <p class="small-note" id="code-note">Python runs in an isolated browser workspace. First run downloads the runtime. Drafts and goals save on this device.</p>
+    <p class="small-note" id="code-note">Python runs in an isolated browser workspace. First run downloads the runtime. Drafts save on this device.</p>
   </div>
 </section>
 
@@ -1064,6 +1064,7 @@ async function copyText(text, button, statusElement) {
 }
 
 courses.gcp = {"title": "Google Cloud (GCP)", "icon": "GCP", "description": "Learn projects, IAM, Cloud Run, Cloud Storage, and how to connect them.", "level": "Beginner \u00b7 5 lessons", "lessons": [{"id": "gcp-projects", "title": "1. Projects, billing and resource boundaries", "intro": "A Google Cloud project groups resources and gives teams a place to manage APIs, IAM and billing relationships.", "concepts": ["A Google Cloud project groups resources and gives teams a place to manage APIs, IAM and billing relationships."], "explanation": "This is a design exercise. No Google Cloud account is required.", "challenge": "Draw separate development and production projects. Identify which group should manage each.", "answerText": "Use separate access groups and review who can attach projects to billing. Budget alerts notify you; they do not cap spending."}, {"id": "gcp-iam", "title": "2. Identity and service accounts", "intro": "IAM binds roles to principals on resources. Workloads can use service accounts with permissions scoped to their job.", "concepts": ["IAM binds roles to principals on resources. Workloads can use service accounts with permissions scoped to their job."], "explanation": "This is a design exercise. No Google Cloud account is required.", "challenge": "Design access for a workload that reads objects from a single bucket.", "answerText": "Grant object read access on that bucket to the workload identity; avoid broad project-wide roles and long-lived keys."}, {"id": "gcp-compute", "title": "3. Choose Cloud Run or Compute Engine", "intro": "Cloud Run runs containers on a managed platform. Compute Engine provides virtual machines and more control over the operating system.", "concepts": ["Cloud Run runs containers on a managed platform. Compute Engine provides virtual machines and more control over the operating system."], "explanation": "This is a design exercise. No Google Cloud account is required.", "challenge": "Choose a service for an HTTP app that receives intermittent traffic.", "answerText": "Cloud Run is a reasonable starting choice. Check concurrency, startup time, and which resources remain billable."}, {"id": "gcp-storage", "title": "4. Cloud Storage and recovery", "intro": "Cloud Storage stores objects in buckets. Think about location, access controls and recovery before uploading data.", "concepts": ["Cloud Storage stores objects in buckets. Think about location, access controls and recovery before uploading data."], "explanation": "This is a design exercise. No Google Cloud account is required.", "challenge": "Plan where you would place private reports and how to recover an accidental deletion.", "answerText": "Use a private bucket, scope access to a group or workload identity, configure recovery settings deliberately and test a restore."}, {"id": "gcp-architecture", "title": "5. Design a small production service", "intro": "Combine Cloud Run, private Cloud Storage and observability to design a service with clear boundaries.", "concepts": ["Combine Cloud Run, private Cloud Storage and observability to design a service with clear boundaries."], "explanation": "This is a design exercise. No Google Cloud account is required.", "challenge": "Sketch the request path, workload identity, logging, and the first alert you would configure.", "answerText": "Log errors, track request failures and latency, and alert on sustained user impact. Document how to roll back."}]};
+const providerLogos = {"aws": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KCTxwYXRoIGZpbGw9IiMyNTJmM2UiIGQ9Ik0zNi4zNzkgNTMuNjRjMCAxLjU2LjE2OCAyLjgyNS40NjUgMy43NS4zMzYuOTI2Ljc1OCAxLjkzOCAxLjM0NyAzLjAzMi4yMDcuMzM2LjI5My42NzIuMjkzLjk2OSAwIC40MTgtLjI1NC44NC0uOCAxLjI2MWwtMi42NTMgMS43N2MtLjM3OS4yNS0uNzU4LjM3OS0xLjA5My4zNzktLjQyMiAwLS44NDQtLjIxMS0xLjI2Ni0uNTlhMTMuMjggMTMuMjggMCAwIDEtMS41MTYtMS45OCAzNC4xNTMgMzQuMTUzIDAgMCAxLTEuMzA0LTIuNDg1Yy0zLjI4MiAzLjg3NS03LjQxIDUuODEzLTEyLjM4IDUuODEzLTMuNTM1IDAtNi4zNTUtMS4wMTItOC40MjEtMy4wMzItMi4wNjMtMi4wMjMtMy4xMTQtNC43MTgtMy4xMTQtOC4wODYgMC0zLjU3OCAxLjI2Mi02LjQ4NCAzLjgzMy04LjY3MSAyLjU2Ni0yLjE5MiA1Ljk3Ni0zLjI4NiAxMC4zMTYtMy4yODYgMS40MyAwIDIuOTAyLjEyNSA0LjQ2LjMzNiAxLjU2LjIxMSAzLjE2MS41NDcgNC44NDUuOTI2di0zLjA3NGMwLTMuMi0uNjc2LTUuNDMtMS45OC02LjczNEMyNi4wNjEgMzIuNjMzIDIzLjc4OCAzMiAyMC41NDYgMzJjLTEuNDczIDAtMi45ODguMTY4LTQuNTQ3LjU0N2EzMy40MTYgMzMuNDE2IDAgMCAwLTQuNTQ3IDEuNDMzYy0uNjc2LjI5My0xLjE4LjQ2MS0xLjQ3My41NDctLjI5Ni4wODItLjUwNy4xMjUtLjY3NS4xMjUtLjU5IDAtLjg4My0uNDIyLS44ODMtMS4zMDR2LTIuMDYzYzAtLjY3Ni4wODItMS4xOC4yOTMtMS40NzYuMjEtLjI5My41OS0uNTg2IDEuMTgtLjg4MyAxLjQ3Mi0uNzU4IDMuMjQyLTEuMzkgNS4zMDQtMS44OTUgMi4wNjMtLjU0NyA0LjI1NC0uOCA2LjU3LS44IDUuMDA4IDAgOC42NzIgMS4xMzYgMTEuMDMyIDMuNDEgMi4zMTYgMi4yNzMgMy40OTIgNS43MjYgMy40OTIgMTAuMzU5djEzLjY0Wm0tMTcuMDk0IDYuNDAzYzEuMzg3IDAgMi44Mi0uMjU0IDQuMzM2LS43NTggMS41MTYtLjUwOCAyLjg2My0xLjQzMyA0LTIuNjk1LjY3Mi0uOCAxLjE4LTEuNjg0IDEuNDMtMi42OTUuMjU0LTEuMDEyLjQyMi0yLjIzLjQyMi0zLjY2NXYtMS43NjVhMzQuNDAxIDM0LjQwMSAwIDAgMC0zLjg3MS0uNzE5IDMxLjgxNiAzMS44MTYgMCAwIDAtMy45NjEtLjI1Yy0yLjgyIDAtNC44ODMuNTQ3LTYuMjc0IDEuNjg0LTEuMzg3IDEuMTM2LTIuMDYyIDIuNzM0LTIuMDYyIDQuODQgMCAxLjk4LjUwNCAzLjQ1MyAxLjU1OCA0LjQ2NCAxLjAxMiAxLjA1MSAyLjQ4NSAxLjU1OSA0LjQyMiAxLjU1OVptMzMuODA5IDQuNTQ3Yy0uNzU4IDAtMS4yNjItLjEyNS0xLjU5OC0uNDIyLS4zNC0uMjU0LS42MzMtLjg0LS44ODctMS42NEw0MC43MTUgMjkuOThjLS4yNS0uODQzLS4zOC0xLjM5LS4zOC0xLjY4NyAwLS42NzIuMzM3LTEuMDUgMS4wMTMtMS4wNWg0LjEyNWMuOCAwIDEuMzQ3LjEyNCAxLjY0NC40MjEuMzM2LjI1LjU5Ljg0Ljg0IDEuNjRsNy4wNzQgMjcuODc2IDYuNTctMjcuODc1Yy4yMDgtLjg0LjQ2Mi0xLjM5Ljc5Ny0xLjY0LjM0LS4yNTUuOTMtLjQyMyAxLjY4OC0uNDIzaDMuMzY3Yy44IDAgMS4zNDguMTI1IDEuNjg0LjQyMi4zMzYuMjUuNjMzLjg0LjggMS42NGw2LjY1MyAyOC4yMTIgNy4yODUtMjguMjExYy4yNS0uODQuNTQ3LTEuMzkuODQtMS42NC4zMzYtLjI1NS44ODctLjQyMyAxLjY0NC0uNDIzaDMuOTE0Yy42NzYgMCAxLjA1NS4zMzYgMS4wNTUgMS4wNTEgMCAuMjEtLjA0My40MjItLjA4Ni42NzYtLjA0My4yNTQtLjEyNS41OS0uMjkzIDEuMDVMODAuODAxIDYyLjU3Yy0uMjU0Ljg0LS41NDcgMS4zODctLjg4NyAxLjY0LS4zMzYuMjU1LS44ODMuNDIzLTEuNTk4LjQyM2gtMy42MmMtLjgwMSAwLTEuMzQ4LS4xMy0xLjY4NC0uNDIyLS4zNC0uMjk3LS42MzMtLjg0NC0uODAxLTEuNjg0bC02LjUyNy0yNy4xNi02LjQ4NSAyNy4xMTdjLS4yMS44NDQtLjQ2IDEuMzkxLS44IDEuNjg0LS4zMzcuMjk3LS45MjYuNDIyLTEuNjg0LjQyMlptNTQuMTA1IDEuMTM3Yy0yLjE4NyAwLTQuMzc5LS4yNTQtNi40ODQtLjc1OC0yLjEwNi0uNTA0LTMuNzQ2LTEuMDU1LTQuODQtMS42ODQtLjY3Ni0uMzc5LTEuMTM3LS44LTEuMzA1LTEuMThhMi45MTkgMi45MTkgMCAwIDEtLjI1NC0xLjE4di0yLjE0OGMwLS44ODIuMzM2LTEuMzA0Ljk3LTEuMzA0LjI1IDAgLjUwMy4wNDMuNzU3LjEyOS4yNS4wODIuNjI5LjI1IDEuMDUuNDE4YTIzLjEwMiAyMy4xMDIgMCAwIDAgNC42MzQgMS40NzZjMS42ODMuMzM2IDMuMzI0LjUwNCA1LjAxMS41MDQgMi42NTMgMCA0LjcxNS0uNDY1IDYuMTQ1LTEuMzkgMS40MzMtLjkyNiAyLjE5MS0yLjI3NCAyLjE5MS00IDAtMS4xOC0uMzc5LTIuMTQ1LTEuMTM2LTIuOTQ2LS43NTgtLjgtMi4xOTItMS41MTYtNC4yNTQtMi4xOTFsLTYuMTA2LTEuODk1Yy0zLjA3NC0uOTY5LTUuMzQ4LTIuMzk4LTYuNzM0LTQuMjkzLTEuMzktMS44NTUtMi4xMDYtMy45MTgtMi4xMDYtNi4xMDUgMC0xLjc3LjM4LTMuMzI4IDEuMTM3LTQuNjc2YTEwLjgyOSAxMC44MjkgMCAwIDEgMy4wMzEtMy40NTNjMS4yNjItLjk2NSAyLjY5Ni0xLjY4NCA0LjM4LTIuMTg4IDEuNjgzLS41MDQgMy40NTItLjcxNSA1LjMwNC0uNzE1LjkyNiAwIDEuODk0LjA0MyAyLjgyLjE2OC45NjkuMTI1IDEuODUyLjI5MyAyLjczOC40NjEuODQuMjExIDEuNjQxLjQyMiAyLjM5OS42NzYuNzU4LjI1NCAxLjM0OC41MDQgMS43Ny43NTguNTkuMzM2IDEuMDExLjY3MiAxLjI2MSAxLjA1LjI1NC4zNC4zNzkuODAyLjM3OSAxLjM5MXYxLjk4YzAgLjg4NC0uMzM2IDEuMzQ4LS45NjkgMS4zNDgtLjMzNiAwLS44ODMtLjE3MS0xLjU5Ny0uNTA3LTIuNDAzLTEuMDk0LTUuMDk4LTEuNjQxLTguMDg2LTEuNjQxLTIuMzk5IDAtNC4yOTMuMzc5LTUuNTk4IDEuMTgtMS4zMDkuNzk3LTEuOTggMi4wMi0xLjk4IDMuNzQ2IDAgMS4xOC40MjEgMi4xOTEgMS4yNjEgMi45ODguODQ0LjggMi40MDMgMS42MDIgNC42MzMgMi4zMTZsNS45OCAxLjg5NWMzLjAzMi45NjkgNS4yMiAyLjMxNiA2LjUyNCA0LjA0MyAxLjMwNSAxLjcyNyAxLjkzOCAzLjcwNyAxLjkzOCA1Ljg5NSAwIDEuODEyLS4zOCAzLjQ1My0xLjA5NCA0Ljg4Mi0uNzU4IDEuNDM0LTEuNzcgMi42OTYtMy4wNzQgMy43MDctMS4zMDUgMS4wNTEtMi44NjQgMS44MDktNC42NzIgMi4zNi0xLjg5NS41ODYtMy44NzUuODgzLTYuMDI0Ljg4M1ptMCAwIi8+Cgk8cGF0aCBmaWxsPSIjZjkwIiBkPSJNMTE4IDczLjM0OGMtNC40MzIuMDYzLTkuNjY0IDEuMDUyLTEzLjYyMSAzLjgzMi0xLjIyMy44ODMtMS4wMTIgMi4wNjIuMzM2IDEuODk0IDQuNTA4LS41NDcgMTQuNDQtMS43MjYgMTYuMjEuNTQ3IDEuNzcgMi4yMy0xLjk3NiAxMS42Mi0zLjY2MyAxNS43OS0uNTA0IDEuMjYuNTkgMS43NjkgMS43MjYuOCA3LjQxLTYuMjMxIDkuMzQ4LTE5LjI0MiA3LjgzMi0yMS4xMzctLjc1Ny0uOTI1LTQuMzg4LTEuNzktOC44Mi0xLjcyNnpNMS42MyA3NS44NTljLS45MjcuMTE2LTEuMzQ3IDEuMjM2LS4zNjggMi4xMjEgMTYuNTA4IDE0LjkwMiAzOC4zNTkgMjMuODcyIDYyLjYxMyAyMy44NzIgMTcuMzA1IDAgMzcuNDMtNS40MyA1MS4yODEtMTUuNjYgMi4yNzMtMS42ODguMjk3LTQuMjU0LTIuMDItMy4yMDQtMTUuNTM0IDYuNTctMzIuNDIxIDkuNzctNDcuNzg4IDkuNzctMjIuNzc4IDAtNDQuOC02LjI3My02Mi42NTMtMTYuNjMzLS4zOS0uMjMxLS43NTUtLjMwNC0xLjA2NC0uMjY2eiIvPgo8L3N2Zz4=", "azure": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImF6dXJlLW9yaWdpbmFsLWEiIHgxPSI2MC45MTkiIHkxPSI5LjYwMiIgeDI9IjE4LjY2NyIgeTI9IjEzNC40MjMiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjMTE0QThCIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDY2OUJDIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImF6dXJlLW9yaWdpbmFsLWIiIHgxPSI3NC4xMTciIHkxPSI2Ny43NzIiIHgyPSI2NC4zNDQiIHkyPSI3MS4wNzYiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLW9wYWNpdHk9Ii4zIi8+PHN0b3Agb2Zmc2V0PSIuMDcxIiBzdG9wLW9wYWNpdHk9Ii4yIi8+PHN0b3Agb2Zmc2V0PSIuMzIxIiBzdG9wLW9wYWNpdHk9Ii4xIi8+PHN0b3Agb2Zmc2V0PSIuNjIzIiBzdG9wLW9wYWNpdHk9Ii4wNSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIwIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImF6dXJlLW9yaWdpbmFsLWMiIHgxPSI2OC43NDIiIHkxPSI1Ljk2MSIgeDI9IjExNS4xMjIiIHkyPSIxMjkuNTI1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iIzNDQ0JGNCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzI4OTJERiIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9Ik00Ni4wOS4wMDJoNDAuNjg1TDQ0LjU0MSAxMjUuMTM3YTYuNDg1IDYuNDg1IDAgMDEtNi4xNDYgNC40MTNINi43MzNhNi40ODIgNi40ODIgMCAwMS01LjI2Mi0yLjY5OSA2LjQ3NCA2LjQ3NCAwIDAxLS44NzYtNS44NDhMMzkuOTQ0IDQuNDE0QTYuNDg4IDYuNDg4IDAgMDE0Ni4wOSAweiIgZmlsbD0idXJsKCNhenVyZS1vcmlnaW5hbC1hKSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLjU4NyA0LjQ2OCkgc2NhbGUoLjkxOTA0KSIvPjxwYXRoIGQ9Ik05Ny4yOCA4MS42MDdIMzcuOTg3YTIuNzQzIDIuNzQzIDAgMDAtMS44NzQgNC43NTFsMzguMSAzNS41NjJhNS45OTEgNS45OTEgMCAwMDQuMDg3IDEuNjFoMzMuNTc0eiIgZmlsbD0iIzAwNzhkNCIvPjxwYXRoIGQ9Ik00Ni4wOS4wMDJBNi40MzQgNi40MzQgMCAwMDM5LjkzIDQuNUwuNjQ0IDEyMC44OTdhNi40NjkgNi40NjkgMCAwMDYuMTA2IDguNjUzaDMyLjQ4YTYuOTQyIDYuOTQyIDAgMDA1LjMyOC00LjUzMWw3LjgzNC0yMy4wODkgMjcuOTg1IDI2LjEwMWE2LjYxOCA2LjYxOCAwIDAwNC4xNjUgMS41MTloMzYuMzk2bC0xNS45NjMtNDUuNjE2LTQ2LjUzMy4wMTFMODYuOTIyLjAwMnoiIGZpbGw9InVybCgjYXp1cmUtb3JpZ2luYWwtYikiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC41ODcgNC40NjgpIHNjYWxlKC45MTkwNCkiLz48cGF0aCBkPSJNOTguMDU1IDQuNDA4QTYuNDc2IDYuNDc2IDAgMDA5MS45MTcuMDAySDQ2LjU3NWE2LjQ3OCA2LjQ3OCAwIDAxNi4xMzcgNC40MDZsMzkuMzUgMTE2LjU5NGE2LjQ3NiA2LjQ3NiAwIDAxLTYuMTM3IDguNTVoNDUuMzQ0YTYuNDggNi40OCAwIDAwNi4xMzYtOC41NXoiIGZpbGw9InVybCgjYXp1cmUtb3JpZ2luYWwtYykiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC41ODcgNC40NjgpIHNjYWxlKC45MTkwNCkiLz48L3N2Zz4K", "gcp": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4Ij48cGF0aCBmaWxsPSIjZWE0NTM1IiBkPSJNODAuNiA0MC4zaC40bC0uMi0uMiAxNC0xNHYtLjNjLTExLjgtMTAuNC0yOC4xLTE0LTQzLjItOS41QzM2LjUgMjAuOCAyNC45IDMyLjggMjAuNyA0OGMuMi0uMS41LS4yLjgtLjIgNS4yLTMuNCAxMS40LTUuNCAxNy45LTUuNCAyLjIgMCA0LjMuMiA2LjQuNi4xLS4xLjItLjEuMy0uMSA5LTkuOSAyNC4yLTExLjEgMzQuNi0yLjZoLS4xeiIvPjxwYXRoIGZpbGw9IiM1NTdlYmYiIGQ9Ik0xMDguMSA0Ny44Yy0yLjMtOC41LTcuMS0xNi4yLTEzLjgtMjIuMUw4MCAzOS45YzYgNC45IDkuNSAxMi4zIDkuMyAyMHYyLjVjMTYuOSAwIDE2LjkgMjUuMiAwIDI1LjJINjMuOXYyMGgtLjFsLjEuMmgyNS40YzE0LjYuMSAyNy41LTkuMyAzMS44LTIzLjEgNC4zLTEzLjgtMS0yOC44LTEzLTM2Ljl6Ii8+PHBhdGggZmlsbD0iIzM2YTg1MiIgZD0iTTM5IDEwNy45aDI2LjNWODcuN0gzOWMtMS45IDAtMy43LS40LTUuNC0xLjFsLTE1LjIgMTQuNnYuMmM2IDQuMyAxMy4yIDYuNiAyMC43IDYuNnoiLz48cGF0aCBmaWxsPSIjZjliYzE1IiBkPSJNNDAuMiA0MS45Yy0xNC45LjEtMjguMSA5LjMtMzIuOSAyMi44LTQuOCAxMy42IDAgMjguNSAxMS44IDM3LjNsMTUuNi0xNC45Yy04LjYtMy43LTEwLjYtMTQuNS00LTIwLjggNi42LTYuNCAxNy44LTQuNCAyMS43IDMuOEw2OCA1NS4yQzYxLjQgNDYuOSA1MS4xIDQyIDQwLjIgNDIuMXoiLz48L3N2Zz4="};
 const grid = document.getElementById("course-grid");
 
 function renderCourses() {
@@ -1077,7 +1078,7 @@ function renderCourses() {
     card.className = "course-card";
     card.dataset.learning = key;
     card.innerHTML = `
-      <div class="course-icon" aria-hidden="true">${escapeHtml(course.icon)}</div>
+      <div class="course-icon" aria-hidden="true">${providerLogos[key] ? `<img alt="" src="${providerLogos[key]}" width="38" height="38">` : escapeHtml(course.icon)}</div>
       <h3>${escapeHtml(course.title)}</h3>
       <p>${escapeHtml(course.description)}</p>
       <div class="course-meta">${escapeHtml(course.level)}</div>
@@ -3879,199 +3880,155 @@ window.LinformBuildLab=Object.freeze({setAccess});setAccess(document.body.getAtt
 </script>
 <script id="linform-code-ui">
 (() => {
-const el=id=>document.getElementById(id), root=el('code-workbench'), editor=el('code-editor'), output=el('code-output'), status=el('code-status'), selector=el('code-goal');
-const tf=window.LinformBuild, base=window.LinformTerraform;
-const goals={
- python:[
-  ['Format a cloud inventory','Use an f-string to print exactly: linform: 3 instances','Use print(f"{project}: {instances} instances").','project = "linform"\ninstances = 3\n# Print the inventory line.\n','linform: 3 instances'],
-  ['Filter a health report','Print only the names of unhealthy services, one per line.','Loop over services.items(). Print the name when healthy is false.','services = {"web": True, "worker": False, "cache": False}\n# Print unhealthy services.\n','worker\ncache'],
-  ['Summarize spend with a function','Write a function that adds the amounts, then print the total to two decimal places.','Use sum() and format with :.2f. Expected output: $42.50.','def total_cost(amounts):\n    # Replace the placeholder.\n    return 0\n\nprint(f"${total_cost([12.5, 20, 10]):.2f}")\n','$42.50'],
-  ['Read JSON and choose an action','Parse the JSON, then print SCALE if CPU is 75 or higher. Otherwise print HOLD.','Use json.loads() to convert the string into a dictionary.','import json\nraw = \'{"service": "api", "cpu": 82}\'\n# Parse raw and print the scaling decision.\n','SCALE'],
-  ['Handle a bad measurement','Convert sample values to integers. Skip invalid values and print the sum of the valid values.','Catch ValueError around int(value), then add only successful conversions.','samples = ["8", "bad", "12", "4"]\n# Print the sum of valid samples.\n','24']
- ],
- terraform:[
-  ['Variables and outputs','Set the project_name default to ceiba-lab. Run a plan and check the goal.','Edit the default value; the output reads the resource’s input. ',base.STARTER,m=>m.outputs.project_name==='ceiba-lab'],
-  ['Model AWS storage','Rename the AWS bucket to linform-aws-reports. Plan, then apply it in the simulator.','Change the bucket attribute and check the resulting bucket_name output.',tf.TEMPLATES.storage,(m,e)=>m.outputs.bucket_name==='linform-aws-reports'&&e.state.resources['aws_s3_bucket.portfolio']?.bucket==='linform-aws-reports'],
-  ['Connect Azure resources','Move the resource group and storage account to centralus by changing the group location. Plan and apply.','The storage account references the group location. Change the resource group once.',tf.TEMPLATES.azure,(m,e)=>m.resources['azurerm_storage_account.files']?.location==='centralus'&&e.state.resources['azurerm_storage_account.files']?.location==='centralus'],
-  ['Configure Google Cloud Storage','Change the bucket location to EU and keep uniform bucket-level access enabled. Plan and apply.','Set location = "EU", and keep uniform_bucket_level_access = true.',tf.TEMPLATES.gcp,(m,e)=>{const b=e.state.resources['google_storage_bucket.reports'];return m.resources['google_storage_bucket.reports']?.location==='EU'&&b?.location==='EU'&&b.uniform_bucket_level_access===true;}]
- ]
-};
-goals.python.push(['Ask for input','Ask for a deployment environment, then print Deploying to staging when the input is staging.','Read input(), then insert the result into an f-string. Put staging in Script input.','environment = input()\n# Print the deployment message.\n','Deploying to staging']);
-goals.terraform.push(['Write your first output','In outputs.tf, add an output named environment that reads terraform_data.app.output. Preview, apply, then inspect the output.','An output block has a name and a value expression. Reference the app resource instead of typing the environment twice.','variable "stage" {\n  type = string\n  default = "staging"\n}\n\nresource "terraform_data" "app" {\n  input = var.stage\n}\n',(m,e)=>m.outputs.environment==='staging'&&e.state.outputs.environment==='staging']);
-goals.linux=[
- ['Find your bearings','Show the current folder, then list its contents.','pwd tells you where you are. ls shows what is there.','pwd','ls'],
- ['Create a workspace','Make a folder called practice, then enter it.','Create the folder before trying to enter it.','mkdir practice','cd practice'],
- ['Write and read a note','Create note.txt containing hello, then read the file.','The > operator sends the output into a file. cat reads it back.','echo hello > note.txt','cat note.txt'],
- ['Make a backup','Copy notes.txt to notes-backup.txt. Then list your files.','cp takes the source first and the destination second.','cp notes.txt notes-backup.txt','ls'],
- ['Find matching lines','Find the word Linux in notes.txt.','grep accepts a search term and then a file name.','grep Linux notes.txt']
-];
-const guide={
- python:[
-  ['Read the two starter variables.','Add a print() call with an f-string.','Run your script, then check the goal.'],
-  ['Read the dictionary of service names and Boolean values.','Loop through key/value pairs and print the unhealthy names.','Run and compare the two output lines.'],
-  ['Find the function stub.','Return the sum of its input, then run the script.','Check the formatted total against the goal.'],
-  ['Read the JSON string.','Use json.loads(), then use an if/else on the CPU value.','Run the script and check the decision.'],
-  ['Loop through the sample values.','Convert with int() and skip ValueError.','Print your total and check the goal.'],
-  ['Expand Script input and enter staging.','Read that line with input() and build the deployment message.','Run the script, then check the goal.']
- ],
- terraform:[
-  ['Open variables.tf and change the project name.','Open main.tf to see where the variable is used.','Open outputs.tf and see how the result is exposed. Preview the plan, then check the goal.'],
-  ['Open main.tf and update the bucket name.','Open outputs.tf to see the value that will be displayed.','Preview the plan, apply in the simulator, then check the goal.'],
-  ['Open main.tf and change the resource group location.','Follow the reference used by the storage account.','Preview the plan, apply in the simulator, then check the goal.'],
-  ['Open main.tf and edit the bucket location.','Keep uniform bucket-level access enabled and review outputs.tf.','Preview the plan, apply in the simulator, then check the goal.'],
-  ['Read the stage variable in variables.tf and the app resource in main.tf.','Open outputs.tf and write an output block that reads the app value.','Preview and apply, then run terraform output before checking the goal.']
- ],
- linux:goals.linux.map(g=>['Read the goal and select a command style.','Run the suggested commands one at a time; read each result.','Check the goal to score your progress.'])
-};
-let track='python', index=0, engine, linux, frame, pending, timer, sequence=0, planned=null, file='main.tf', files={}, history=[], cursor=0, evidence=new Set();
-const key=()=>track+'-'+index, goal=()=>goals[track][index], starter=()=>typeof goal()[3]==='string'?goal()[3]:goal()[3].code;
-const filenames=['main.tf','variables.tf','outputs.tf'];
-let saved={};try {const raw=JSON.parse(localStorage.getItem('linform-code-v1')||'{}');if(raw&&typeof raw==='object'&&!Array.isArray(raw))saved=raw;}catch{}
-const record=()=>saved[key()] ||= {};
-function save(){try{localStorage.setItem('linform-code-v1',JSON.stringify(saved));}catch{}}
-function tally(){
- el('code-progress').textContent=goals[track].filter((_,i)=>saved[track+'-'+i]?.done).length+' / '+goals[track].length+' goals complete';
- const count=Object.entries(goals).reduce((sum,[name,list])=>sum+list.filter((_,i)=>saved[name+'-'+i]?.done===true).length,0);
- el('code-points').textContent=(count*10)+' points';el('code-next').hidden=!record().done||index===goals[track].length-1;
+const el=id=>document.getElementById(id), editor=el('code-editor'), output=el('code-output'), status=el('code-status'), selector=el('code-example'), cli=el('code-cli');
+const tf=window.LinformBuild;
+const py=(title,text,explain)=>({title,text,explain});
+const shell=(title,text,explain)=>({title,text,explain});
+const write=(title,file,text,explain)=>({title,file,text,explain});
+const lessons={
+python:[
+ py('Print your first line','print("Hello, cloud!")','print() displays text in Output. Quotation marks tell Python the text is a string.'),
+ py('Store and use a value','project = "linform"\nservers = 3\nprint(f"{project} has {servers} servers")','A variable names a value. The f-string fills the braces with the current values.'),
+ py('Do some math','hours = 12\nrate = 0.25\nprint(hours * rate)','The * operator multiplies the hourly rate by the number of hours.'),
+ py('Make a decision','cpu = 82\nif cpu >= 75:\n    print("Scale up")\nelse:\n    print("Hold")','Change 82 to 60 and run again. Indentation groups the code that belongs to each branch.'),
+ py('Loop over a list','services = ["web", "worker", "cache"]\nfor name in services:\n    print(name)','The loop runs the indented line once for each service.'),
+ py('Read a dictionary','server = {"name": "web", "healthy": True}\nprint(server["name"])\nprint(server["healthy"])','Dictionaries store values under names called keys. Brackets retrieve a value by key.'),
+ py('Write a function','def cost(hours, rate):\n    return hours * rate\n\nprint(cost(12, 0.25))','A function packages a calculation. return gives its result back to the caller.'),
+ py('Read JSON','import json\nreport = json.loads(\'{"healthy": true}\')\nprint(report["healthy"])','json.loads turns JSON text into Python data. JSON true becomes Python True.'),
+ {...py('Read user input','name = input()\nprint(f"Hello, {name}!")','Open Script input, type Alexis on the first line, then run the code. input() reads that line.'),input:true},
+ py('Handle a bad value','try:\n    number = int("not a number")\nexcept ValueError:\n    print("Enter a whole number")','The handler catches the conversion error. Replace the sample with "42" to see the successful path.'),
+],
+terraform:[
+ write('Define an input','variables.tf','variable "environment" {\n  type    = string\n  default = "staging"\n}','A variable lets you change an input without rewriting the resource.'),
+ write('Describe a resource','main.tf','resource "terraform_data" "app" {\n  input = var.environment\n}','A resource block describes what you want. This local resource takes its value from variables.tf.'),
+ write('Expose a result','outputs.tf','output "environment" {\n  value = terraform_data.app.output\n}','An output gives a result a name. This expression reads the resource’s output.'),
+ shell('Initialize the workspace','terraform init','Initialization prepares the workspace. This lab uses an in-browser simulator and installs no providers.'),
+ shell('Format the files','terraform fmt','Format normalizes whitespace and indentation in your practice configuration.'),
+ shell('Validate the configuration','terraform validate','Validate checks the parts of HCL supported here. Fix any errors before planning.'),
+ shell('Preview changes','terraform plan','Plan previews what would change. Review the result before applying it.'),
+ shell('Apply the plan','terraform apply','Read the proposed changes. If prompted, type yes in the command field to update simulated state.'),
+ shell('Read your output','terraform output','The output should show the environment value you set in variables.tf.'),
+ shell('Inspect state','terraform state list','State lists what has been applied. Compare the resource address with your main.tf file.'),
+ shell('Practice cleanup','terraform destroy','Review the simulated removal, then type yes if prompted. No real cloud resources are affected.'),
+],
+linux:[
+ shell('Find your current folder','pwd','Prints the working directory: your starting point for relative paths.'),
+ shell('List files','ls -la','Shows files, including hidden names, with details.'),
+ shell('Create a directory','mkdir practice','Makes a new folder named practice.'),
+ shell('Enter the directory','cd practice','Changes the current folder. Try pwd again to confirm where you are.'),
+ shell('Create an empty file','touch notes.txt','Creates notes.txt if it doesn’t exist.'),
+ shell('Write to a file','echo "Linux is useful" > notes.txt','The > operator sends text into a file and replaces its previous contents.'),
+ shell('Read the file','cat notes.txt','Prints the file contents.'),
+ shell('Append another line','echo "Practice every day" >> notes.txt','The >> operator adds text to the end without replacing what is there.'),
+ shell('Find a matching line','grep Linux notes.txt','Prints lines that contain Linux.'),
+ shell('Count lines through a pipe','cat notes.txt | wc -l','The pipe sends the file contents into wc, which counts lines with -l.'),
+ shell('Make a copy','cp notes.txt backup.txt','Creates backup.txt with the same contents.'),
+ shell('Rename the copy','mv backup.txt archive.txt','Moves the copy to a new name in the same directory.'),
+ shell('Remove the copy','rm archive.txt','Deletes only the practice file you renamed. Run ls to check.'),
+ shell('Go back up','cd ..','Moves to the parent directory.'),
+ shell('Find files by name','find . -name notes.txt','Searches the current folder and its subfolders for notes.txt.'),
+ ]};
+let track='python', index=0, file='main.tf', files={}, engine, linux, frame, pending, timer, sequence=0, history=[], cursor=0;
+const names=['main.tf','variables.tf','outputs.tf'], item=()=>lessons[track][index];
+let saved={};try{const data=JSON.parse(localStorage.getItem('linform-code-examples-v1')||'{}');if(data&&typeof data==='object')saved=data;}catch{}
+function remember(){try{localStorage.setItem('linform-code-examples-v1',JSON.stringify(saved));}catch{}}
+const pyKey=()=>String(index);
+function cancel(){clearTimeout(timer);pending=null;frame?.remove();frame=null;el('code-stop').hidden=true;el('code-run').disabled=false;}
+function selectFile(name){
+ file=name;editor.value=files[name];el('code-file').textContent=name;
+ el('code-files').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.file===name)));
 }
-function cancel(){el('code-stop').hidden=true;clearTimeout(timer);pending=null;if(frame){frame.remove();frame=null;} el('code-run').disabled=el('code-check').disabled=false;}
-function split(source){
- const out={'main.tf':'','variables.tf':'','outputs.tf':''};let dest='main.tf';
- for(const line of source.split('\n')){if(/^\s*variable\s+"/.test(line))dest='variables.tf';if(/^\s*resource\s+"/.test(line))dest='main.tf';if(/^\s*output\s+"/.test(line))dest='outputs.tf';out[dest]+=line+'\n';}
- return out;
+function newWorkspace(){
+ engine=new tf.CloudTerraform();engine.config='';linux=new tf.Workspace();
+ delete linux.git.files['main.tf'];linux.git.files['notes.txt']='Welcome to the Linux practice shell.\n';
+ files=Object.fromEntries(names.map(name=>[name,typeof saved.tf?.[name]==='string'?saved.tf[name]:'']));
+ history=[];cursor=0;
 }
-function selectFile(name){file=name;editor.value=files[name];el('code-file').textContent=name;el('code-files').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.file===name)));}
-function combined(){return filenames.map(name=>files[name]).join('\n');}
-function refresh(){
- cancel();root.dataset.track=track;const py=track==='python',t=track==='terraform',l=track==='linux';
- for(const lang of ['python','terraform','linux'])el('code-'+lang).setAttribute('aria-pressed',String(track===lang));
- selector.replaceChildren(...goals[track].map(([name],i)=>new Option((saved[track+'-'+i]?.done?'✓ ':'')+name,i)));selector.value=String(index);
- el('code-goal-title').textContent=goal()[0];el('code-task').textContent=goal()[1];el('code-hint').textContent=goal()[2];
- el('code-steps').replaceChildren(...guide[track][index].map(text=>{const li=document.createElement('li');li.textContent=text;return li;}));
- el('code-files').hidden=!t;el('code-stdin').hidden=!py;el('code-input-lines').value='';
- el('code-linux-tools').hidden=!l;el('code-file').hidden=editor.hidden=l;el('code-command').hidden=py;
- el('code-run').textContent=py?'Run Python':'Preview plan';el('code-run').hidden=l;
- el('code-cli').placeholder=l?'Type a command, then press Enter':'terraform plan';el('code-cli').value='';
- el('code-note').textContent=py?'Python runs in your browser. First run downloads the runtime. Drafts and points save on this device.':t?'Local Terraform simulation for selected AWS, Azure, and GCP resources. Files and points save here; simulated state resets when you switch goals.':'Commands work on a virtual filesystem. PowerShell mode supports selected equivalent commands. CloudShell style uses Bash syntax; no cloud account is connected.';
- if(py){editor.value=record().source ?? starter();el('code-file').textContent='main.py';}
- engine=t?new tf.CloudTerraform():null;planned=null;history=[];cursor=0;evidence=new Set();
- if(t){files=Object.assign(split(record().source??starter()),record().files||{});selectFile(index===0?'variables.tf':'main.tf');engine.execute('terraform init');}
- linux=l?new tf.Workspace():null;
- if(l){delete linux.git.files['main.tf'];linux.git.files['notes.txt']='Linux command practice\nCloud terminal basics\n';linux.git.files['README.md']='Welcome to Linform Linux.\n';}
- output.textContent=py?'Run Python to see results.':t?'Edit your files, preview the plan, and apply when your goal asks.':'Ready. Try help or run a suggested command.';
- status.textContent='';el('code-quick').hidden=py;quick();tally();
+function refresh(clear=false){
+ cancel();const p=track==='python',t=track==='terraform',l=track==='linux',ex=item();
+ el('code-workbench').dataset.track=track;
+ for(const k of ['python','terraform','linux'])el('code-'+k).setAttribute('aria-pressed',String(k===track));
+ if(selector.dataset.track!==track){selector.replaceChildren(...lessons[track].map((x,i)=>new Option((i+1)+'. '+x.title,i)));selector.dataset.track=track;}
+ selector.value=String(index);el('code-progress').textContent=(index+1)+' of '+lessons[track].length;
+ el('code-example-title').textContent=ex.title;
+ el('code-task').textContent=p?'Type this script into main.py, then select Run Python.':ex.file?'Type this in '+ex.file+'. Your files are saved as you type.':'Type this command into the terminal, then press Enter.';
+ el('code-example-text').textContent=ex.text;el('code-explanation').textContent=ex.explain;
+ el('code-prev').disabled=index===0;el('code-next').disabled=index===lessons[track].length-1;
+ el('code-stdin').hidden=!p;el('code-stdin').open=!!ex.input;el('code-input-lines').value='';
+ el('code-files').hidden=!t;el('code-linux-tools').hidden=!l;editor.hidden=el('code-file').hidden=l;
+ el('code-run').hidden=!p;el('code-command').hidden=p;el('code-command-label').textContent=t?'Terraform terminal':'Linux terminal';
+ cli.placeholder=t?'terraform plan':'Type a Linux command';cli.value='';editor.placeholder='Type the example here…';
+ if(t)selectFile(ex.file||file);
+ if(p){editor.value=saved.py?.[pyKey()]||'';el('code-file').textContent='main.py';}
+ if(clear||p)output.textContent=p?'Run the script to see its output here.':'Command output appears here.';
+ el('code-note').textContent=p?'Python runs in your browser. The first run downloads the runtime.':t?'Files save on this device. This is a Terraform simulator; it cannot create real cloud resources.':'This shell works on practice files only. It does not connect to your device or a cloud account.';
+ el('code-shell-tip').textContent=l?'Try help for more commands. Use ↑ and ↓ to recall commands.':'';
+ if(l)el('code-linux-files').textContent='Working directory: '+linux.run('pwd').text;
+ status.textContent='';
 }
-function complete(){const earned=!record().done;record().done=true;save();tally();selector.options[index].text='✓ '+goal()[0];status.textContent=earned?'Goal complete. +10 points!':'Goal already complete. Try the next challenge.';}
-function python(check){
- if(pending)return;
- let id=++sequence;pending={id,check};el('code-run').disabled=el('code-check').disabled=true;
- el('code-stop').hidden=false;output.textContent='Starting Python…';status.textContent='';
+function python(){
+ if(pending)return;const id=++sequence;pending=id;el('code-stop').hidden=false;el('code-run').disabled=true;output.textContent='Starting Python…';
  const payload={kind:'linform-python-run',id,source:editor.value,inputs:el('code-input-lines').value.split('\n')};
- function send(){if(pending?.id===id)frame.contentWindow.postMessage(payload,'*');}
+ function send(){if(pending===id)frame.contentWindow.postMessage(payload,'*');}
  if(!frame){
   frame=document.createElement('iframe');frame.hidden=true;frame.title='Isolated Python runtime';frame.setAttribute('sandbox','allow-scripts');
   frame.addEventListener('load',send,{once:true});
-  const script=el('linform-python-frame').textContent;
-  frame.srcdoc='<meta http-equiv="Content-Security-Policy" content="default-src none; script-src \'unsafe-inline\' \'unsafe-eval\' blob: https://cdn.jsdelivr.net; worker-src blob:; connect-src https://cdn.jsdelivr.net"><script>'+script+'<\/script>';
+  frame.srcdoc='<meta http-equiv="Content-Security-Policy" content="default-src none; script-src \'unsafe-inline\' \'unsafe-eval\' blob: https://cdn.jsdelivr.net; worker-src blob:; connect-src https://cdn.jsdelivr.net"><script>'+el('linform-python-frame').textContent+'<\/script>';
   document.body.append(frame);
  }else send();
- timer=setTimeout(()=>{cancel();output.textContent='Python stopped after 60 seconds. Check for an infinite loop or retry the runtime download.';},60000);
+ timer=setTimeout(()=>{cancel();output.textContent='Python stopped. Check for an infinite loop or retry the runtime download.';},60000);
 }
-addEventListener('message', e=>{
- if(!frame||e.source!==frame.contentWindow||e.data?.kind!=='linform-python-result'||!pending||e.data.id!==pending.id)return;
- el('code-stop').hidden=true;clearTimeout(timer);const check=pending.check;pending=null;el('code-run').disabled=el('code-check').disabled=false;
- const value=String(e.data.output||'');output.textContent=value||'(No output. Try print().)';
- if(check&&e.data.ok&&value.trim()===goal()[4])complete();
- else if(check)status.textContent=e.data.ok?'The output is different from the goal. Check the hint and try again.':'Fix the error in the output, then check again.';
+addEventListener('message',e=>{
+ if(!frame||e.source!==frame.contentWindow||e.data?.kind!=='linform-python-result'||e.data.id!==pending)return;
+ clearTimeout(timer);pending=null;el('code-run').disabled=false;el('code-stop').hidden=true;
+ output.textContent=e.data.output||'(No output. Try print().)';status.textContent=e.data.ok?'Run finished. Try changing a value or move to the next example.':'Read the error above, update your script, and run again.';
 });
-const psMap={
- 'get-location':'pwd','get-childitem':'ls','set-location':'cd','get-content':'cat','copy-item':'cp','move-item':'mv','remove-item':'rm','write-output':'echo','clear-host':'clear'
-};
-const psExamples=[['Get-Location','Get-ChildItem'],['New-Item -ItemType Directory -Name practice','Set-Location practice'],['Write-Output hello > note.txt','Get-Content note.txt'],['Copy-Item notes.txt notes-backup.txt','Get-ChildItem'],['Select-String -Pattern Linux -Path notes.txt']];
-const linuxReference='Navigation: pwd, ls, cd, tree · Files: mkdir, touch, cat, cp, mv, rm · Text: echo, grep, head, tail, wc, sort, uniq · Inspect: whoami, stat, du, find · Use > to write and | to pipe.';
-const psReference='PowerShell practice: Get-Location, Get-ChildItem, Set-Location, New-Item -ItemType Directory -Name practice, Get-Content, Copy-Item, Move-Item, Remove-Item, Write-Output, Select-String -Pattern Linux -Path notes.txt.';
-function quick(){
- const panel=el('code-quick');panel.replaceChildren();if(track==='python')return;
- const t=track==='terraform',ps=!t&&el('code-shell').value==='ps';
- el('code-shell-tip').textContent=ps?psReference:linuxReference;
- let list=t?['terraform fmt','terraform validate','terraform plan','terraform apply','terraform output']:ps?[...psExamples[index],'help']:goal().slice(3).concat('help');
- for(const value of list){const b=document.createElement('button');b.className='button secondary';b.type='button';b.textContent=value;b.onclick=()=>{const input=el('code-cli');input.value=value;input.focus();};panel.append(b);}
- if(t&&engine.pending){
-  for(const value of ['yes','no']){const b=document.createElement('button');b.type='button';b.className='button secondary';b.textContent=value==='yes'?'Confirm apply':'Cancel apply';b.onclick=()=>command(value);panel.append(b);}
- }
- if(!t)el('code-linux-files').textContent='Folder: '+linux.run('pwd').text+' · '+(linux.run('ls').text.trim().replace(/\s+/g,' · ')||'(empty)');
-}
-function normalize(value){
- if(el('code-shell').value!=='ps')return value;
- const a=tf.tokens(value), cmd=a.shift()?.toLowerCase();
- if(cmd==='new-item'){
-  const item=a.findIndex(x=>x.toLowerCase()==='-itemtype'), name=a.findIndex(x=>x.toLowerCase()==='-name');
-  if(item<0||name<0||!a[name+1]||!['directory','file'].includes(a[item+1]?.toLowerCase()))throw Error('Try New-Item -ItemType Directory -Name practice.');
-  return (a[item+1].toLowerCase()==='directory'?'mkdir ':'touch ')+JSON.stringify(a[name+1]);
- }
- if(cmd==='select-string'){
-  const pattern=a.findIndex(x=>x.toLowerCase()==='-pattern'), path=a.findIndex(x=>x.toLowerCase()==='-path');
-  if(pattern<0||path<0||!a[pattern+1]||!a[path+1])throw Error('Try Select-String -Pattern Linux -Path notes.txt.');
-  return 'grep '+JSON.stringify(a[pattern+1])+' '+JSON.stringify(a[path+1]);
- }
- if(!psMap[cmd])throw Error('That PowerShell command is outside this lab. Type help for supported commands.');
- return [psMap[cmd],...a.map(v=>['>','>>','|'].includes(v)?v:JSON.stringify(v.replace(/\\/g,'/')))].join(' ');
-}
-function append(line){output.textContent=(output.textContent+'\n'+line).slice(-16000);output.scrollTop=output.scrollHeight;}
-function shell(value){
- if(value.toLowerCase()==='help'){append(el('code-shell').value==='ps'?psReference:linuxReference);return;}
- try{
-  const raw=normalize(value),args=tf.tokens(raw),cmd=args[0];
-  if(['git','terraform','nano','code'].includes(cmd)||args.includes('|')&&args.some(v=>['git','terraform','nano','code'].includes(v)))throw Error('Use the command reference for this Linux lab.');
-  const result=linux.run(raw);
-  if(result.clear)output.textContent='';else append('$ '+value+(result.text?'\n'+result.text:''));
-  if(result.ok&&!result.edit){
-   if(['pwd','ls'].includes(cmd))evidence.add(cmd);
-   if(cmd==='cat'&&args[1]&&!args.includes('>')&&!args.includes('>>')&&linux.path(args[1])==='note.txt'&&linux.git.files['note.txt']?.trim()==='hello')evidence.add('read-note');
-   if(cmd==='grep'&&args[1]==='Linux'&&args[2]&&linux.path(args[2])==='notes.txt'&&result.text.includes('Linux'))evidence.add('match');
+function runCommand(value){
+ let result;const t=track==='terraform';
+ if(t){
+  engine.config=names.map(n=>files[n]).join('\n');
+  result=engine.run(value);
+  if(/^terraform fmt$/.test(value)&&result.exitCode===0){
+   // Keep files separate: format each independently using the simulator's formatter.
+   for(const n of names){const temp=new tf.CloudTerraform();temp.config=files[n];if(temp.run('terraform fmt').exitCode===0)files[n]=temp.config;}
+   saved.tf=files;remember();selectFile(file);
   }
- }catch(error){append('$ '+value+'\n'+error.message);}
- quick();
-}
-function command(value){
- if(track==='linux'){shell(value);return;}
- try{
-  if(engine.config!==combined()&&engine.pending){engine.pending=null;output.textContent='Configuration changed. Preview a new plan before applying.';quick();return;}
-  const isFmt=/^terraform fmt$/.test(value);
-  engine.config=combined();const result=engine.run(value);
-  output.textContent=result.clear?'':result.text;
-  if(result.exitCode===0&&/^terraform plan(?:\s|$)/.test(value))planned=combined();
-  if(result.exitCode===0&&isFmt){files=split(engine.config);record().files=files;save();selectFile(file);planned=null;}
- }catch(error){output.textContent=String(error.message||error);}
- quick();
-}
-for(const lang of ['python','terraform','linux'])el('code-'+lang).onclick=()=>{if(track!==lang){track=lang;index=0;refresh();}};
-el('code-shell').onchange=quick;
-el('code-files').querySelectorAll('button').forEach(b=>b.onclick=()=>selectFile(b.dataset.file));
-selector.onchange=()=>{index=Number(selector.value);refresh();};
-editor.oninput=()=>{if(track==='terraform'){files[file]=editor.value;record().files=files;}else record().source=editor.value;save();status.textContent='';};
-el('code-reset').onclick=()=>{if(!confirm('Reset this workspace to its starter? Your earned points will stay.'))return;delete record().source;delete record().files;save();refresh();};
-el('code-next').onclick=()=>{if(index<goals[track].length-1){index++;refresh();selector.focus();}};
-el('code-stop').onclick=()=>{cancel();output.textContent='Python stopped.';};
-el('code-run').onclick=()=>track==='python'?python(false):command('terraform plan');
-el('code-check').onclick=()=>{
- if(track==='python'){python(true);return;}
- if(track==='linux'){
-  const passed=[()=>evidence.has('pwd')&&evidence.has('ls'),()=>linux.cwd==='practice',()=>linux.git.files['note.txt']?.trim()==='hello'&&evidence.has('read-note'),()=>typeof linux.git.files['notes-backup.txt']==='string'&&linux.git.files['notes-backup.txt']===linux.git.files['notes.txt']&&evidence.has('ls'),()=>evidence.has('match')][index]();
-  if(passed)complete();else status.textContent='Not quite there. Follow the steps above and try the hint.';
-  return;
+ }else{
+  if(value==='help')result={ok:true,text:'Navigation: pwd, ls, cd, tree. Files: mkdir, touch, cat, cp, mv, rm. Text: echo, grep, head, tail, wc, sort, uniq. Inspect: whoami, stat, du, find. Use > to write and | to pipe.'};
+  else if(/(^|\|\s*)(terraform|git|nano|code)\b/.test(value))result={ok:false,text:'Use this terminal for Linux commands. Type help for examples.'};
+  else result=linux.run(value);
  }
- try{engine.config=combined();if(planned===engine.config&&goal()[4](engine.model(),engine))complete();else status.textContent='Follow the steps, preview the plan, and apply if required.';}
- catch(error){output.textContent=error.message;}
+ if(result.clear)output.textContent='';
+ else output.textContent=(output.textContent+'\n\n$ '+value+(result.text?'\n'+result.text:'')).slice(-16000);
+ output.scrollTop=output.scrollHeight;
+ if(!t)el('code-linux-files').textContent='Working directory: '+linux.run('pwd').text;
+ status.textContent=result.ok===false||result.exitCode===1?'Read the message above and try again.':'';
+}
+function setExample(i){index=i;refresh();}
+for(const k of ['python','terraform','linux'])el('code-'+k).onclick=()=>{if(track===k)return;track=k;index=0;refresh(true);};
+selector.onchange=()=>setExample(Number(selector.value));el('code-prev').onclick=()=>setExample(index-1);el('code-next').onclick=()=>setExample(index+1);
+el('code-files').querySelectorAll('button').forEach(b=>b.onclick=()=>selectFile(b.dataset.file));
+editor.oninput=()=>{
+ if(track==='python'){saved.py??={};saved.py[pyKey()]=editor.value;}
+ else if(track==='terraform'){files[file]=editor.value;saved.tf=files;engine.pending=null;}
+ remember();
 };
-const cli=el('code-cli');
-el('code-command').onsubmit=e=>{e.preventDefault();const value=cli.value.trim();if(track!=='python'&&value){history.push(value);if(history.length>50)history.shift();cursor=history.length;command(value);cli.value='';}};
-cli.onkeydown=e=>{if(['ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();cursor=Math.max(0,Math.min(history.length,cursor+(e.key==='ArrowUp'?-1:1)));cli.value=history[cursor]||'';}};
+el('code-reset').onclick=()=>{
+ if(!confirm('Reset this track’s workspace?'))return;
+ if(track==='python')delete saved.py?.[pyKey()];
+ if(track==='terraform'){delete saved.tf;files=Object.fromEntries(names.map(n=>[n,'']));engine=new tf.CloudTerraform();}
+ if(track==='linux')linux=new tf.Workspace();
+ history=[];cursor=0;remember();refresh(true);
+};
+el('code-run').onclick=python;el('code-stop').onclick=()=>{cancel();output.textContent='Python stopped.';};
+el('code-command').onsubmit=e=>{e.preventDefault();const value=cli.value.trim();if(track==='python'||!value)return;history.push(value);if(history.length>60)history.shift();cursor=history.length;runCommand(value);cli.value='';cli.focus();};
+cli.onkeydown=e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();cursor=Math.max(0,Math.min(history.length,cursor+(e.key==='ArrowUp'?-1:1)));cli.value=history[cursor]||'';}};
 document.querySelector('a[href="#consulting-inquiry"]').onclick=e=>{e.preventDefault();el('consulting-inquiry').scrollIntoView({block:'start'});el('consult-company').focus({preventScroll:true});};
-addEventListener('hashchange',()=>{if(location.hash!=='#code'&&pending){cancel();output.textContent='Run your code to see results.';}});
-refresh();
+addEventListener('hashchange',()=>{if(location.hash!=='#code'&&pending){cancel();output.textContent='Run the script to see its output here.';}});
+newWorkspace();refresh(true);
 })();
 </script>
+
 
 <style>
 #code-workbench [hidden]{display:none!important}
@@ -4083,15 +4040,28 @@ refresh();
 #code-quick .button,#code-files .button{padding:7px 12px;min-height:42px}
 #code-stdin textarea{min-height:58px;margin:0}#code-stdin{margin:0 0 12px}
 #code-workbench[data-track=linux] #code-output{min-height:220px}
-.consulting-mode{background:radial-gradient(ellipse at 85% 10%,#39115c 0,transparent 52%),#170c2a}
-.consulting-mode .site-header,.consulting-mode footer{background:#1c1030;border-color:#553276}
-.consulting-mode .site-header .brand{color:#d6b6ff}
-.consulting-mode .linform-brand-mark path{stroke:#c886ff}
-.consulting-mode .linform-brand-mark{filter:drop-shadow(0 0 8px #8f4ed8)}
-.consulting-mode .site-header nav a[aria-current=page]{background:#472463;color:#f0dfff}
-.consulting-mode .lf-consult{background:radial-gradient(ellipse at top right,#371752,transparent 65%),#221236;border-color:#6b3c91}
-.consulting-mode .lf-consult article,.consulting-mode #consulting-inquiry{background:#28173d;border-color:#633888}
-.consulting-mode #consulting-inquiry :is(input,select,textarea){background:#201131;border-color:#6b478c}
+</style>
+
+<style>
+#course-grid .course-icon{background:#fff;border-color:transparent}
+#course-grid .course-icon img{object-fit:contain}
+[data-learning=gcp]{--learning-color:#ff9a9d;--learning-soft:#982d361d;--learning-border:#b44e5377}
+#course-dialog[data-learning=gcp] .lesson-nav[aria-current=step],#course-dialog[data-learning=gcp] .challenge{background:#572532;border-color:#b65a65}
+#course-dialog[data-learning=gcp] .lesson-sidebar,#course-dialog[data-learning=gcp] .dialog-header{background:#251825}
+#course-dialog[data-learning=gcp] .lesson-content{background:#211822}
+#code-example-text{overflow:auto;background:#0a101a;color:var(--code-accent);border-left:3px solid var(--code-accent);padding:12px 16px;white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.6 ui-monospace,monospace;margin:12px 0}
+#code-explanation{color:#c3d3ee;margin-bottom:12px}
+#code-workbench #code-command{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
+#code-command label{grid-column:1/-1;margin:0}#code-cli{margin:0;min-width:0;font-family:ui-monospace,monospace}
+#code-workbench[data-track=linux] .lf-code-panels{display:flex;flex-direction:column-reverse}.lf-code-panels label[for=code-output]{cursor:default}
+.consulting-mode{background:linear-gradient(155deg,#28123f,#180c2b 70%);background-attachment:fixed}
+.consulting-mode .site-header,.consulting-mode footer,.consulting-mode .lf-consult,.consulting-mode #consulting-inquiry{background:transparent;box-shadow:none;border:0;border-radius:0}
+.consulting-mode .site-header nav a[aria-current=page]{background:transparent;color:#e2c6ff;text-decoration:underline;text-underline-offset:6px}
+.consulting-mode .lf-consult{padding-inline:0}
+.consulting-mode .lf-consult article{background:none;box-shadow:none;border:0;border-radius:0;border-top:1px solid #765499;padding:18px 0}
+.consulting-mode #consulting-inquiry{padding:24px 0 0;border-top:1px solid #765499}
+.consulting-mode #consulting-inquiry :is(input,select,textarea){background:#231537;border-color:#6b478c}
+.consulting-mode footer{border-top:1px solid #553276}
 </style>
 
 </body>
