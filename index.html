@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b101b">
 <meta name="description" content="Learn AWS, Azure, Google Cloud, Python, Terraform, Linux, and Git with Linform. Practical lessons, commands, and hands-on projects with a real engineer.">
 <title>Linform | Learn by building</title>
 
@@ -450,7 +451,7 @@ footer { flex-wrap: wrap; gap: 18px; }
       <h1 id="hero-title">Stop memorizing.<br><span class="gradient">Start building.</span></h1>
       <p>Building a better tech world by creating true engineers</p>
     </div>
-    <div class="home-actions"><a class="button" href="#learn">Start learning</a><a class="button" href="#code-linux">Run your first command</a><a class="button home-premium" href="#premium">Explore Premium</a><a class="button home-consulting" href="#consulting">Cloud consulting for businesses</a></div>
+    <div class="home-actions"><div class="home-action-row"><a class="button home-command" href="#code-linux">Run your first command</a><a class="button secondary" href="#learn">Start learning</a></div><div class="home-action-row"><a class="button home-premium" href="#premium">Explore Premium</a><a class="button home-consulting" href="#consulting">Cloud consulting for businesses</a></div></div>
   </section>
 
   <section class="section case" aria-labelledby="case-title">
@@ -2595,6 +2596,8 @@ No installation or cloud account needed.</pre></div>
     active=key;
     document.body.classList.toggle("premium-mode",key==="premium");
     document.body.classList.toggle("consulting-mode",key==="consulting");
+    document.documentElement.classList.toggle("consulting-canvas",key==="consulting");
+    document.querySelector('meta[name="theme-color"]').content=key==="consulting"?"#211033":"#0b101b";
     for (const [name,view] of Object.entries(views)) view.hidden=name!==key;
     for (const link of nav.children) {
       if(link.dataset.view===key) link.setAttribute('aria-current','page');
@@ -4090,11 +4093,16 @@ newWorkspace();refresh(true);openCodeRoute();
 </style>
 
 <style>
-.home-actions{gap:12px}
+.home-actions,.home-action-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.home-actions .home-command{background:linear-gradient(115deg,#4d61cc,#7553ca);box-shadow:0 8px 24px #7065df42}
+html{background-color:#0b101b}
+html.consulting-canvas{background-color:#211033}
+body{min-height:100vh;min-height:100dvh;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+@media(pointer:coarse){body.consulting-mode{background-attachment:scroll}}
 .home-actions .button{border-radius:999px;text-align:center}
 .home-actions .home-premium{background:linear-gradient(125deg,#173d87,#2865e6);border-color:#709dff;color:#fff}
 .home-actions .home-consulting{background:linear-gradient(125deg,#28123f,#472463);border-color:#9365b1;color:#f6ebff}
-@media(max-width:520px){.home-actions .button{flex:1 1 155px;justify-content:center}}
+@media(max-width:760px){.home-actions{display:grid;gap:10px}.home-action-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px}.home-actions .button{min-height:48px;padding:10px 8px;font-size:13px;line-height:1.3}}
 </style>
 </body>
 </html>
