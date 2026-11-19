@@ -257,16 +257,13 @@ input, select, textarea {
   margin-bottom: 18px;
 }
 textarea { min-height: 120px; resize: vertical; }
-.monogram {
-  height: 250px;
-  background: radial-gradient(circle, #51407c60, transparent 70%), var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+.mission-mark {
+  min-height: clamp(140px, 22vw, 250px);
   display: grid;
   place-items: center;
-  font: 600 95px "Manrope", sans-serif;
-  color: #b6b3ff;
+  background: radial-gradient(ellipse, #51407c55, transparent 72%);
 }
+.mission-mark svg { width: min(76%, 300px); height: auto; }
 .email-link { color: #b9c8ff; text-decoration: underline; overflow-wrap: anywhere; }
 .form-note, .small-note { font-size: 11px; color: var(--muted); }
 footer {
@@ -506,13 +503,21 @@ footer { flex-wrap: wrap; gap: 18px; }
     </section>
 
     <section class="section about-grid" id="about">
-      <div class="monogram" aria-hidden="true">li.</div>
+      <div class="mission-mark" aria-hidden="true">
+        <svg viewBox="0 0 96 44" fill="none" focusable="false">
+          <path d="M13 26H10a7 7 0 0 1-1-14 10 10 0 0 1 19-3 7.5 7.5 0 0 1 9 7"
+          stroke="#81b4ff" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M15 32C32 35 46 25 48 8M40 13l8-5 5 8"
+          stroke="#ad96ff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <g transform="translate(58 14)" stroke="#81b4ff" stroke-width="1.3" stroke-linejoin="round"><path d="M8.5 1h3l.5 2.4 1.8.8 2.1-1.3 2.2 2.2-1.3 2.1.8 1.8 2.4.5v3l-2.4.5-.8 1.8 1.3 2.1-2.2 2.2-2.1-1.3-1.8.8-.5 2.4h-3l-.5-2.4-1.8-.8-2.1 1.3-2.2-2.2 1.3-2.1-.8-1.8-2.4-.5v-3l2.4-.5.8-1.8-1.3-2.1 2.2-2.2 2.1 1.3 1.8-.8z"/><circle cx="10" cy="11" r="3.3"/></g>
+          <g transform="translate(78 3) scale(.7)" stroke="#ad96ff" stroke-width="1.45" stroke-linejoin="round"><path d="M8.5 1h3l.5 2.4 1.8.8 2.1-1.3 2.2 2.2-1.3 2.1.8 1.8 2.4.5v3l-2.4.5-.8 1.8 1.3 2.1-2.2 2.2-2.1-1.3-1.8.8-.5 2.4h-3l-.5-2.4-1.8-.8-2.1 1.3-2.2-2.2 1.3-2.1-.8-1.8-2.4-.5v-3l2.4-.5.8-1.8-1.3-2.1 2.2-2.2 2.1 1.3 1.8-.8z"/><circle cx="10" cy="11" r="3.3"/></g>
+        </svg>
+      </div>
       <div>
-        <span class="kicker">03 / Meet the founder</span>
-        <h2>Built by a fellow learner.</h2>
-        <p>I’m Alexis Espinosa, a cloud engineer and the founder of Linform. I learn best by doing, so I built a place to practice—and share what I learn.</p>
-        <p>My goal is to help people make sense of today’s cloud technology. Linform breaks AWS, Azure, Google Cloud, Linux, and Terraform into practical steps so you can build understanding and confidence, one project at a time.</p>
-        <p>Linform itself runs on AWS and deploys through GitHub Actions. It’s a project I’m building and improving alongside you.</p>
+        <span class="kicker">03 / The Linform mission</span>
+        <h2>Build great engineers. Make tech better.</h2>
+        <p>Cloud skills are a foundation for modern technology. Linform helps you build those skills through hands-on practice so you can become an engineer who builds reliable systems and makes technology work better for the people who use it.</p>
+        <p>I’m Alexis Espinosa, a cloud engineer and Linform’s founder. I built Linform so you can learn by doing, from your first command to your first real project.</p>
         <span class="badge">Dallas–Fort Worth</span>
         <span class="badge">English & Spanish</span>
       </div>
