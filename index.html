@@ -414,6 +414,19 @@ footer { flex-wrap: wrap; gap: 18px; }
 #tf-resource-count { display:inline-block; margin-inline-start:8px; white-space:nowrap; }
 .build-results h3 + p { margin-top:8px; }
 @media(pointer:coarse){.site-view :is(h1,h2)[tabindex="-1"]:focus:not(:focus-visible){outline:none}}
+/* Cloud Brief */
+.brief-hero,.brief-preview,.brief-story{border:1px solid #454779;border-radius:18px;background:#111a2e;padding:clamp(20px,4vw,38px)}
+.brief-hero,.brief-preview{background:radial-gradient(ellipse at top right,#352661,transparent 65%),#111a2e}
+.brief-hero h1{font-size:clamp(40px,7vw,78px);margin:8px 0}
+.brief-preview{margin:22px 0;display:flex;gap:18px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.brief-preview h2,.brief-story h2{font-size:clamp(22px,3vw,30px);margin:8px 0}
+.brief-preview p{margin:0}
+.brief-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px}
+.brief-story{display:flex;flex-direction:column;padding:clamp(18px,2.3vw,30px)}
+.brief-story h3{font-size:15px;color:#c7bbff;margin:14px 0 3px}
+.brief-story p{margin:0 0 8px}
+.brief-actions{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:auto;padding-top:14px}
+@media(max-width:850px){.brief-grid{grid-template-columns:1fr}}
 </style>
 <style>
 </style>
@@ -475,6 +488,49 @@ footer { flex-wrap: wrap; gap: 18px; }
   </section>
 
   <main>
+    <section id="cloud-brief" class="section" aria-labelledby="cloud-brief-title">
+      <div class="brief-hero">
+        <span class="kicker">Linform editorial · Issue 01</span>
+        <h1 id="cloud-brief-title">Cloud Brief</h1>
+        <p>Cloud updates, the engineering behind them, and one thing to try.</p>
+        <a class="text-link" href="#learn">Back to cloud learning</a>
+      </div>
+      <div class="brief-grid">
+        <article class="brief-story">
+          <span class="kicker">AWS · Release rewind</span>
+          <h2>What if two jobs update the same file?</h2>
+          <h3>What happened</h3>
+          <p>AWS expanded S3 conditional writes to copy operations in October 2025. A copy can now check whether the destination object exists or still matches the ETag you expect.</p>
+          <h3>Why engineers care</h3>
+          <p>Two deployment jobs can publish to the same object. A condition lets your job stop when another job has already changed the destination.</p>
+          <h3>Try it on Linform</h3>
+          <p>Use the Linux lab to make two copies of a file. Change one, then use <code>cat</code> to read both copies and see what a stale copy would overwrite.</p>
+          <div class="brief-actions"><a class="text-link" href="#code-linux">Open Linux lab</a><a class="text-link" href="https://aws.amazon.com/about-aws/whats-new/2025/10/amazon-s3-conditional-write-functionality-copy-operations/">AWS announcement</a></div>
+        </article>
+        <article class="brief-story">
+          <span class="kicker">Reliability · Field note</span>
+          <h2>Would your backup pass a restore test?</h2>
+          <h3>The scenario</h3>
+          <p>A backup job reports success. Then a file disappears, and nobody knows which copy to restore or how to check it.</p>
+          <h3>Why engineers care</h3>
+          <p>A restore drill gives you evidence that the backup contains what you need and shows how long recovery actually takes.</p>
+          <h3>Try it on Linform</h3>
+          <p>In the Linux lab, copy a practice file to a backup folder, then restore it under a new name. Compare the contents before calling the drill done.</p>
+          <div class="brief-actions"><a class="text-link" href="#code-linux">Practice a restore</a></div>
+        </article>
+        <article class="brief-story">
+          <span class="kicker">Infrastructure as code · Lab note</span>
+          <h2>Read the plan before you apply</h2>
+          <h3>The scenario</h3>
+          <p>A small Terraform edit can lead to a bigger infrastructure change than you expected.</p>
+          <h3>Why engineers care</h3>
+          <p>A plan gives you a chance to spot unexpected changes before they reach a live environment.</p>
+          <h3>Try it on Linform</h3>
+          <p>Open Code Lab, choose Terraform, and follow the examples from <code>main.tf</code> to the simulated <code>terraform plan</code>. Explain the proposed changes in one sentence before you move on.</p>
+          <div class="brief-actions"><a class="text-link" href="#code-terraform">Open Terraform lab</a></div>
+        </article>
+      </div>
+    </section>
     <section class="section" id="courses">
       <div class="section-heading">
         <div>
@@ -2533,7 +2589,7 @@ No installation or cloud account needed.</pre></div>
   accountLink.textContent = 'Sign in ↗';
   header.append(accountLink);
   const views = {};
-  const names = {home:'Home',learn:'Cloud',practice:'Skills',code:'Code',consulting:'Consulting',certifications:'Certifications',about:'About',contact:'Contact',premium:'Premium',account:'My account',terms:'Terms of use',privacy:'Privacy Policy'};
+  const names = {home:'Home',learn:'Cloud',brief:'Cloud Brief',practice:'Skills',code:'Code',consulting:'Consulting',certifications:'Certifications',about:'About',contact:'Contact',premium:'Premium',account:'My account',terms:'Terms of use',privacy:'Privacy Policy'};
   for (const [key,name] of Object.entries(names)) {
     const view = document.createElement('div');
     view.id = 'view-' + key;
@@ -2558,7 +2614,14 @@ No installation or cloud account needed.</pre></div>
     link.append(label,heading,text); homeLinks.append(link);
   }
   views.home.append(homeLinks);
-  views.learn.append(document.getElementById('courses'));
+  const briefPreview=document.createElement('aside');
+  briefPreview.className='brief-preview';
+  briefPreview.innerHTML='<div><span class="kicker">Latest from Cloud Brief · Issue 01</span><h2>What if two jobs update the same file?</h2><p>An AWS update, a restore drill, and a Terraform habit worth building.</p></div><a class="button secondary" href="#brief">Read the Cloud Brief</a>';
+  views.home.append(briefPreview);
+  const briefLink=briefPreview.cloneNode(true);
+  briefLink.querySelector('h2').textContent='Cloud news you can practice';
+  views.learn.append(document.getElementById('courses'),briefLink);
+  views.brief.append(document.getElementById('cloud-brief'));
   views.code.append(document.getElementById('linform-code'));
   views.consulting.append(document.getElementById('linform-consulting'));
   document.getElementById('lab-command-reference').append(document.getElementById('commands'));
@@ -2582,11 +2645,11 @@ No installation or cloud account needed.</pre></div>
     const link=document.createElement('a'); link.href='#'+key; link.textContent=names[key];
     link.dataset.view=key; nav.append(link);
   }
-  const aliases = {'code-linux':'code',skills:'practice',cloud:'learn',courses:'learn',commands:'practice',terraform:'practice',git:'practice','linux-lab':'practice','student-account':'account'};
+  const aliases = {'code-linux':'code','code-terraform':'code',skills:'practice',cloud:'learn',courses:'learn',commands:'practice',terraform:'practice',git:'practice','linux-lab':'practice','student-account':'account'};
   document.querySelector('.brand').href='#home';
   for (const link of document.querySelectorAll('a[href^="#"]')) {
     const target=link.getAttribute('href').slice(1);
-    if (aliases[target] && !['terraform','git','code-linux'].includes(target)) link.setAttribute('href','#'+aliases[target]);
+    if (aliases[target] && !['terraform','git','code-linux','code-terraform'].includes(target)) link.setAttribute('href','#'+aliases[target]);
   }
   let active, pointerNavigation=false;
   document.addEventListener("pointerdown",()=>{pointerNavigation=true;},true);
@@ -2603,7 +2666,7 @@ No installation or cloud account needed.</pre></div>
     document.querySelector('meta[name="theme-color"]').content=key==="consulting"?"#211033":"#0b101b";
     for (const [name,view] of Object.entries(views)) view.hidden=name!==key;
     for (const link of nav.children) {
-      if(link.dataset.view===key) link.setAttribute('aria-current','page');
+      if(link.dataset.view===key || (key==='brief' && link.dataset.view==='learn')) link.setAttribute('aria-current','page');
       else link.removeAttribute('aria-current');
     }
     document.title=key==='home' ? 'Linform | Learn by building' : names[key]+' | Linform';
@@ -4038,7 +4101,7 @@ el('code-screen').addEventListener('click',e=>{if(track==='linux'&&e.target.id==
 cli.onkeydown=e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();cursor=Math.max(0,Math.min(history.length,cursor+(e.key==='ArrowUp'?-1:1)));cli.value=history[cursor]||'';}};
 document.querySelector('a[href="#consulting-inquiry"]').onclick=e=>{e.preventDefault();el('consulting-inquiry').scrollIntoView({block:'start'});el('consult-company').focus({preventScroll:true});};
 function openCodeRoute(){
- if(location.hash==='#code-linux'){track='linux';index=0;refresh(true);return;}
+ if(['#code-linux','#code-terraform'].includes(location.hash)){if(pending)cancel();track=location.hash.slice(6);index=0;refresh(true);return;}
  if(location.hash!=='#code'&&pending){cancel();output.textContent='Run the script to see its output here.';}
 }
 addEventListener('hashchange',openCodeRoute);
