@@ -7,6 +7,10 @@
 <meta name="description" content="Learn AWS, Azure, Google Cloud, Python, Terraform, Linux, and Git with Linform. Practical lessons, commands, and hands-on projects with a real engineer.">
 <title>Linform | Learn by building</title>
 
+<script>
+document.documentElement.classList.add('route-loading');
+document.addEventListener('DOMContentLoaded', () => document.documentElement.classList.remove('route-loading'), {once:true});
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
 
@@ -24,6 +28,8 @@
 }
 
 * { box-sizing: border-box; }
+/* The router assembles the views from the source sections on first load. */
+.route-loading main,.route-loading header,.route-loading footer { visibility:hidden; }
 html { scroll-behavior: smooth; scroll-padding-top: 90px; }
 body {
   margin: 0;
@@ -2802,7 +2808,7 @@ No installation or cloud account needed.</pre></div>
     if (changed && focus) {
       const heading=views[key].querySelector('h1,h2');
       if(heading && !pointerNavigation) { heading.tabIndex=-1; heading.focus({preventScroll:true}); }
-      window.scrollTo({top:0,behavior:'auto'});
+      window.scrollTo({top:0,behavior:'instant'});
     }
   }
   accountLink.addEventListener('click',event=>{
@@ -2819,7 +2825,8 @@ No installation or cloud account needed.</pre></div>
   }
   new MutationObserver(updateAccountLabel).observe(accountStatus,{childList:true,subtree:true});
   window.addEventListener('hashchange',()=>renderRoute(true));
-  renderRoute(); updateAccountLabel();
+  renderRoute();
+  updateAccountLabel();
 })();
 </script>
 
