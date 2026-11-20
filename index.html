@@ -427,6 +427,12 @@ footer { flex-wrap: wrap; gap: 18px; }
 .brief-story p{margin:0 0 8px}
 .brief-actions{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:auto;padding-top:14px}
 @media(max-width:850px){.brief-grid{grid-template-columns:1fr}}
+.career-guide{margin-top:22px;padding:clamp(15px,3vw,24px);border:1px solid #434263;border-radius:14px;background:#11182a}
+.career-guide h3{margin:0 0 6px;font-size:22px}.career-guide p{margin:5px 0 10px}
+.career-guide details{border-top:1px solid #343e56;padding:9px 0}
+.career-guide details:last-child{padding-bottom:0}
+.career-guide summary{cursor:pointer;padding:4px 0;color:#eeeaff;font-weight:700}
+.career-guide summary span{display:inline-block;color:#b9c6e5;font-size:.85em;font-weight:500;margin-left:.5em}
 </style>
 <style>
 </style>
@@ -540,6 +546,31 @@ footer { flex-wrap: wrap; gap: 18px; }
         <p>Choose AWS, Microsoft Azure, or Google Cloud. Learn the services and decisions that matter first.</p>
       </div>
       <div class="course-grid" id="course-grid"></div>
+
+      <aside class="career-guide" aria-labelledby="career-guide-title">
+        <h3 id="career-guide-title">What should I learn first?</h3>
+        <p>Pick AWS, Azure, or Google Cloud based on your interests or the jobs you want. One provider is enough to start. Then choose a role for a suggested order.</p>
+        <details>
+          <summary>Cloud engineer <span>Start with Linux</span></summary>
+          <p><strong>Linux → one cloud → Git → Terraform.</strong> Learn to navigate a server, then understand networking, permissions, and storage in your chosen cloud. Use Git to track changes and Terraform to define resources you can already explain.</p>
+          <p><strong>First task:</strong> Find and read a file in the <a class="text-link" href="#code-linux">Linux lab</a>. Later, <a class="text-link" href="#code-terraform">practice Terraform</a> and explain what the plan will change before applying it.</p>
+        </details>
+        <details>
+          <summary>DevOps engineer <span>Start with Git</span></summary>
+          <p><strong>Git → Linux → one cloud → CI/CD → Terraform.</strong> Learn how teams track changes and how shell commands run in build jobs. Then practice running checks on each push before using Terraform to make infrastructure changes repeatable.</p>
+          <p><strong>First task:</strong> Create a branch, edit a file, and inspect what changed in the <a class="text-link" href="#git">Git lab</a>.</p>
+        </details>
+        <details>
+          <summary>Cloud developer <span>Start with Python</span></summary>
+          <p><strong>Python → Git and Linux → one cloud → CI/CD → Terraform as needed.</strong> Write a small program first. Then learn how to track it, run it, troubleshoot it, and eventually deploy it.</p>
+          <p><strong>First task:</strong> Open the <a class="text-link" href="#code-python">Python lab</a>, change a value in an example, and predict the output before you run it.</p>
+        </details>
+        <details>
+          <summary>Think like an engineer <span>Troubleshooting drill</span></summary>
+          <p><strong>Expected → observed → test → verify.</strong> Describe what should happen, read the actual error, test one explanation at a time, and rerun the original step to verify the fix.</p>
+          <p><strong>Try it:</strong> In the <a class="text-link" href="#code-linux">Linux lab</a>, run <code>cat career-drill.txt</code> before creating that file. Use <code>pwd</code> and <code>ls</code> to check where you are and what’s there. Then run <code>touch career-drill.txt</code> and retry. Can you explain why the second command output is blank instead of showing an error?</p>
+        </details>
+      </aside>
 
     </section>
 
@@ -2645,11 +2676,11 @@ No installation or cloud account needed.</pre></div>
     const link=document.createElement('a'); link.href='#'+key; link.textContent=names[key];
     link.dataset.view=key; nav.append(link);
   }
-  const aliases = {'code-linux':'code','code-terraform':'code',skills:'practice',cloud:'learn',courses:'learn',commands:'practice',terraform:'practice',git:'practice','linux-lab':'practice','student-account':'account'};
+  const aliases = {'code-linux':'code','code-terraform':'code','code-python':'code',skills:'practice',cloud:'learn',courses:'learn',commands:'practice',terraform:'practice',git:'practice','linux-lab':'practice','student-account':'account'};
   document.querySelector('.brand').href='#home';
   for (const link of document.querySelectorAll('a[href^="#"]')) {
     const target=link.getAttribute('href').slice(1);
-    if (aliases[target] && !['terraform','git','code-linux','code-terraform'].includes(target)) link.setAttribute('href','#'+aliases[target]);
+    if (aliases[target] && !['terraform','git','code-linux','code-terraform','code-python'].includes(target)) link.setAttribute('href','#'+aliases[target]);
   }
   let active, pointerNavigation=false;
   document.addEventListener("pointerdown",()=>{pointerNavigation=true;},true);
@@ -4101,7 +4132,7 @@ el('code-screen').addEventListener('click',e=>{if(track==='linux'&&e.target.id==
 cli.onkeydown=e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();cursor=Math.max(0,Math.min(history.length,cursor+(e.key==='ArrowUp'?-1:1)));cli.value=history[cursor]||'';}};
 document.querySelector('a[href="#consulting-inquiry"]').onclick=e=>{e.preventDefault();el('consulting-inquiry').scrollIntoView({block:'start'});el('consult-company').focus({preventScroll:true});};
 function openCodeRoute(){
- if(['#code-linux','#code-terraform'].includes(location.hash)){if(pending)cancel();track=location.hash.slice(6);index=0;refresh(true);return;}
+ if(['#code-linux','#code-terraform','#code-python'].includes(location.hash)){if(pending)cancel();track=location.hash.slice(6);index=0;refresh(true);return;}
  if(location.hash!=='#code'&&pending){cancel();output.textContent='Run the script to see its output here.';}
 }
 addEventListener('hashchange',openCodeRoute);
