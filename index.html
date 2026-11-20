@@ -617,6 +617,18 @@ footer { flex-wrap: wrap; gap: 18px; }
           <g transform="translate(58 14)" stroke="#81b4ff" stroke-width="1.3" stroke-linejoin="round"><path d="M8.5 1h3l.5 2.4 1.8.8 2.1-1.3 2.2 2.2-1.3 2.1.8 1.8 2.4.5v3l-2.4.5-.8 1.8 1.3 2.1-2.2 2.2-2.1-1.3-1.8.8-.5 2.4h-3l-.5-2.4-1.8-.8-2.1 1.3-2.2-2.2 1.3-2.1-.8-1.8-2.4-.5v-3l2.4-.5.8-1.8-1.3-2.1 2.2-2.2 2.1 1.3 1.8-.8z"/><circle cx="10" cy="11" r="3.3"/></g>
           <g transform="translate(78 3) scale(.7)" stroke="#ad96ff" stroke-width="1.45" stroke-linejoin="round"><path d="M8.5 1h3l.5 2.4 1.8.8 2.1-1.3 2.2 2.2-1.3 2.1.8 1.8 2.4.5v3l-2.4.5-.8 1.8 1.3 2.1-2.2 2.2-2.1-1.3-1.8.8-.5 2.4h-3l-.5-2.4-1.8-.8-2.1 1.3-2.2-2.2 1.3-2.1-.8-1.8-2.4-.5v-3l2.4-.5.8-1.8-1.3-2.1 2.2-2.2 2.1 1.3 1.8-.8z"/><circle cx="10" cy="11" r="3.3"/></g>
         </svg>
+        <svg class="mission-engineer" viewBox="0 0 220 124" fill="none" focusable="false" stroke-linecap="round" stroke-linejoin="round">
+          <g stroke="#81b4ff" stroke-width="2.3">
+            <path d="M89 21h93a6 6 0 0 1 6 6v46a6 6 0 0 1-6 6H89a6 6 0 0 1-6-6V27a6 6 0 0 1 6-6Z"/>
+            <path d="M83 67h105m-60 12v12m16-12v12m-23 0h31M27 100h174m-14 0v16"/>
+          </g>
+          <g stroke="#ad96ff" stroke-width="2.5">
+            <path d="m115 38-9 8 9 8m37-16 9 8-9 8m-11-20-10 24"/>
+            <circle cx="47" cy="47" r="12"/>
+            <path d="M25 90v-4c0-11 9-19 20-19h4c9 0 14 4 19 12l6 8h24m-58-8v12a9 9 0 0 0 9 9h26m24-9h15m-60 9v16"/>
+            <path opacity=".55" d="M192 39h10m-5-5v10M20 56h8m-4-4v8m164 28h9"/>
+          </g>
+        </svg>
       </div>
       <div>
         <span class="kicker">03 / The Linform mission</span>
@@ -691,9 +703,23 @@ footer { flex-wrap: wrap; gap: 18px; }
   </div>
 </section>
 <section class="section lf-consult" id="linform-consulting">
+  <div class="consult-intro">
+    <div>
   <span class="kicker">Linform / Cloud consulting</span><h1>Cloud that works<br>for your business.</h1>
   <p class="lf-lede">Get hands-on help building, migrating, or improving cloud infrastructure on AWS, Azure, or Google Cloud.</p>
   <a class="button" href="#consulting-inquiry">Discuss your project</a>
+    </div>
+    <div class="consult-handshake" aria-hidden="true">
+      <svg viewBox="0 0 180 130" fill="none" focusable="false" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="90" cy="65" r="57" stroke="#a890ff" opacity=".17" stroke-dasharray="2 6"/>
+        <path d="M25 92h10m-5-5v10m120-65h12m-6-6v12M44 25h8m-4-4v8" stroke="#ad96ff" stroke-width="1.6" opacity=".75"/>
+        <g transform="translate(22 0) scale(5.6)" stroke-width=".53">
+          <path d="m7 11 2-3 2 1 2-1 2 1.5 2 1.5m-1 3 2-2m-3 3 1 1a1.4 1.4 0 0 1-2 2l-1-1m0 0 1 1a1.4 1.4 0 0 1-2 2l-1-1m0 0 .7.7a1.4 1.4 0 0 1-2 2l-3.6-3.6L4 16" stroke="#81b4ff"/>
+          <path d="m19 16-4-4-2 1.7c-.7.6-1.6.6-2.2 0-.7-.7-.6-1.6 0-2.3l2-2.3A3 3 0 0 1 16 8l2 1 2-1m-13 3-2 5-3-1 2.5-6.5L8 10zm10-1 2 6 3-1-2.5-6.5L16 9l1 1z" stroke="#c4adff"/>
+        </g>
+      </svg>
+    </div>
+  </div>
   <div class="lf-grid">
     <article><h3>Architecture &amp; migration</h3><p>Map your current setup, choose the right services, and plan a rollout with a clear rollback path.</p></article>
     <article><h3>Terraform &amp; CI/CD</h3><p>Make infrastructure repeatable and give your team a deployment process it can own.</p></article>
@@ -4243,6 +4269,12 @@ body{min-height:100vh;min-height:100dvh;padding:env(safe-area-inset-top,0px) env
 .brief-restore li{display:grid;justify-items:center;gap:5px;padding:7px 2px;border-radius:8px;background:#1c2945;color:#b6d3ff;font-size:11px;text-align:center}
 .brief-restore li:nth-child(2){color:#ffb2bd}.brief-restore li:nth-child(3){color:#a9ecca}
 @media(max-width:870px){.hero{grid-template-columns:minmax(0,1fr)}.hero-lab-preview{max-width:500px}}
+.mission-mark{align-content:center;gap:5px;padding-block:10px}
+.mission-mark .mission-engineer{width:min(80%,330px)}
+.consult-intro{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:clamp(12px,4vw,48px);align-items:center}
+.consult-handshake{display:grid;place-items:center;background:radial-gradient(ellipse,#7041a551,transparent 70%)}
+.consult-handshake svg{display:block;width:min(100%,320px);height:auto}
+@media(max-width:720px){.consult-intro{grid-template-columns:1fr}.consult-handshake svg{width:min(62%,230px)}}
 </style>
 </body>
 </html>
