@@ -2676,9 +2676,7 @@ No installation or cloud account needed.</pre></div>
   const accountLink = document.createElement('a');
   accountLink.className = 'button header-account';
   accountLink.href = '#account';
-  accountLink.innerHTML = '<svg class="header-account-mark" viewBox="-2 -2 64 44" fill="none" aria-hidden="true" focusable="false"><path d="M13 26H10a7 7 0 0 1-1-14 10 10 0 0 1 19-3 7.5 7.5 0 0 1 9 7" stroke="#81b4ff" stroke-width="1.8" stroke-linecap="round"/><path d="M15 32C32 35 46 25 48 8M40 13l8-5 5 8" stroke="#ad96ff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><text class="header-account-label" x="21" y="22" text-anchor="middle" textLength="25" lengthAdjust="spacingAndGlyphs" fill="currentColor">Sign in</text></svg>';
-  accountLink.setAttribute('aria-label','Sign in');
-  const accountLinkLabel = accountLink.querySelector('.header-account-label');
+  accountLink.textContent = 'Sign in ↗';
   header.append(accountLink);
   const views = {};
   const names = {home:'Home',learn:'Cloud',brief:'Cloud Brief',practice:'Skills',code:'Code',consulting:'Consulting',certifications:'Certifications',about:'About',contact:'Contact',premium:'Premium',account:'My account',terms:'Terms of use',privacy:'Privacy Policy'};
@@ -2778,11 +2776,7 @@ No installation or cloud account needed.</pre></div>
   const accountStatus=document.getElementById('account-status');
   function updateAccountLabel() {
     const signedIn=!document.getElementById('account-logout').hidden && document.getElementById('account-login').hidden;
-    const label=signedIn?'My account':'Sign in';
-    accountLinkLabel.textContent=label;
-    accountLinkLabel.style.fontSize=signedIn?'5.3px':'7px';
-    accountLinkLabel.setAttribute('textLength',signedIn?'28':'25');
-    accountLink.setAttribute('aria-label',label);
+    accountLink.textContent=signedIn?'My account ↗':'Sign in ↗';
   }
   new MutationObserver(updateAccountLabel).observe(accountStatus,{childList:true,subtree:true});
   window.addEventListener('hashchange',()=>renderRoute(true));
@@ -4551,11 +4545,6 @@ body{min-height:100vh;min-height:100dvh;padding:env(safe-area-inset-top,0px) env
 .found-choices{display:flex;flex-wrap:wrap;gap:8px}.found-choices button{text-align:left}
 .found-choices [data-result=correct]{border-color:#8be0ad;color:#aaf4c8}.found-choices [data-result=retry]{border-color:#f0a5a5;color:#ffc4c4}
 .found-check p{margin:8px 0 0}.found-check p:empty{margin:0}
-.site-header .header-account{position:relative;display:grid;place-items:center;width:clamp(90px,10vw,104px);height:clamp(49px,5.7vw,57px);min-height:44px;padding:0;background:none;color:#fff;border:0;align-self:center;overflow:visible}
-.premium-mode .site-header .header-account{background:none}
-.header-account-mark{display:block;width:100%;height:100%;overflow:visible}
-.header-account-label{font:700 7px system-ui,sans-serif}
-.site-header .header-account:focus-visible{outline:2px solid #e3dcff;outline-offset:2px;border-radius:18px}
 </style>
 </body>
 </html>
