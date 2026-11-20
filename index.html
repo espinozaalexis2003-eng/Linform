@@ -2676,7 +2676,8 @@ No installation or cloud account needed.</pre></div>
   const accountLink = document.createElement('a');
   accountLink.className = 'button header-account';
   accountLink.href = '#account';
-  accountLink.textContent = 'Sign in ↗';
+  accountLink.innerHTML = '<svg class="header-account-mark" viewBox="0 0 142 52" aria-hidden="true" focusable="false"><defs><linearGradient id="header-account-gradient" x2="1" y2=".5"><stop offset="0" stop-color="var(--account-start)"/><stop offset="1" stop-color="var(--account-end)"/></linearGradient></defs><path d="M24 45a17 17 0 0 1-2-34 23 23 0 0 1 40-4 22 22 0 0 1 33 4 16 16 0 0 1 2 34Z" fill="url(#header-account-gradient)"/><path d="M88 46c22 0 38-15 41-37m-10 6 10-6 6 10" fill="none" stroke="var(--account-end)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="header-account-label">Sign in</span>';
+  const accountLinkLabel = accountLink.querySelector('.header-account-label');
   header.append(accountLink);
   const views = {};
   const names = {home:'Home',learn:'Cloud',brief:'Cloud Brief',practice:'Skills',code:'Code',consulting:'Consulting',certifications:'Certifications',about:'About',contact:'Contact',premium:'Premium',account:'My account',terms:'Terms of use',privacy:'Privacy Policy'};
@@ -2776,7 +2777,7 @@ No installation or cloud account needed.</pre></div>
   const accountStatus=document.getElementById('account-status');
   function updateAccountLabel() {
     const signedIn=!document.getElementById('account-logout').hidden && document.getElementById('account-login').hidden;
-    accountLink.textContent=signedIn?'My account ↗':'Sign in ↗';
+    accountLinkLabel.textContent=signedIn?'My account':'Sign in';
   }
   new MutationObserver(updateAccountLabel).observe(accountStatus,{childList:true,subtree:true});
   window.addEventListener('hashchange',()=>renderRoute(true));
@@ -4545,6 +4546,11 @@ body{min-height:100vh;min-height:100dvh;padding:env(safe-area-inset-top,0px) env
 .found-choices{display:flex;flex-wrap:wrap;gap:8px}.found-choices button{text-align:left}
 .found-choices [data-result=correct]{border-color:#8be0ad;color:#aaf4c8}.found-choices [data-result=retry]{border-color:#f0a5a5;color:#ffc4c4}
 .found-check p{margin:8px 0 0}.found-check p:empty{margin:0}
+.site-header .header-account{--account-start:#657fe9;--account-end:#9478e8;position:relative;isolation:isolate;width:clamp(112px,12vw,142px);height:52px;min-height:44px;justify-content:flex-start;padding:0;background:none;color:#fff;border:0;align-self:center}
+.premium-mode .site-header .header-account{--account-start:#1f57d7;--account-end:#377bf6}
+.header-account-mark{width:100%;height:100%;position:absolute;inset:0;z-index:-1}
+.header-account-label{display:block;width:78%;text-align:center;position:relative;top:-1px;line-height:1}
+.site-header .header-account:focus-visible{outline:2px solid #e3dcff;outline-offset:2px;border-radius:18px}
 </style>
 </body>
 </html>
