@@ -468,7 +468,7 @@ footer { flex-wrap: wrap; gap: 18px; }
       <h1 id="hero-title">Stop memorizing.<br><span class="gradient">Start building.</span></h1>
       <p>Building a better tech world by creating true engineers</p>
     </div>
-    <div class="home-actions"><div class="home-action-row"><a class="button home-command" href="#code-linux">Run your first command</a><a class="button secondary" href="#learn">Start learning</a></div><div class="home-action-row"><a class="button home-premium" href="#premium">Explore Premium</a><a class="button home-consulting" href="#consulting">Cloud for businesses</a></div></div>
+    <div class="home-actions"><div class="home-action-row"><a class="button home-command" href="#code-linux">Run your first command</a><a class="button secondary" href="#learn">Pick a cloud provider</a></div><div class="home-action-row"><a class="button home-premium" href="#premium">Explore Premium</a><a class="button home-consulting" href="#consulting">Cloud for businesses</a></div></div>
     </div>
     <figure class="hero-orbit" aria-label="Technologies you can learn on Linform">
       <div class="hero-orbit-core" aria-hidden="true"><svg viewBox="0 0 60 40" fill="none" aria-hidden="true">
@@ -559,31 +559,55 @@ footer { flex-wrap: wrap; gap: 18px; }
     <section class="section" id="courses">
       <div class="section-heading">
         <div>
-          <span class="kicker">01 / Choose your path</span>
+          <span class="kicker">01 / Pick a cloud provider</span>
           <h2>Three clouds. One foundation.</h2>
         </div>
-        <p>Pick one cloud and follow a photo app from its first network request to its first successful upload. Explore diagrams, answer quick checks, and troubleshoot as you go. No cloud account needed.</p>
+        <p>Start with AWS, Azure, or Google Cloud. Follow the photo app through networking, compute, storage, and access. Then choose a role below to find your first Code Lab exercise.</p>
       </div>
       <div class="course-grid" id="course-grid"></div>
 
-      <aside class="career-guide" aria-labelledby="career-guide-title">
-        <h3 id="career-guide-title">What should I learn first?</h3>
-        <p>Pick AWS, Azure, or Google Cloud based on your interests or the jobs you want. One provider is enough to start. Then choose a role for a suggested order.</p>
-        <details>
-          <summary><svg class="career-icon career-linux" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 5h18v14H3z M7 9l3 3-3 3m6 0h4"/></svg>Cloud engineer <span>Start with Linux</span></summary>
-          <p><strong>Linux → one cloud → Git → Terraform.</strong> Learn to navigate a server, then understand networking, permissions, and storage in your chosen cloud. Use Git to track changes and Terraform to define resources you can already explain.</p>
-          <p><strong>First task:</strong> Find and read a file in the <a class="text-link" href="#code-linux">Linux lab</a>. Later, <a class="text-link" href="#code-terraform">practice Terraform</a> and explain what the plan will change before applying it.</p>
-        </details>
-        <details>
-          <summary><svg class="career-icon career-git" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 6v12m10-12v3a3 3 0 0 1-3 3H7 M9 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0 M9 19a2 2 0 1 1-4 0 2 2 0 0 1 4 0 M19 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0"/></svg>DevOps engineer <span>Start with Git</span></summary>
-          <p><strong>Git → Linux → one cloud → CI/CD → Terraform.</strong> Learn how teams track changes and how shell commands run in build jobs. Then practice running checks on each push before using Terraform to make infrastructure changes repeatable.</p>
-          <p><strong>First task:</strong> Create a branch, edit a file, and inspect what changed in the <a class="text-link" href="#code-git">Git lab</a>.</p>
-        </details>
-        <details>
-          <summary><svg class="career-icon career-python" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 7l-5 5 5 5m8-10 5 5-5 5m-2-13-4 16"/></svg>Cloud developer <span>Start with Python</span></summary>
-          <p><strong>Python → Git and Linux → one cloud → CI/CD → Terraform as needed.</strong> Write a small program first. Then learn how to track it, run it, troubleshoot it, and eventually deploy it.</p>
-          <p><strong>First task:</strong> Open the <a class="text-link" href="#code-python">Python lab</a>, change a value in an example, and predict the output before you run it.</p>
-        </details>
+      <aside class="career-guide career-paths" aria-labelledby="career-guide-title">
+        <span class="kicker">02 / Pick a role</span>
+        <h3 id="career-guide-title">What do you want to build?</h3>
+        <p>Choose the role that sounds most interesting. Each path starts with a short exercise you can try in your browser.</p>
+        <p class="role-provider-note" id="role-provider-note" role="status">Choose a provider above to see the lab links here.</p>
+        <div class="role-grid">
+          <details class="role-card" data-first="linux">
+            <summary><span class="role-title">Cloud engineer</span><span class="role-first">Start with Linux</span></summary>
+            <p>Build and operate cloud infrastructure.</p><p class="role-order">Linux → Git → Terraform</p><p>Find a file, read it, and explain what the output tells you.</p>
+            <a class="button secondary role-lab" href="#code-linux">Open Linux lab</a>
+          </details>
+          <details class="role-card" data-first="git">
+            <summary><span class="role-title">DevOps engineer</span><span class="role-first">Start with Git</span></summary>
+            <p>Make releases repeatable and easier to review.</p><p class="role-order">Git → Linux → Docker → CI/CD</p><p>Stage a change, check the diff, and make your first commit.</p>
+            <a class="button secondary role-lab" href="#code-git">Open Git lab</a>
+          </details>
+          <details class="role-card" data-first="python">
+            <summary><span class="role-title">Cloud developer</span><span class="role-first">Start with Python</span></summary>
+            <p>Build apps and understand how they run in the cloud.</p><p class="role-order">Python → Git → Docker</p><p>Change an example value and predict the output before running it.</p>
+            <a class="button secondary role-lab" href="#code-python">Open Python lab</a>
+          </details>
+          <details class="role-card" data-first="docker">
+            <summary><span class="role-title">Platform engineer</span><span class="role-first">Start with Docker</span></summary>
+            <p>Build shared tools that help teams deploy applications.</p><p class="role-order">Docker → Kubernetes → Terraform</p><p>Run a simulated container and check what it reports in its logs.</p>
+            <a class="button secondary role-lab" href="#code-docker">Open Docker lab</a>
+          </details>
+          <details class="role-card" data-first="linux">
+            <summary><span class="role-title">Site reliability engineer</span><span class="role-first">Start with Linux</span></summary>
+            <p>Find out why systems fail and help them recover.</p><p class="role-order">Linux → Docker → Kubernetes</p><p>Run a command on a missing file, read the error, and check the current directory.</p>
+            <a class="button secondary role-lab" href="#code-linux">Open Linux lab</a>
+          </details>
+          <details class="role-card" data-first="terraform">
+            <summary><span class="role-title">Cloud security engineer</span><span class="role-first">Start with Terraform</span></summary>
+            <p>Review access and infrastructure changes before they go live.</p><p class="role-order">Terraform → Linux → Git</p><p>Read a Terraform plan and explain what will change before applying it.</p>
+            <a class="button secondary role-lab" href="#code-terraform">Open Terraform lab</a>
+          </details>
+          <details class="role-card" data-first="python">
+            <summary><span class="role-title">Cloud data engineer</span><span class="role-first">Start with Python</span></summary>
+            <p>Prepare and move data between systems.</p><p class="role-order">Python → Linux → Git</p><p>Use a loop to process a small list, then check the result with a new input.</p>
+            <a class="button secondary role-lab" href="#code-python">Open Python lab</a>
+          </details>
+        </div>
         <details>
           <summary>Think like an engineer <span>Troubleshooting drill</span></summary>
           <p><strong>Expected → observed → test → verify.</strong> Describe what should happen, read the actual error, test one explanation at a time, and rerun the original step to verify the fix.</p>
@@ -1169,6 +1193,17 @@ async function copyText(text, button, statusElement) {
 const providerLogos = {"aws": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KCTxwYXRoIGZpbGw9IiMyNTJmM2UiIGQ9Ik0zNi4zNzkgNTMuNjRjMCAxLjU2LjE2OCAyLjgyNS40NjUgMy43NS4zMzYuOTI2Ljc1OCAxLjkzOCAxLjM0NyAzLjAzMi4yMDcuMzM2LjI5My42NzIuMjkzLjk2OSAwIC40MTgtLjI1NC44NC0uOCAxLjI2MWwtMi42NTMgMS43N2MtLjM3OS4yNS0uNzU4LjM3OS0xLjA5My4zNzktLjQyMiAwLS44NDQtLjIxMS0xLjI2Ni0uNTlhMTMuMjggMTMuMjggMCAwIDEtMS41MTYtMS45OCAzNC4xNTMgMzQuMTUzIDAgMCAxLTEuMzA0LTIuNDg1Yy0zLjI4MiAzLjg3NS03LjQxIDUuODEzLTEyLjM4IDUuODEzLTMuNTM1IDAtNi4zNTUtMS4wMTItOC40MjEtMy4wMzItMi4wNjMtMi4wMjMtMy4xMTQtNC43MTgtMy4xMTQtOC4wODYgMC0zLjU3OCAxLjI2Mi02LjQ4NCAzLjgzMy04LjY3MSAyLjU2Ni0yLjE5MiA1Ljk3Ni0zLjI4NiAxMC4zMTYtMy4yODYgMS40MyAwIDIuOTAyLjEyNSA0LjQ2LjMzNiAxLjU2LjIxMSAzLjE2MS41NDcgNC44NDUuOTI2di0zLjA3NGMwLTMuMi0uNjc2LTUuNDMtMS45OC02LjczNEMyNi4wNjEgMzIuNjMzIDIzLjc4OCAzMiAyMC41NDYgMzJjLTEuNDczIDAtMi45ODguMTY4LTQuNTQ3LjU0N2EzMy40MTYgMzMuNDE2IDAgMCAwLTQuNTQ3IDEuNDMzYy0uNjc2LjI5My0xLjE4LjQ2MS0xLjQ3My41NDctLjI5Ni4wODItLjUwNy4xMjUtLjY3NS4xMjUtLjU5IDAtLjg4My0uNDIyLS44ODMtMS4zMDR2LTIuMDYzYzAtLjY3Ni4wODItMS4xOC4yOTMtMS40NzYuMjEtLjI5My41OS0uNTg2IDEuMTgtLjg4MyAxLjQ3Mi0uNzU4IDMuMjQyLTEuMzkgNS4zMDQtMS44OTUgMi4wNjMtLjU0NyA0LjI1NC0uOCA2LjU3LS44IDUuMDA4IDAgOC42NzIgMS4xMzYgMTEuMDMyIDMuNDEgMi4zMTYgMi4yNzMgMy40OTIgNS43MjYgMy40OTIgMTAuMzU5djEzLjY0Wm0tMTcuMDk0IDYuNDAzYzEuMzg3IDAgMi44Mi0uMjU0IDQuMzM2LS43NTggMS41MTYtLjUwOCAyLjg2My0xLjQzMyA0LTIuNjk1LjY3Mi0uOCAxLjE4LTEuNjg0IDEuNDMtMi42OTUuMjU0LTEuMDEyLjQyMi0yLjIzLjQyMi0zLjY2NXYtMS43NjVhMzQuNDAxIDM0LjQwMSAwIDAgMC0zLjg3MS0uNzE5IDMxLjgxNiAzMS44MTYgMCAwIDAtMy45NjEtLjI1Yy0yLjgyIDAtNC44ODMuNTQ3LTYuMjc0IDEuNjg0LTEuMzg3IDEuMTM2LTIuMDYyIDIuNzM0LTIuMDYyIDQuODQgMCAxLjk4LjUwNCAzLjQ1MyAxLjU1OCA0LjQ2NCAxLjAxMiAxLjA1MSAyLjQ4NSAxLjU1OSA0LjQyMiAxLjU1OVptMzMuODA5IDQuNTQ3Yy0uNzU4IDAtMS4yNjItLjEyNS0xLjU5OC0uNDIyLS4zNC0uMjU0LS42MzMtLjg0LS44ODctMS42NEw0MC43MTUgMjkuOThjLS4yNS0uODQzLS4zOC0xLjM5LS4zOC0xLjY4NyAwLS42NzIuMzM3LTEuMDUgMS4wMTMtMS4wNWg0LjEyNWMuOCAwIDEuMzQ3LjEyNCAxLjY0NC40MjEuMzM2LjI1LjU5Ljg0Ljg0IDEuNjRsNy4wNzQgMjcuODc2IDYuNTctMjcuODc1Yy4yMDgtLjg0LjQ2Mi0xLjM5Ljc5Ny0xLjY0LjM0LS4yNTUuOTMtLjQyMyAxLjY4OC0uNDIzaDMuMzY3Yy44IDAgMS4zNDguMTI1IDEuNjg0LjQyMi4zMzYuMjUuNjMzLjg0LjggMS42NGw2LjY1MyAyOC4yMTIgNy4yODUtMjguMjExYy4yNS0uODQuNTQ3LTEuMzkuODQtMS42NC4zMzYtLjI1NS44ODctLjQyMyAxLjY0NC0uNDIzaDMuOTE0Yy42NzYgMCAxLjA1NS4zMzYgMS4wNTUgMS4wNTEgMCAuMjEtLjA0My40MjItLjA4Ni42NzYtLjA0My4yNTQtLjEyNS41OS0uMjkzIDEuMDVMODAuODAxIDYyLjU3Yy0uMjU0Ljg0LS41NDcgMS4zODctLjg4NyAxLjY0LS4zMzYuMjU1LS44ODMuNDIzLTEuNTk4LjQyM2gtMy42MmMtLjgwMSAwLTEuMzQ4LS4xMy0xLjY4NC0uNDIyLS4zNC0uMjk3LS42MzMtLjg0NC0uODAxLTEuNjg0bC02LjUyNy0yNy4xNi02LjQ4NSAyNy4xMTdjLS4yMS44NDQtLjQ2IDEuMzkxLS44IDEuNjg0LS4zMzcuMjk3LS45MjYuNDIyLTEuNjg0LjQyMlptNTQuMTA1IDEuMTM3Yy0yLjE4NyAwLTQuMzc5LS4yNTQtNi40ODQtLjc1OC0yLjEwNi0uNTA0LTMuNzQ2LTEuMDU1LTQuODQtMS42ODQtLjY3Ni0uMzc5LTEuMTM3LS44LTEuMzA1LTEuMThhMi45MTkgMi45MTkgMCAwIDEtLjI1NC0xLjE4di0yLjE0OGMwLS44ODIuMzM2LTEuMzA0Ljk3LTEuMzA0LjI1IDAgLjUwMy4wNDMuNzU3LjEyOS4yNS4wODIuNjI5LjI1IDEuMDUuNDE4YTIzLjEwMiAyMy4xMDIgMCAwIDAgNC42MzQgMS40NzZjMS42ODMuMzM2IDMuMzI0LjUwNCA1LjAxMS41MDQgMi42NTMgMCA0LjcxNS0uNDY1IDYuMTQ1LTEuMzkgMS40MzMtLjkyNiAyLjE5MS0yLjI3NCAyLjE5MS00IDAtMS4xOC0uMzc5LTIuMTQ1LTEuMTM2LTIuOTQ2LS43NTgtLjgtMi4xOTItMS41MTYtNC4yNTQtMi4xOTFsLTYuMTA2LTEuODk1Yy0zLjA3NC0uOTY5LTUuMzQ4LTIuMzk4LTYuNzM0LTQuMjkzLTEuMzktMS44NTUtMi4xMDYtMy45MTgtMi4xMDYtNi4xMDUgMC0xLjc3LjM4LTMuMzI4IDEuMTM3LTQuNjc2YTEwLjgyOSAxMC44MjkgMCAwIDEgMy4wMzEtMy40NTNjMS4yNjItLjk2NSAyLjY5Ni0xLjY4NCA0LjM4LTIuMTg4IDEuNjgzLS41MDQgMy40NTItLjcxNSA1LjMwNC0uNzE1LjkyNiAwIDEuODk0LjA0MyAyLjgyLjE2OC45NjkuMTI1IDEuODUyLjI5MyAyLjczOC40NjEuODQuMjExIDEuNjQxLjQyMiAyLjM5OS42NzYuNzU4LjI1NCAxLjM0OC41MDQgMS43Ny43NTguNTkuMzM2IDEuMDExLjY3MiAxLjI2MSAxLjA1LjI1NC4zNC4zNzkuODAyLjM3OSAxLjM5MXYxLjk4YzAgLjg4NC0uMzM2IDEuMzQ4LS45NjkgMS4zNDgtLjMzNiAwLS44ODMtLjE3MS0xLjU5Ny0uNTA3LTIuNDAzLTEuMDk0LTUuMDk4LTEuNjQxLTguMDg2LTEuNjQxLTIuMzk5IDAtNC4yOTMuMzc5LTUuNTk4IDEuMTgtMS4zMDkuNzk3LTEuOTggMi4wMi0xLjk4IDMuNzQ2IDAgMS4xOC40MjEgMi4xOTEgMS4yNjEgMi45ODguODQ0LjggMi40MDMgMS42MDIgNC42MzMgMi4zMTZsNS45OCAxLjg5NWMzLjAzMi45NjkgNS4yMiAyLjMxNiA2LjUyNCA0LjA0MyAxLjMwNSAxLjcyNyAxLjkzOCAzLjcwNyAxLjkzOCA1Ljg5NSAwIDEuODEyLS4zOCAzLjQ1My0xLjA5NCA0Ljg4Mi0uNzU4IDEuNDM0LTEuNzcgMi42OTYtMy4wNzQgMy43MDctMS4zMDUgMS4wNTEtMi44NjQgMS44MDktNC42NzIgMi4zNi0xLjg5NS41ODYtMy44NzUuODgzLTYuMDI0Ljg4M1ptMCAwIi8+Cgk8cGF0aCBmaWxsPSIjZjkwIiBkPSJNMTE4IDczLjM0OGMtNC40MzIuMDYzLTkuNjY0IDEuMDUyLTEzLjYyMSAzLjgzMi0xLjIyMy44ODMtMS4wMTIgMi4wNjIuMzM2IDEuODk0IDQuNTA4LS41NDcgMTQuNDQtMS43MjYgMTYuMjEuNTQ3IDEuNzcgMi4yMy0xLjk3NiAxMS42Mi0zLjY2MyAxNS43OS0uNTA0IDEuMjYuNTkgMS43NjkgMS43MjYuOCA3LjQxLTYuMjMxIDkuMzQ4LTE5LjI0MiA3LjgzMi0yMS4xMzctLjc1Ny0uOTI1LTQuMzg4LTEuNzktOC44Mi0xLjcyNnpNMS42MyA3NS44NTljLS45MjcuMTE2LTEuMzQ3IDEuMjM2LS4zNjggMi4xMjEgMTYuNTA4IDE0LjkwMiAzOC4zNTkgMjMuODcyIDYyLjYxMyAyMy44NzIgMTcuMzA1IDAgMzcuNDMtNS40MyA1MS4yODEtMTUuNjYgMi4yNzMtMS42ODguMjk3LTQuMjU0LTIuMDItMy4yMDQtMTUuNTM0IDYuNTctMzIuNDIxIDkuNzctNDcuNzg4IDkuNzctMjIuNzc4IDAtNDQuOC02LjI3My02Mi42NTMtMTYuNjMzLS4zOS0uMjMxLS43NTUtLjMwNC0xLjA2NC0uMjY2eiIvPgo8L3N2Zz4=", "azure": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImF6dXJlLW9yaWdpbmFsLWEiIHgxPSI2MC45MTkiIHkxPSI5LjYwMiIgeDI9IjE4LjY2NyIgeTI9IjEzNC40MjMiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjMTE0QThCIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDY2OUJDIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImF6dXJlLW9yaWdpbmFsLWIiIHgxPSI3NC4xMTciIHkxPSI2Ny43NzIiIHgyPSI2NC4zNDQiIHkyPSI3MS4wNzYiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLW9wYWNpdHk9Ii4zIi8+PHN0b3Agb2Zmc2V0PSIuMDcxIiBzdG9wLW9wYWNpdHk9Ii4yIi8+PHN0b3Agb2Zmc2V0PSIuMzIxIiBzdG9wLW9wYWNpdHk9Ii4xIi8+PHN0b3Agb2Zmc2V0PSIuNjIzIiBzdG9wLW9wYWNpdHk9Ii4wNSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIwIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImF6dXJlLW9yaWdpbmFsLWMiIHgxPSI2OC43NDIiIHkxPSI1Ljk2MSIgeDI9IjExNS4xMjIiIHkyPSIxMjkuNTI1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iIzNDQ0JGNCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzI4OTJERiIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9Ik00Ni4wOS4wMDJoNDAuNjg1TDQ0LjU0MSAxMjUuMTM3YTYuNDg1IDYuNDg1IDAgMDEtNi4xNDYgNC40MTNINi43MzNhNi40ODIgNi40ODIgMCAwMS01LjI2Mi0yLjY5OSA2LjQ3NCA2LjQ3NCAwIDAxLS44NzYtNS44NDhMMzkuOTQ0IDQuNDE0QTYuNDg4IDYuNDg4IDAgMDE0Ni4wOSAweiIgZmlsbD0idXJsKCNhenVyZS1vcmlnaW5hbC1hKSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLjU4NyA0LjQ2OCkgc2NhbGUoLjkxOTA0KSIvPjxwYXRoIGQ9Ik05Ny4yOCA4MS42MDdIMzcuOTg3YTIuNzQzIDIuNzQzIDAgMDAtMS44NzQgNC43NTFsMzguMSAzNS41NjJhNS45OTEgNS45OTEgMCAwMDQuMDg3IDEuNjFoMzMuNTc0eiIgZmlsbD0iIzAwNzhkNCIvPjxwYXRoIGQ9Ik00Ni4wOS4wMDJBNi40MzQgNi40MzQgMCAwMDM5LjkzIDQuNUwuNjQ0IDEyMC44OTdhNi40NjkgNi40NjkgMCAwMDYuMTA2IDguNjUzaDMyLjQ4YTYuOTQyIDYuOTQyIDAgMDA1LjMyOC00LjUzMWw3LjgzNC0yMy4wODkgMjcuOTg1IDI2LjEwMWE2LjYxOCA2LjYxOCAwIDAwNC4xNjUgMS41MTloMzYuMzk2bC0xNS45NjMtNDUuNjE2LTQ2LjUzMy4wMTFMODYuOTIyLjAwMnoiIGZpbGw9InVybCgjYXp1cmUtb3JpZ2luYWwtYikiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC41ODcgNC40NjgpIHNjYWxlKC45MTkwNCkiLz48cGF0aCBkPSJNOTguMDU1IDQuNDA4QTYuNDc2IDYuNDc2IDAgMDA5MS45MTcuMDAySDQ2LjU3NWE2LjQ3OCA2LjQ3OCAwIDAxNi4xMzcgNC40MDZsMzkuMzUgMTE2LjU5NGE2LjQ3NiA2LjQ3NiAwIDAxLTYuMTM3IDguNTVoNDUuMzQ0YTYuNDggNi40OCAwIDAwNi4xMzYtOC41NXoiIGZpbGw9InVybCgjYXp1cmUtb3JpZ2luYWwtYykiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC41ODcgNC40NjgpIHNjYWxlKC45MTkwNCkiLz48L3N2Zz4K", "gcp": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4Ij48cGF0aCBmaWxsPSIjZWE0NTM1IiBkPSJNODAuNiA0MC4zaC40bC0uMi0uMiAxNC0xNHYtLjNjLTExLjgtMTAuNC0yOC4xLTE0LTQzLjItOS41QzM2LjUgMjAuOCAyNC45IDMyLjggMjAuNyA0OGMuMi0uMS41LS4yLjgtLjIgNS4yLTMuNCAxMS40LTUuNCAxNy45LTUuNCAyLjIgMCA0LjMuMiA2LjQuNi4xLS4xLjItLjEuMy0uMSA5LTkuOSAyNC4yLTExLjEgMzQuNi0yLjZoLS4xeiIvPjxwYXRoIGZpbGw9IiM1NTdlYmYiIGQ9Ik0xMDguMSA0Ny44Yy0yLjMtOC41LTcuMS0xNi4yLTEzLjgtMjIuMUw4MCAzOS45YzYgNC45IDkuNSAxMi4zIDkuMyAyMHYyLjVjMTYuOSAwIDE2LjkgMjUuMiAwIDI1LjJINjMuOXYyMGgtLjFsLjEuMmgyNS40YzE0LjYuMSAyNy41LTkuMyAzMS44LTIzLjEgNC4zLTEzLjgtMS0yOC44LTEzLTM2Ljl6Ii8+PHBhdGggZmlsbD0iIzM2YTg1MiIgZD0iTTM5IDEwNy45aDI2LjNWODcuN0gzOWMtMS45IDAtMy43LS40LTUuNC0xLjFsLTE1LjIgMTQuNnYuMmM2IDQuMyAxMy4yIDYuNiAyMC43IDYuNnoiLz48cGF0aCBmaWxsPSIjZjliYzE1IiBkPSJNNDAuMiA0MS45Yy0xNC45LjEtMjguMSA5LjMtMzIuOSAyMi44LTQuOCAxMy42IDAgMjguNSAxMS44IDM3LjNsMTUuNi0xNC45Yy04LjYtMy43LTEwLjYtMTQuNS00LTIwLjggNi42LTYuNCAxNy44LTQuNCAyMS43IDMuOEw2OCA1NS4yQzYxLjQgNDYuOSA1MS4xIDQyIDQwLjIgNDIuMXoiLz48L3N2Zz4="};
 const grid = document.getElementById("course-grid");
 
+let foundationProvider='';
+try { foundationProvider=localStorage.getItem('linform-foundation-provider')||''; } catch {}
+if (!['aws','azure','gcp'].includes(foundationProvider)) foundationProvider='';
+function showFoundationProvider(){
+  const note=document.getElementById('role-provider-note');
+  if(!note)return;
+  const name={aws:'AWS',azure:'Azure',gcp:'Google Cloud'}[foundationProvider];
+  note.textContent=name?'Your cloud: '+name+'. Pick a role, then open its first lab.':'Pick a cloud provider above first, then choose a role to see where to practice.';
+  for(const link of document.querySelectorAll('.role-lab'))link.hidden=!name;
+  for(const card of document.querySelectorAll('#course-grid .course-card'))card.classList.toggle('foundation-chosen',card.dataset.learning===foundationProvider);
+}
 function renderCourses() {
   grid.replaceChildren();
 
@@ -1197,12 +1232,16 @@ function renderCourses() {
     `;
 
     card.querySelector("button").addEventListener("click", () => {
+      foundationProvider=key;
+      try { localStorage.setItem('linform-foundation-provider',key); } catch {}
+      showFoundationProvider();
       const next = course.lessons.findIndex(lesson => !isComplete(lesson.id));
       openCourse(key, next === -1 ? 0 : next);
     });
 
     grid.append(card);
   });
+  showFoundationProvider();
 }
 
 const search = document.getElementById("command-search");
@@ -4545,6 +4584,18 @@ body{min-height:100vh;min-height:100dvh;padding:env(safe-area-inset-top,0px) env
 .found-choices{display:flex;flex-wrap:wrap;gap:8px}.found-choices button{text-align:left}
 .found-choices [data-result=correct]{border-color:#8be0ad;color:#aaf4c8}.found-choices [data-result=retry]{border-color:#f0a5a5;color:#ffc4c4}
 .found-check p{margin:8px 0 0}.found-check p:empty{margin:0}
+.career-paths{background:linear-gradient(145deg,#192540,#11182a 62%);padding:clamp(16px,3vw,28px)}
+.career-paths h3{font-size:clamp(24px,4vw,34px);margin:6px 0}
+.role-provider-note{background:#182943;border-left:3px solid #9aaeff;padding:9px 12px;border-radius:6px}
+.role-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,235px),1fr));gap:10px;align-items:start;margin:15px 0}
+.career-paths .role-card{background:#151f34;border:1px solid #425678;padding:12px;border-radius:10px;min-width:0}
+.career-paths .role-card:last-child{padding-bottom:12px}
+.role-card summary .role-title{color:#f4f1ff;font-size:inherit;font-weight:700;margin:0}
+.role-card summary .role-first{display:block;color:#b9cef9;margin:4px 0 0;padding-inline-start:16px}
+.role-card .role-order{color:#dcd2ff;font-weight:700;font-size:13px}
+.role-lab{margin-top:6px;min-height:44px;padding:8px 12px}
+.role-lab[hidden]{display:none}
+#course-grid .foundation-chosen{outline:2px solid #a4b8f7;outline-offset:2px}
 </style>
 </body>
 </html>
