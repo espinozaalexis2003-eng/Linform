@@ -427,6 +427,16 @@ footer { flex-wrap: wrap; gap: 18px; }
 .brief-story p{margin:0 0 8px}
 .brief-actions{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:auto;padding-top:14px}
 @media(max-width:850px){.brief-grid{grid-template-columns:1fr}}
+.engineer-path{background:linear-gradient(145deg,#201935,#10182a 65%);border:1px solid #494274;border-radius:18px;padding:clamp(18px,4vw,38px);margin-bottom:32px}
+.engineer-path h1{font-size:clamp(30px,5vw,54px);margin:8px 0;line-height:1.1}
+.engineer-steps{counter-reset:path-step;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0;margin:20px 0;list-style:none}
+.engineer-steps>li{counter-increment:path-step;display:flex;align-items:flex-start;gap:12px;padding:16px;background:#141b2d;border:1px solid #3d4560;border-radius:12px}
+.engineer-steps>li::before{content:counter(path-step);display:grid;place-items:center;flex:0 0 29px;height:29px;border-radius:50%;background:#382a62;color:#e2d5ff;font-weight:700}
+.engineer-steps h2{font-size:17px;margin:3px 0 6px}.engineer-steps p{margin:0 0 8px}.engineer-check{font-size:14px}
+.engineer-troubleshoot{background:#131d30;border:1px solid #445579;border-radius:12px;padding:14px 16px;margin:14px 0}
+.engineer-troubleshoot summary{cursor:pointer;color:#c4d6ff;font-weight:700}
+.engineer-troubleshoot ol{padding-left:22px}.engineer-troubleshoot li{margin-bottom:8px}.engineer-troubleshoot p{margin-bottom:0}
+@media(max-width:675px){.engineer-steps{grid-template-columns:1fr}}
 </style>
 <style>
 </style>
@@ -532,9 +542,32 @@ footer { flex-wrap: wrap; gap: 18px; }
       </div>
     </section>
     <section class="section" id="courses">
+      <div class="engineer-path" aria-labelledby="engineer-path-title">
+        <span class="kicker">Start here · Beginner roadmap</span>
+        <h1 id="engineer-path-title">Your first cloud engineering path</h1>
+        <p>Start with Linux and Git, pick one cloud, then use Terraform to build what you already understand. Start wherever you can do the checkpoint without guessing.</p>
+        <ol class="engineer-steps">
+          <li><div><h2>Linux: get comfortable in the terminal</h2><p>Cloud labs and deployment jobs often use a shell. Start here so you can find files and read output when something breaks.</p><p class="engineer-check"><strong>Ready when:</strong> You can find, copy, and read a file from the terminal.</p><a class="text-link" href="#code-linux">Practice Linux</a></div></li>
+          <li><div><h2>Git: keep track of what changed</h2><p>Before you manage infrastructure in code, learn to compare changes, save a checkpoint, and work on a branch.</p><p class="engineer-check"><strong>Ready when:</strong> You can explain the difference between editing, staging, and committing a file.</p><a class="text-link" href="#git">Practice Git</a></div></li>
+          <li><div><h2>Cloud: pick AWS, Azure, or Google Cloud</h2><p>Choose the provider you’re curious about or the one your team uses. Learn identity and permissions, networking, compute, and storage in that one cloud first.</p><p class="engineer-check"><strong>Ready when:</strong> You can sketch a simple app and explain who can access it and where it stores data.</p></div></li>
+          <li><div><h2>Terraform: turn your design into code</h2><p>Now that you know what the resources do, define them in code. Start with a small configuration and learn to read the plan before applying it.</p><p class="engineer-check"><strong>Ready when:</strong> You can explain what the plan adds, changes, or removes.</p><a class="text-link" href="#code-terraform">Practice Terraform</a></div></li>
+        </ol>
+        <p class="engineer-next"><strong>Add Python and CI/CD when you have something to automate.</strong> Use <a class="text-link" href="#code-python">Python</a> to read logs or summarize results. Use CI/CD to run checks when you push changes.</p>
+        <details class="engineer-troubleshoot">
+          <summary>Think like an engineer: troubleshoot any lab</summary>
+          <ol>
+            <li><strong>Set the expectation.</strong> What should happen? What happened instead?</li>
+            <li><strong>Gather evidence.</strong> Read the first error and check what changed. Confirm the directory, file, account, or region you’re working in.</li>
+            <li><strong>Test one theory.</strong> Start with a small check. Change one thing at a time so you know what made the difference.</li>
+            <li><strong>Verify and explain.</strong> Rerun the original step and explain what caused the issue and how you know it’s fixed.</li>
+          </ol>
+          <p><strong>Try it:</strong> In Linux, run <code>cat missing.txt</code>. Read the error, use <code>pwd</code> and <code>ls</code> to inspect your workspace, then create the file with <code>touch missing.txt</code>. Run <code>cat missing.txt</code> again. A blank result makes sense now: the file exists and it’s empty.</p>
+        </details>
+      </div>
+
       <div class="section-heading">
         <div>
-          <span class="kicker">01 / Choose your path</span>
+          <span class="kicker">Step 3 / Pick one provider</span>
           <h2>Three clouds. One foundation.</h2>
         </div>
         <p>Choose AWS, Microsoft Azure, or Google Cloud. Learn the services and decisions that matter first.</p>
@@ -2628,6 +2661,8 @@ No installation or cloud account needed.</pre></div>
   views.practice.append(document.getElementById('linux-lab'));
   views.certifications.append(document.getElementById('certifications'));
   views.about.append(document.getElementById('about'),document.querySelector('.case'));
+  const codeTroubleshoot=document.querySelector('.engineer-troubleshoot').cloneNode(true);
+  views.code.querySelector('.lf-code-tabs').before(codeTroubleshoot);
   const terms=document.createElement('section');terms.className='section';terms.setAttribute('aria-labelledby','terms-title');
   terms.innerHTML='<span class="kicker">LINFORM / TERMS OF USE</span><h1 id="terms-title">Learn safely. Build responsibly.</h1><h2>Educational use</h2><p>Linform is an educational tool for learning Linux, AWS, Azure, Google Cloud, Python, Git and Terraform.</p><h2>Browser labs</h2><p>Linform’s built-in browser labs run locally or as simulations. They do not deploy paid resources to your cloud accounts.</p><h2>Your external cloud accounts</h2><p>Commands and projects you run outside Linform can create paid resources or change real systems. You are responsible for your accounts, permissions, spending, backups and the actions you take.</p><p>To the extent permitted by applicable law, Linform and its creator are not responsible for actions you take in external cloud accounts or resulting charges, data loss, security incidents or service interruptions.</p><a class="text-link" href="#practice">Back to Practice ↗</a>';
   terms.insertAdjacentHTML('beforeend', "<details><summary>Privacy</summary><p class=\"small-note\">Linform is operated by Alexis Espinosa. Guest progress and per-account progress caches stay in this browser until you clear its site data. Cognito manages sign-in and password recovery; completed lesson IDs are stored in Linform's AWS account to provide sync. Terminal files and quiz answers are not sent to the progress service. Sign-in credentials stay in tab-scoped session storage so refreshing keeps you signed in. Signing out clears them; browser storage settings control whether a restored tab retains its session. Use the inquiry form to request account and progress deletion. Mentoring requests, reply email and project links are stored privately in Linform’s AWS account for Alexis to review. Form inquiries use FormSubmit, which processes the information you submit. Do not enter passwords or private information into the practice lab.</p></details>");
@@ -2645,11 +2680,11 @@ No installation or cloud account needed.</pre></div>
     const link=document.createElement('a'); link.href='#'+key; link.textContent=names[key];
     link.dataset.view=key; nav.append(link);
   }
-  const aliases = {'code-linux':'code','code-terraform':'code',skills:'practice',cloud:'learn',courses:'learn',commands:'practice',terraform:'practice',git:'practice','linux-lab':'practice','student-account':'account'};
+  const aliases = {'code-linux':'code','code-terraform':'code','code-python':'code',skills:'practice',cloud:'learn',courses:'learn',commands:'practice',terraform:'practice',git:'practice','linux-lab':'practice','student-account':'account'};
   document.querySelector('.brand').href='#home';
   for (const link of document.querySelectorAll('a[href^="#"]')) {
     const target=link.getAttribute('href').slice(1);
-    if (aliases[target] && !['terraform','git','code-linux','code-terraform'].includes(target)) link.setAttribute('href','#'+aliases[target]);
+    if (aliases[target] && !['terraform','git','code-linux','code-terraform','code-python'].includes(target)) link.setAttribute('href','#'+aliases[target]);
   }
   let active, pointerNavigation=false;
   document.addEventListener("pointerdown",()=>{pointerNavigation=true;},true);
@@ -4101,7 +4136,7 @@ el('code-screen').addEventListener('click',e=>{if(track==='linux'&&e.target.id==
 cli.onkeydown=e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();cursor=Math.max(0,Math.min(history.length,cursor+(e.key==='ArrowUp'?-1:1)));cli.value=history[cursor]||'';}};
 document.querySelector('a[href="#consulting-inquiry"]').onclick=e=>{e.preventDefault();el('consulting-inquiry').scrollIntoView({block:'start'});el('consult-company').focus({preventScroll:true});};
 function openCodeRoute(){
- if(['#code-linux','#code-terraform'].includes(location.hash)){if(pending)cancel();track=location.hash.slice(6);index=0;refresh(true);return;}
+ if(['#code-linux','#code-terraform','#code-python'].includes(location.hash)){if(pending)cancel();track=location.hash.slice(6);index=0;refresh(true);return;}
  if(location.hash!=='#code'&&pending){cancel();output.textContent='Run the script to see its output here.';}
 }
 addEventListener('hashchange',openCodeRoute);
