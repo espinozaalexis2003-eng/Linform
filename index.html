@@ -4879,6 +4879,17 @@ body{min-height:100vh;min-height:100dvh;padding:env(safe-area-inset-top,0px) env
 .role-lab[hidden]{display:none}
 #course-grid .foundation-chosen{outline:2px solid #a4b8f7;outline-offset:2px}
 </style>
+<style>
+/* Mobile Safari zooms to focused form controls with text smaller than 16px. */
+@media (max-width: 820px), (any-pointer: coarse) {
+  :is(input, textarea, select, [contenteditable]:not([contenteditable="false"])) {
+    font-size: 16px !important;
+  }
+  #code-workbench[data-track="terraform"] #code-line-numbers {
+    font-size: 16px;
+  }
+}
+</style>
 </body>
 </html>
 
