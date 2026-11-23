@@ -456,6 +456,15 @@ footer { flex-wrap: wrap; gap: 18px; }
 #code-tf-nodes li{display:grid;gap:4px;border:1px solid #554576;border-left:3px solid #b49af8;border-radius:8px;padding:10px;background:#18142a;overflow-wrap:anywhere}
 #code-tf-nodes li span{font-size:13px;color:#c7b7ec}
 </style>
+<style>
+#code-file-reference,#code-terminal-reference{margin:12px 0}
+#code-reference{display:flex;flex-direction:column-reverse;gap:8px}
+#code-file-reference #code-reference,#code-terminal-reference #code-reference{padding:12px;border:1px solid #3f516e;border-radius:10px;background:#10182a}
+#code-reference #code-example-text{margin:0;max-height:220px;overflow:auto}
+#code-aws-title{margin:0 0 8px}
+#code-aws-step{width:100%}
+#code-aws-note{margin:8px 0 0}
+</style>
 </head>
 
 <body>
@@ -799,10 +808,10 @@ footer { flex-wrap: wrap; gap: 18px; }
   </div>
   <div id="code-workbench" data-track="python">
     <div class="lf-workbench-heading"><div class="lf-workbench-top"><label for="code-example">Example</label><select id="code-example"></select><span id="code-progress"></span></div><span class="code-track-mark" aria-hidden="true"><svg data-code-mark="python" viewBox="0 0 24 24" focusable="false"><path d="M11.858 0c-.978.005-1.913.088-2.736.234C6.7.662 6.26 1.558 6.26 3.21v2.182h5.725v.727H4.111c-1.664 0-3.121 1-3.577 2.903-.526 2.181-.549 3.542 0 5.82.407 1.694 1.379 2.902 3.043 2.902h1.969v-2.616c0-1.89 1.635-3.557 3.576-3.557h5.72c1.591 0 2.862-1.31 2.862-2.91v-5.45c0-1.553-1.309-2.718-2.863-2.977A18 18 0 0 0 11.858 0M8.762 1.755c.591 0 1.074.491 1.074 1.095 0 .601-.483 1.087-1.074 1.087A1.08 1.08 0 0 1 7.688 2.85c0-.604.48-1.095 1.074-1.095m9.656 4.364v2.543c0 1.971-1.671 3.63-3.577 3.63H9.122c-1.566 0-2.862 1.34-2.862 2.91v5.452c0 1.551 1.349 2.464 2.862 2.91 1.813.532 3.55.628 5.72 0 1.44-.418 2.862-1.258 2.862-2.91V18.47h-5.719v-.727h8.582c1.664 0 2.284-1.16 2.862-2.903.598-1.793.573-3.518 0-5.819-.41-1.656-1.196-2.903-2.862-2.903zm-3.216 13.807a1.08 1.08 0 0 1 1.074 1.088c0 .604-.48 1.094-1.074 1.094-.592 0-1.075-.49-1.075-1.094 0-.601.483-1.088 1.075-1.088"/></svg><svg data-code-mark="terraform" viewBox="0 0 24 24" focusable="false"><path d="M1.44 0v7.575l6.561 3.79V3.787zm21.12 4.227l-6.561 3.791v7.574l6.56-3.787zM8.72 4.23v7.575l6.561 3.787V8.018zm0 8.405v7.575L15.28 24v-7.578z"/></svg><svg data-code-mark="linux" viewBox="0 0 24 24" focusable="false"><path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.132 1.884 1.071.771-.06 1.592-.536 2.257-1.306.631-.765 1.683-1.084 2.378-1.503.348-.199.629-.469.649-.853.023-.4-.2-.811-.714-1.376v-.097l-.003-.003c-.17-.2-.25-.535-.338-.926-.085-.401-.182-.786-.492-1.046h-.003c-.059-.054-.123-.067-.188-.135a.357.357 0 00-.19-.064c.431-1.278.264-2.55-.173-3.694-.533-1.41-1.465-2.638-2.175-3.483-.796-1.005-1.576-1.957-1.56-3.368.026-2.152.236-6.133-3.544-6.139zm.529 3.405h.013c.213 0 .396.062.584.198.19.135.33.332.438.533.105.259.158.459.166.724 0-.02.006-.04.006-.06v.105a.086.086 0 01-.004-.021l-.004-.024a1.807 1.807 0 01-.15.706.953.953 0 01-.213.335.71.71 0 00-.088-.042c-.104-.045-.198-.064-.284-.133a1.312 1.312 0 00-.22-.066c.05-.06.146-.133.183-.198.053-.128.082-.264.088-.402v-.02a1.21 1.21 0 00-.061-.4c-.045-.134-.101-.2-.183-.333-.084-.066-.167-.132-.267-.132h-.016c-.093 0-.176.03-.262.132a.8.8 0 00-.205.334 1.18 1.18 0 00-.09.4v.019c.002.089.008.179.02.267-.193-.067-.438-.135-.607-.202a1.635 1.635 0 01-.018-.2v-.02a1.772 1.772 0 01.15-.768c.082-.22.232-.406.43-.533a.985.985 0 01.594-.2zm-2.962.059h.036c.142 0 .27.048.399.135.146.129.264.288.344.465.09.199.14.4.153.667v.004c.007.134.006.2-.002.266v.08c-.03.007-.056.018-.083.024-.152.055-.274.135-.393.2.012-.09.013-.18.003-.267v-.015c-.012-.133-.04-.2-.082-.333a.613.613 0 00-.166-.267.248.248 0 00-.183-.064h-.021c-.071.006-.13.04-.186.132a.552.552 0 00-.12.27.944.944 0 00-.023.33v.015c.012.135.037.2.08.334.046.134.098.2.166.268.01.009.02.018.034.024-.07.057-.117.07-.176.136a.304.304 0 01-.131.068 2.62 2.62 0 01-.275-.402 1.772 1.772 0 01-.155-.667 1.759 1.759 0 01.08-.668 1.43 1.43 0 01.283-.535c.128-.133.26-.2.418-.2zm1.37 1.706c.332 0 .733.065 1.216.399.293.2.523.269 1.052.468h.003c.255.136.405.266.478.399v-.131a.571.571 0 01.016.47c-.123.31-.516.643-1.063.842v.002c-.268.135-.501.333-.775.465-.276.135-.588.292-1.012.267a1.139 1.139 0 01-.448-.067 3.566 3.566 0 01-.322-.198c-.195-.135-.363-.332-.612-.465v-.005h-.005c-.4-.246-.616-.512-.686-.71-.07-.268-.005-.47.193-.6.224-.135.38-.271.483-.336.104-.074.143-.102.176-.131h.002v-.003c.169-.202.436-.47.839-.601.139-.036.294-.065.466-.065zm2.8 2.142c.358 1.417 1.196 3.475 1.735 4.473.286.534.855 1.659 1.102 3.024.156-.005.33.018.513.064.646-1.671-.546-3.467-1.089-3.966-.22-.2-.232-.335-.123-.335.59.534 1.365 1.572 1.646 2.757.13.535.16 1.104.021 1.67.067.028.135.06.205.067 1.032.534 1.413.938 1.23 1.537v-.043c-.06-.003-.12 0-.18 0h-.016c.151-.467-.182-.825-1.065-1.224-.915-.4-1.646-.336-1.77.465-.008.043-.013.066-.018.135-.068.023-.139.053-.209.064-.43.268-.662.669-.793 1.187-.13.533-.17 1.156-.205 1.869v.003c-.02.334-.17.838-.319 1.35-1.5 1.072-3.58 1.538-5.348.334a2.645 2.645 0 00-.402-.533 1.45 1.45 0 00-.275-.333c.182 0 .338-.03.465-.067a.615.615 0 00.314-.334c.108-.267 0-.697-.345-1.163-.345-.467-.931-.995-1.788-1.521-.63-.4-.986-.87-1.15-1.396-.165-.534-.143-1.085-.015-1.645.245-1.07.873-2.11 1.274-2.763.107-.065.037.135-.408.974-.396.751-1.14 2.497-.122 3.854a8.123 8.123 0 01.647-2.876c.564-1.278 1.743-3.504 1.836-5.268.048.036.217.135.289.202.218.133.38.333.59.465.21.201.477.335.876.335.039.003.075.006.11.006.412 0 .73-.134.997-.268.29-.134.52-.334.74-.4h.005c.467-.135.835-.402 1.044-.7zm2.185 8.958c.037.6.343 1.245.882 1.377.588.134 1.434-.333 1.791-.765l.211-.01c.315-.007.577.01.847.268l.003.003c.208.199.305.53.391.876.085.4.154.78.409 1.066.486.527.645.906.636 1.14l.003-.007v.018l-.003-.012c-.015.262-.185.396-.498.595-.63.401-1.746.712-2.457 1.57-.618.737-1.37 1.14-2.036 1.191-.664.053-1.237-.2-1.574-.898l-.005-.003c-.21-.4-.12-1.025.056-1.69.176-.668.428-1.344.463-1.897.037-.714.076-1.335.195-1.814.12-.465.308-.797.641-.984l.045-.022zm-10.814.049h.01c.053 0 .105.005.157.014.376.055.706.333 1.023.752l.91 1.664.003.003c.243.533.754 1.064 1.189 1.637.434.598.77 1.131.729 1.57v.006c-.057.744-.48 1.148-1.125 1.294-.645.135-1.52.002-2.395-.464-.968-.536-2.118-.469-2.857-.602-.369-.066-.61-.2-.723-.4-.11-.2-.113-.602.123-1.23v-.004l.002-.003c.117-.334.03-.752-.027-1.118-.055-.401-.083-.71.043-.94.16-.334.396-.4.69-.533.294-.135.64-.202.915-.47h.002v-.002c.256-.268.445-.601.668-.838.19-.201.38-.336.663-.336zm7.159-9.074c-.435.201-.945.535-1.488.535-.542 0-.97-.267-1.28-.466-.154-.134-.28-.268-.373-.335-.164-.134-.144-.333-.074-.333.109.016.129.134.199.2.096.066.215.2.36.333.292.2.68.467 1.167.467.485 0 1.053-.267 1.398-.466.195-.135.445-.334.648-.467.156-.136.149-.267.279-.267.128.016.034.134-.147.332a8.097 8.097 0 01-.69.468zm-1.082-1.583V5.64c-.006-.02.013-.042.029-.05.074-.043.18-.027.26.004.063 0 .16.067.15.135-.006.049-.085.066-.135.066-.055 0-.092-.043-.141-.068-.052-.018-.146-.008-.163-.065zm-.551 0c-.02.058-.113.049-.166.066-.047.025-.086.068-.14.068-.05 0-.13-.02-.136-.068-.01-.066.088-.133.15-.133.08-.031.184-.047.259-.005.019.009.036.03.03.05v.02h.003z"/></svg><svg data-code-mark="git" viewBox="0 0 24 24" focusable="false"><path d="M13.09 23.549a1.54 1.54 0 0 1-2.18 0L.451 13.089a1.54 1.54 0 0 1 0-2.179l7.191-7.19 2.733 2.733a1.85 1.85 0 0 0 .964 2.326v6.66a1.849 1.849 0 1 0 1.54 0V8.957l2.508 2.508a1.85 1.85 0 1 0 1.09-1.09l-2.634-2.634a1.85 1.85 0 0 0-2.378-2.377L8.73 2.63 10.91.451a1.54 1.54 0 0 1 2.179 0l10.459 10.46a1.54 1.54 0 0 1 0 2.179z"/></svg><svg data-code-mark="docker" viewBox="0 0 24 24" focusable="false"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z"/></svg><svg data-code-mark="kubernetes" viewBox="0 0 24 24" focusable="false"><path d="M10.204 14.35l.007.01-.999 2.413a5.171 5.171 0 0 1-2.075-2.597l2.578-.437.004.005a.44.44 0 0 1 .484.606zm-.833-2.129a.44.44 0 0 0 .173-.756l.002-.011L7.585 9.7a5.143 5.143 0 0 0-.73 3.255l2.514-.725.002-.009zm1.145-1.98a.44.44 0 0 0 .699-.337l.01-.005.15-2.62a5.144 5.144 0 0 0-3.01 1.442l2.147 1.523.004-.002zm.76 2.75l.723.349.722-.347.18-.78-.5-.623h-.804l-.5.623.179.779zm1.5-3.095a.44.44 0 0 0 .7.336l.008.003 2.134-1.513a5.188 5.188 0 0 0-2.992-1.442l.148 2.615.002.001zm10.876 5.97l-5.773 7.181a1.6 1.6 0 0 1-1.248.594l-9.261.003a1.6 1.6 0 0 1-1.247-.596l-5.776-7.18a1.583 1.583 0 0 1-.307-1.34L2.1 5.573c.108-.47.425-.864.863-1.073L11.305.513a1.606 1.606 0 0 1 1.385 0l8.345 3.985c.438.209.755.604.863 1.073l2.062 8.955c.108.47-.005.963-.308 1.34zm-3.289-2.057c-.042-.01-.103-.026-.145-.034-.174-.033-.315-.025-.479-.038-.35-.037-.638-.067-.895-.148-.105-.04-.18-.165-.216-.216l-.201-.059a6.45 6.45 0 0 0-.105-2.332 6.465 6.465 0 0 0-.936-2.163c.052-.047.15-.133.177-.159.008-.09.001-.183.094-.282.197-.185.444-.338.743-.522.142-.084.273-.137.415-.242.032-.024.076-.062.11-.089.24-.191.295-.52.123-.736-.172-.216-.506-.236-.745-.045-.034.027-.08.062-.111.088-.134.116-.217.23-.33.35-.246.25-.45.458-.673.609-.097.056-.239.037-.303.033l-.19.135a6.545 6.545 0 0 0-4.146-2.003l-.012-.223c-.065-.062-.143-.115-.163-.25-.022-.268.015-.557.057-.905.023-.163.061-.298.068-.475.001-.04-.001-.099-.001-.142 0-.306-.224-.555-.5-.555-.275 0-.499.249-.499.555l.001.014c0 .041-.002.092 0 .128.006.177.044.312.067.475.042.348.078.637.056.906a.545.545 0 0 1-.162.258l-.012.211a6.424 6.424 0 0 0-4.166 2.003 8.373 8.373 0 0 1-.18-.128c-.09.012-.18.04-.297-.029-.223-.15-.427-.358-.673-.608-.113-.12-.195-.234-.329-.349-.03-.026-.077-.062-.111-.088a.594.594 0 0 0-.348-.132.481.481 0 0 0-.398.176c-.172.216-.117.546.123.737l.007.005.104.083c.142.105.272.159.414.242.299.185.546.338.743.522.076.082.09.226.1.288l.16.143a6.462 6.462 0 0 0-1.02 4.506l-.208.06c-.055.072-.133.184-.215.217-.257.081-.546.11-.895.147-.164.014-.305.006-.48.039-.037.007-.09.02-.133.03l-.004.002-.007.002c-.295.071-.484.342-.423.608.061.267.349.429.645.365l.007-.001.01-.003.129-.029c.17-.046.294-.113.448-.172.33-.118.604-.217.87-.256.112-.009.23.069.288.101l.217-.037a6.5 6.5 0 0 0 2.88 3.596l-.09.218c.033.084.069.199.044.282-.097.252-.263.517-.452.813-.091.136-.185.242-.268.399-.02.037-.045.095-.064.134-.128.275-.034.591.213.71.248.12.556-.007.69-.282v-.002c.02-.039.046-.09.062-.127.07-.162.094-.301.144-.458.132-.332.205-.68.387-.897.05-.06.13-.082.215-.105l.113-.205a6.453 6.453 0 0 0 4.609.012l.106.192c.086.028.18.042.256.155.136.232.229.507.342.84.05.156.074.295.145.457.016.037.043.09.062.129.133.276.442.402.69.282.247-.118.341-.435.213-.71-.02-.039-.045-.096-.065-.134-.083-.156-.177-.261-.268-.398-.19-.296-.346-.541-.443-.793-.04-.13.007-.21.038-.294-.018-.022-.059-.144-.083-.202a6.499 6.499 0 0 0 2.88-3.622c.064.01.176.03.213.038.075-.05.144-.114.28-.104.266.039.54.138.87.256.154.06.277.128.448.173.036.01.088.019.13.028l.009.003.007.001c.297.064.584-.098.645-.365.06-.266-.128-.537-.423-.608zM16.4 9.701l-1.95 1.746v.005a.44.44 0 0 0 .173.757l.003.01 2.526.728a5.199 5.199 0 0 0-.108-1.674A5.208 5.208 0 0 0 16.4 9.7zm-4.013 5.325a.437.437 0 0 0-.404-.232.44.44 0 0 0-.372.233h-.002l-1.268 2.292a5.164 5.164 0 0 0 3.326.003l-1.27-2.296h-.01zm1.888-1.293a.44.44 0 0 0-.27.036.44.44 0 0 0-.214.572l-.003.004 1.01 2.438a5.15 5.15 0 0 0 2.081-2.615l-2.6-.44-.004.005z"/></svg></span></div>
-    <div class="lf-code-goal"><h2 id="code-example-title"></h2><p id="code-task"></p><pre id="code-example-text"></pre><p id="code-explanation"></p><div class="lf-code-actions"><button class="button secondary" type="button" id="code-prev">← Back</button><button class="button secondary" type="button" id="code-next">Next example →</button></div></div>
+    <div class="lf-code-goal"><h2 id="code-example-title"></h2><p id="code-task"></p><div id="code-example-home"><div id="code-reference"><pre id="code-example-text" aria-label="What to type"></pre><section id="code-aws-example" hidden aria-labelledby="code-aws-title"><h3 id="code-aws-title">AWS architecture project</h3><label for="code-aws-step">Resource example</label><select id="code-aws-step"></select><p id="code-aws-note" class="small-note"></p></section></div></div><p id="code-explanation"></p><div class="lf-code-actions"><button class="button secondary" type="button" id="code-prev">← Back</button><button class="button secondary" type="button" id="code-next">Next example →</button></div></div>
     <div class="lf-code-panels">
-      <div><div id="code-files" class="lf-code-actions" hidden><button type="button" class="button secondary" data-file="main.tf">main.tf</button><button type="button" class="button secondary" data-file="variables.tf">variables.tf</button><button type="button" class="button secondary" data-file="outputs.tf">outputs.tf</button><button type="button" class="button secondary" data-file="versions.tf">versions.tf</button><button type="button" class="button secondary" data-file="locals.tf">locals.tf</button><button type="button" class="button secondary" data-file="terraform.tfvars">terraform.tfvars</button></div><div id="code-linux-tools" hidden><p id="code-shell-tip" class="small-note"></p><div id="code-linux-files" class="small-note"></div></div><label id="code-file" for="code-editor">main.py</label><div id="code-editor-frame"><pre id="code-line-numbers" aria-hidden="true" hidden>1</pre><textarea id="code-editor" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="12000" wrap="off"></textarea></div><p id="code-editor-help" class="small-note" hidden>Enter continues indentation. Tab inserts two spaces. Press Escape, then Tab to leave the editor.</p><details id="code-stdin"><summary>Script input (optional)</summary><label for="code-input-lines">One line per input() call</label><textarea id="code-input-lines" rows="2" maxlength="4000"></textarea></details><div class="lf-code-actions"><button class="button" type="button" id="code-run">Run Python</button><button class="button secondary" type="button" id="code-reset">Reset workspace</button><button class="button secondary" type="button" id="code-stop" hidden>Stop Python</button></div></div>
-      <div><label id="code-output-label" for="code-output">Output</label><div id="code-screen"><pre id="code-output" tabindex="0" aria-label="Code output">Run your code to see results.</pre><form id="code-command" hidden><label id="code-command-label" for="code-cli">Terminal command</label><input id="code-cli" autocomplete="off" spellcheck="false"><button class="button secondary" type="submit">Run command</button></form></div><p id="code-status" class="small-note" role="status"></p></div>
+      <div><div id="code-files" class="lf-code-actions" hidden><button type="button" class="button secondary" data-file="main.tf">main.tf</button><button type="button" class="button secondary" data-file="variables.tf">variables.tf</button><button type="button" class="button secondary" data-file="outputs.tf">outputs.tf</button><button type="button" class="button secondary" data-file="versions.tf">versions.tf</button><button type="button" class="button secondary" data-file="locals.tf">locals.tf</button><button type="button" class="button secondary" data-file="terraform.tfvars">terraform.tfvars</button></div><div id="code-linux-tools" hidden><p id="code-shell-tip" class="small-note"></p><div id="code-linux-files" class="small-note"></div></div><div id="code-file-reference" hidden></div><label id="code-file" for="code-editor">main.py</label><div id="code-editor-frame"><pre id="code-line-numbers" aria-hidden="true" hidden>1</pre><textarea id="code-editor" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="12000" wrap="off"></textarea></div><p id="code-editor-help" class="small-note" hidden>Enter continues indentation. Tab inserts two spaces. Press Escape, then Tab to leave the editor.</p><details id="code-stdin"><summary>Script input (optional)</summary><label for="code-input-lines">One line per input() call</label><textarea id="code-input-lines" rows="2" maxlength="4000"></textarea></details><div class="lf-code-actions"><button class="button" type="button" id="code-run">Run Python</button><button class="button secondary" type="button" id="code-reset">Reset workspace</button><button class="button secondary" type="button" id="code-stop" hidden>Stop Python</button></div></div>
+      <div><div id="code-terminal-reference" hidden></div><label id="code-output-label" for="code-output">Output</label><div id="code-screen"><pre id="code-output" tabindex="0" aria-label="Code output">Run your code to see results.</pre><form id="code-command" hidden><label id="code-command-label" for="code-cli">Terminal command</label><input id="code-cli" autocomplete="off" spellcheck="false"><button class="button secondary" type="submit">Run command</button></form></div><p id="code-status" class="small-note" role="status"></p></div>
     </div>
     <figure id="code-tf-resources" hidden aria-labelledby="code-tf-resources-title">
       <figcaption id="code-tf-resources-title">Applied resources</figcaption>
@@ -2880,22 +2889,24 @@ output "project_name" {
     if(quote||escape)throw new Error('Close the quote or escape before running the command.');
     if(started)out.push(value);return out;
   }
-  function blocks(source,{allowLocals=false}={}){
+  function blocks(source,{allowLocals=false,location=null}={}){
     const result=[];let i=0;
+    const at=(offset,message)=>new Error(location?location(source.slice(0,offset).split('\n').length)+': '+message:message);
     while(i<source.length){
       while(i<source.length&&/\s/.test(source[i]))i++;
       if(source.startsWith('//',i)||source[i]==='#'){i=source.indexOf('\n',i);if(i<0)break;continue;}
       if(i>=source.length)break;
       const rest=source.slice(i);
       const match=rest.match(/^(variable|resource|output)\s+"([\w-]+)"(?:\s+"([\w-]+)")?\s*\{/)||(allowLocals?rest.match(/^(locals)\s*\{/):null);
-      if(!match)throw new Error('This lab supports variable, terraform_data resource, and output blocks only. Check the syntax near: '+source.slice(i,i+45));
-      if(['__proto__','constructor','prototype'].includes(match[2])||['__proto__','constructor','prototype'].includes(match[3]))throw new Error('Use a different practice block name.');
-      i+=match[0].length;const start=i;let depth=1,quoted=false,escaped=false;
+      if(!match)throw at(i,'Check the Terraform block syntax near: '+source.slice(i,i+45));
+      if(['__proto__','constructor','prototype'].includes(match[2])||['__proto__','constructor','prototype'].includes(match[3]))throw at(i,'Use a different practice block name.');
+      const offset=i; i+=match[0].length;const start=i;let depth=1,quoted=false,escaped=false;
       for(;i<source.length;i++){const ch=source[i];if(escaped){escaped=false;continue;}if(ch==='\\'&&quoted){escaped=true;continue;}if(ch==='"'){quoted=!quoted;continue;}if(!quoted){if(ch==='{')depth++;if(ch==='}'&&--depth===0)break;}}
-      if(depth||quoted)throw new Error('An opening brace or string is not closed.');
-      const body=source.slice(start,i++),attrs={};
-      for(const raw of body.split('\n')){const line=raw.trim();if(!line||line.startsWith('#')||line.startsWith('//'))continue;const assignment=line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);if(!assignment)throw new Error('Use one supported attribute assignment per line: '+line);if(Object.hasOwn(attrs,assignment[1]))throw new Error('Duplicate attribute '+assignment[1]);attrs[assignment[1]]=assignment[2].trim();}
-      result.push({kind:match[1],name:match[2],second:match[3],attrs});
+      if(depth||quoted)throw at(offset,'An opening brace or string is not closed.');
+      const body=source.slice(start,i++),attrs={},attributeLines={};
+      let lineIndex=source.slice(0,start).split('\n').length-1;
+      for(const raw of body.split('\n')){lineIndex++;const line=raw.trim();if(!line||line.startsWith('#')||line.startsWith('//'))continue;const assignment=line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);if(!assignment)throw new Error((location?location(lineIndex)+': ':'')+'Use one supported attribute assignment per line: '+line);if(Object.hasOwn(attrs,assignment[1]))throw new Error((location?location(lineIndex)+': ':'')+'Duplicate attribute '+assignment[1]);attrs[assignment[1]]=assignment[2].trim();attributeLines[assignment[1]]=lineIndex;}
+      result.push({kind:match[1],name:match[2],second:match[3],attrs,line:source.slice(0,offset).split('\n').length,attributeLines});
     }
     return result;
   }
@@ -3872,7 +3883,13 @@ Object.assign(TEMPLATES,{"azure_network": {"title": "Azure virtual network + sub
 const SCHEMAS={
  google_storage_bucket:{label:'Google Cloud Storage bucket',fields:['name','location','uniform_bucket_level_access'],required:['name','location']},
  terraform_data:{label:'Local data',fields:['input'],required:[]},
- aws_instance:{label:'AWS EC2 instance',fields:['ami','instance_type','subnet_id','availability_zone','key_name','tags','user_data'],required:['ami','instance_type']},
+ aws_instance:{label:'AWS EC2 instance',fields:['ami','instance_type','subnet_id','availability_zone','key_name','tags','user_data','associate_public_ip_address','vpc_security_group_ids'],required:['ami','instance_type']},
+ aws_internet_gateway:{label:'Internet gateway',fields:['vpc_id'],required:['vpc_id']},
+ aws_route_table:{label:'Route table',fields:['vpc_id'],required:['vpc_id']},
+ aws_route:{label:'Internet route',fields:['route_table_id','destination_cidr_block','gateway_id'],required:['route_table_id','destination_cidr_block','gateway_id']},
+ aws_route_table_association:{label:'Subnet route table association',fields:['subnet_id','route_table_id'],required:['subnet_id','route_table_id']},
+ aws_s3_bucket_public_access_block:{label:'S3 public access block',fields:['bucket','block_public_acls','block_public_policy','ignore_public_acls','restrict_public_buckets'],required:['bucket']},
+ aws_s3_bucket_versioning:{label:'S3 bucket versioning',fields:['bucket','versioning_configuration'],required:['bucket']},
  aws_vpc:{label:'AWS VPC',fields:['cidr_block','enable_dns_support','enable_dns_hostnames','tags'],required:['cidr_block']},
  aws_subnet:{label:'AWS subnet',fields:['vpc_id','cidr_block','availability_zone','map_public_ip_on_launch','tags'],required:['vpc_id','cidr_block']},
  aws_s3_bucket:{label:'AWS S3 bucket',fields:['bucket','force_destroy','tags'],required:['bucket']},
@@ -3890,59 +3907,78 @@ class CloudTerraform extends window.LinformTerraform.Simulator{
    return context.resolveLocal(value.slice(6));
   }
   if(ref&&ref[1].split('.')[0]!=='var'&&SCHEMAS[ref[1].split('.')[0]]){const r=context.resources[ref[1]];if(!r)throw Error('Resource dependency is not ready: '+ref[1]);if(!own(r,ref[2]))throw Error('Attribute '+ref[2]+' is outside the supported preview for '+ref[1]);return r[ref[2]];}
+  if(/^\[\s*(?:aws_|azurerm_|google_|terraform_data)/.test(value)&&value.endsWith(']')){
+   return value.slice(1,-1).split(',').map(part=>this.expression(part,context));
+  }
   if(value.startsWith('{')&&value.endsWith('}')){const object=Object.create(null);const body=value.slice(1,-1).trim();for(const line of body.split(/[,\n]/).filter(x=>x.trim())){const m=line.trim().match(/^(?:"([\w-]+)"|([\w-]+))\s*(?:=|:)\s*(.+)$/);if(!m||['__proto__','constructor','prototype'].includes(m[1]||m[2]))throw Error('Use simple tags such as { Name = "Learning" }.');object[m[1]||m[2]]=this.expression(m[3],context);}return object;}
   return super.expression(source,context);
  }
  parse(){let s=this.config;
+  const blank=match=>match.replace(/[^\n]/g,' ');
   // Version constraints are accepted as project metadata in the simulator.
-  s=s.replace(/^(\s*)terraform[ \t]*\{([^{}]*)\}/gm,(_,leading,body)=>{
+  s=s.replace(/^(\s*)terraform[ \t]*\{([^{}]*)\}/gm,(match,leading,body,offset)=>{
    const settings=body.split('\n').map(line=>line.trim()).filter(line=>line&&!line.startsWith('#')&&!line.startsWith('//'));
-   if(settings.length!==1||!/^required_version\s*=\s*"[^"\n]+"$/.test(settings[0]))throw Error('Use a terraform block with one quoted required_version constraint. The simulator does not install or select CLI versions.');
-   return leading;
+   if(settings.length!==1||!/^required_version\s*=\s*"[^"\n]+"$/.test(settings[0]))throw this.diagnostic(s.slice(0,offset+leading.length).split('\n').length,'Use a terraform block with one quoted required_version constraint. The simulator does not install or select CLI versions.');
+   return blank(match);
   });
+  s=s.replace(/\bversioning_configuration[ \t]*\{(\s*status\s*=\s*"[^"\n]+"\s*)\}/g,(_,body)=>'versioning_configuration = { '+body.trim()+' }'+'\n'.repeat((body.match(/\n/g)||[]).length));
   // Fold multiline object attributes for the existing line-oriented teaching parser.
-  s=s.replace(/\btags\s*=\s*\{([^{}]*)\}/g,(_,body)=>'tags = { '+body.trim().split(/\n/).map(x=>x.trim()).filter(Boolean).join(', ')+' }');
+  s=s.replace(/\btags\s*=\s*\{([^{}]*)\}/g,(_,body)=>'tags = { '+body.trim().split(/\n/).map(x=>x.trim()).filter(Boolean).join(', ')+' }'+'\n'.repeat((body.match(/\n/g)||[]).length));
   // Provider configuration is metadata only. Reject credential-bearing settings.
-  s=s.replace(/provider\s+"(aws|azurerm)"\s*\{([^{}]*)\}/g,(_,type,body)=>{if(/access_key|secret_key|token|client_secret|subscription_id/i.test(body))throw Error('Keep real credentials out of this browser lab.');if(body.trim()&&!/^\s*region\s*=\s*"[a-z0-9-]+"\s*$/.test(body))throw Error('Provider configuration is not executed here; use resource-only examples.');return '';});
-  try{return window.LinformTerraform.blocks(s,{allowLocals:true});}catch(e){throw Error(e.message.replace('variable, terraform_data resource, and output blocks','variable, supported resource, and output blocks'));}
+  s=s.replace(/provider\s+"(aws|azurerm)"\s*\{([^{}]*)\}/g,(_,type,body)=>{if(/access_key|secret_key|token|client_secret|subscription_id/i.test(body))throw Error('Keep real credentials out of this browser lab.');if(body.trim()&&!/^\s*region\s*=\s*"[a-z0-9-]+"\s*$/.test(body))throw Error('Provider configuration is not executed here; use resource-only examples.');return blank(_);});
+  return window.LinformTerraform.blocks(s,{allowLocals:true,location:this.sourceLocation});
+ }
+ diagnostic(line,message){
+  return Error(this.sourceLocation?this.sourceLocation(line)+': '+message:message);
  }
  model(overrides={}){const parsed=this.parse(),variables={},resources={},outputs={},seen=new Set();
+  const fail=(block,message,key)=>this.diagnostic(block.attributeLines[key]||block.line,message);
+  let variableLines={};
   if(this.variableFile?.trim()){
-   const blocks=window.LinformTerraform.blocks('locals {\n'+this.variableFile+'\n}',{allowLocals:true});
+   const blocks=window.LinformTerraform.blocks('locals {\n'+this.variableFile+'\n}',{allowLocals:true,location:line=>'terraform.tfvars:'+Math.max(1,line-1)});
    if(blocks.length!==1||blocks[0].kind!=='locals')throw Error('Use one name = value assignment per line in terraform.tfvars.');
+   variableLines=blocks[0].attributeLines;
    const values=Object.create(null);
    for(const [key,value] of Object.entries(blocks[0].attrs)){
     try{values[key]=JSON.parse(value);}
-    catch{throw Error('Use a quoted string, number, or boolean value for '+key+' in terraform.tfvars.');}
+    catch{throw Error('terraform.tfvars:'+(variableLines[key]-1)+': Use a quoted string, number, or boolean value for '+key+'.');}
    }
    overrides={...values,...overrides};
   }
   if(parsed.length>50)throw Error('Keep this practice project under 50 blocks.');
-  for(const b of parsed.filter(block=>block.kind!=='locals')){const id=b.kind+':'+b.name+':'+(b.second||'');if(seen.has(id))throw Error('Duplicate block '+b.name);seen.add(id);}
-  for(const b of parsed.filter(b=>b.kind==='variable')){for(const k of Object.keys(b.attrs))if(!['type','default','description','sensitive'].includes(k))throw Error('Unsupported variable setting '+k);const v=own(overrides,b.name)?overrides[b.name]:b.attrs.default===undefined?undefined:this.expression(b.attrs.default);if(v===undefined)throw Error('Set a default for '+b.name+' or pass -var.');const expected={string:'string',number:'number',bool:'boolean'}[b.attrs.type];if(b.attrs.type&&!expected)throw Error('Use string, number or bool variables.');if(expected&&typeof v!==expected)throw Error('Variable '+b.name+' must be '+b.attrs.type);variables[b.name]=v;}
-  for(const key of Object.keys(overrides))if(!parsed.some(b=>b.kind==='variable'&&b.name===key))throw Error('Undeclared variable '+key);
+  for(const b of parsed.filter(block=>block.kind!=='locals')){const id=b.kind+':'+b.name+':'+(b.second||'');if(seen.has(id))throw fail(b,'Duplicate block '+b.name);seen.add(id);}
+  for(const b of parsed.filter(b=>b.kind==='variable')){for(const k of Object.keys(b.attrs))if(!['type','default','description','sensitive'].includes(k))throw fail(b,'Unsupported variable setting '+k,k);const v=own(overrides,b.name)?overrides[b.name]:b.attrs.default===undefined?undefined:this.expression(b.attrs.default);if(v===undefined)throw fail(b,'Set a default for '+b.name+' or pass -var.');const expected={string:'string',number:'number',bool:'boolean'}[b.attrs.type];if(b.attrs.type&&!expected)throw fail(b,'Use string, number or bool variables.','type');if(expected&&typeof v!==expected)throw Object.hasOwn(variableLines,b.name)?Error('terraform.tfvars:'+(variableLines[b.name]-1)+': Variable '+b.name+' must be '+b.attrs.type):fail(b,'Variable '+b.name+' must be '+b.attrs.type,'default');variables[b.name]=v;}
+  for(const key of Object.keys(overrides))if(!parsed.some(b=>b.kind==='variable'&&b.name===key))throw Error((Object.hasOwn(variableLines,key)?'terraform.tfvars:'+(variableLines[key]-1)+': ':'')+'Undeclared variable '+key);
   const locals=new Map(), resolving=new Set();
   for(const b of parsed.filter(block=>block.kind==='locals')){
    for(const [name,expression] of Object.entries(b.attrs)){
-    if(locals.has(name))throw Error('Duplicate local value '+name);
-    locals.set(name,expression);
+    if(locals.has(name))throw fail(b,'Duplicate local value '+name,name);
+    locals.set(name,{expression,block:b});
    }
   }
+  const evaluate=(block,key,value,scope)=>{
+   try{return this.expression(value,scope);}
+   catch(error){
+    if(!error.sourceLine){error.sourceLine=block.attributeLines[key]||block.line;}
+    throw error;
+   }
+  };
   const context={variables,resources,resolveLocal:name=>{
    if(!locals.has(name))throw Error('No value for local '+name);
    if(resolving.has(name))throw Error('Circular local value: '+name);
    resolving.add(name);
-   try{return this.expression(locals.get(name),context);}
+   try{const {expression,block}=locals.get(name);return evaluate(block,name,expression,context);}
    finally{resolving.delete(name);}
   }};
-  let pending=parsed.filter(b=>b.kind==='resource');while(pending.length){const next=[];let last;for(const b of pending){const schema=SCHEMAS[b.name];if(!schema||!b.second)throw Error('Resource '+b.name+' is not supported in this browser lab. Try '+Object.keys(SCHEMAS).join(', ')+'.');for(const k of Object.keys(b.attrs))if(!schema.fields.includes(k))throw Error(b.name+'.'+k+' is outside this practice subset. Supported: '+schema.fields.join(', '));for(const k of schema.required)if(!own(b.attrs,k))throw Error(b.name+'.'+b.second+' needs '+k);let attrs={};try{for(const [k,v]of Object.entries(b.attrs))attrs[k]=this.expression(v,context);}catch(e){if(e.message.startsWith('Resource dependency')){next.push(b);last=e;continue;}throw e;}
-   for(const k of schema.required){if(['address_space','address_prefixes'].includes(k)){if(!Array.isArray(attrs[k])||!attrs[k].length||attrs[k].some(v=>typeof v!=='string'||!v.trim()))throw Error(b.name+'.'+k+' must be a list of CIDR strings.');}else if(typeof attrs[k]!=='string'||!attrs[k].trim())throw Error(b.name+'.'+k+' must be a nonempty string.');}
+  let pending=parsed.filter(b=>b.kind==='resource');while(pending.length){const next=[];let last;for(const b of pending){const schema=SCHEMAS[b.name];if(!schema||!b.second)throw fail(b,'Resource '+b.name+' is not supported in this browser lab. Try '+Object.keys(SCHEMAS).join(', ')+'.');for(const k of Object.keys(b.attrs))if(!schema.fields.includes(k))throw fail(b,b.name+'.'+k+' is outside this practice subset. Supported: '+schema.fields.join(', '),k);for(const k of schema.required)if(!own(b.attrs,k))throw fail(b,b.name+'.'+b.second+' needs '+k);let attrs={};try{for(const [k,v]of Object.entries(b.attrs))attrs[k]=evaluate(b,k,v,context);}catch(e){if(e.message.startsWith('Resource dependency')){next.push(b);last=e;continue;}throw this.diagnostic(e.sourceLine,e.message);}
+   for(const k of schema.required){if(['address_space','address_prefixes'].includes(k)){if(!Array.isArray(attrs[k])||!attrs[k].length||attrs[k].some(v=>typeof v!=='string'||!v.trim()))throw fail(b,b.name+'.'+k+' must be a list of CIDR strings.',k);}else if(typeof attrs[k]!=='string'||!attrs[k].trim())throw fail(b,b.name+'.'+k+' must be a nonempty string.',k);}
    const address=b.name+'.'+b.second,id=this.state.resources[address]?.id||'sim-'+this.current+'-'+b.name+'-'+b.second;
    const dependencies=[...new Set(Object.values(b.attrs).flatMap(v=>[...v.matchAll(/\b((?:aws_|azurerm_|google_|terraform_data)[\w-]*\.[\w-]+)\.[\w-]+/g)].map(m=>m[1])))];
    resources[address]={...attrs,input:b.name==='terraform_data'?(attrs.input??null):attrs,output:b.name==='terraform_data'?(attrs.input??null):attrs,id,type:b.name,label:schema.label,dependencies};
-  }if(next.length===pending.length)throw Error('Unresolved or circular resource dependency. '+(last?.message||''));pending=next;}
-  for(const name of locals.keys())context.resolveLocal(name);
-  for(const b of parsed.filter(b=>b.kind==='output')){if(b.attrs.value===undefined)throw Error('Output '+b.name+' needs value.');for(const k of Object.keys(b.attrs))if(!['value','description','sensitive'].includes(k))throw Error('Unsupported output setting '+k);outputs[b.name]=this.expression(b.attrs.value,context);}
+  }if(next.length===pending.length)throw this.diagnostic(last.sourceLine,'Unresolved or circular resource dependency. '+last.message);pending=next;}
+  try{for(const name of locals.keys())context.resolveLocal(name);}
+  catch(error){throw this.diagnostic(error.sourceLine,error.message);}
+  for(const b of parsed.filter(b=>b.kind==='output')){if(b.attrs.value===undefined)throw fail(b,'Output '+b.name+' needs value.');for(const k of Object.keys(b.attrs))if(!['value','description','sensitive'].includes(k))throw fail(b,'Unsupported output setting '+k,k);try{outputs[b.name]=evaluate(b,'value',b.attrs.value,context);}catch(error){throw this.diagnostic(error.sourceLine,error.message);}}
   return {variables,resources,outputs};
  }
  stateCommand(args){const [sub,from,to]=args;
@@ -4350,8 +4386,7 @@ terraform:[
  shell('Read your output','terraform output','Compare the output with terraform.tfvars, or with variables.tf if you left terraform.tfvars blank. If you used local.stage as the input, the value is uppercase.'),
  shell('Inspect state','terraform state list','State lists what has been applied. Compare the resource address with your main.tf file.'),
  shell('Practice cleanup','terraform destroy','Review the simulated removal, then type yes if prompted. No real cloud resources are affected.'),
- write('Build an AWS network','main.tf',tf.TEMPLATES.network.code.slice(tf.TEMPLATES.network.code.indexOf('resource "aws_vpc"')).split('output "server_id"')[0].trimEnd().replace('var.network','"10.0.0.0/16"'),'After cleaning up the previous exercise, replace main.tf with this network and clear outputs.tf, which referenced the old resource. Run terraform plan and terraform apply. Then compare the VPC, subnet and EC2 instance in Applied resources.'),
- shell('Inspect the network state','terraform state list','Compare the three addresses with the editor and the dependencies in Applied resources. Run terraform destroy when finished.'),
+ {title:'AWS architecture project',file:'main.tf',project:true,text:'',explain:'Build a VPC with public and private subnets, an EC2 instance and a private, versioned S3 bucket.'},
 ],
 linux:[
  shell('Find your current folder','pwd','Prints the working directory: your starting point for relative paths.'),
@@ -4370,6 +4405,36 @@ linux:[
  shell('Go back up','cd ..','Moves to the parent directory.'),
  shell('Find files by name','find . -name notes.txt','Searches the current folder and its subfolders for notes.txt.'),
  ]};
+const awsExamples=[
+ ['VPC','aws_vpc','lab',{cidr_block:'"10.0.0.0/16"'}],
+ ['Public subnet','aws_subnet','public',{vpc_id:'aws_vpc.lab.id',cidr_block:'"10.0.1.0/24"'}],
+ ['Private subnet','aws_subnet','private',{vpc_id:'aws_vpc.lab.id',cidr_block:'"10.0.2.0/24"'}],
+ ['Internet gateway','aws_internet_gateway','lab',{vpc_id:'aws_vpc.lab.id'}],
+ ['Public route table','aws_route_table','public',{vpc_id:'aws_vpc.lab.id'}],
+ ['Default IPv4 route','aws_route','internet',{route_table_id:'aws_route_table.public.id',destination_cidr_block:'"0.0.0.0/0"',gateway_id:'aws_internet_gateway.lab.id'}],
+ ['Public subnet association','aws_route_table_association','public',{subnet_id:'aws_subnet.public.id',route_table_id:'aws_route_table.public.id'}],
+ ['Private route table','aws_route_table','private',{vpc_id:'aws_vpc.lab.id'}],
+ ['Private subnet association','aws_route_table_association','private',{subnet_id:'aws_subnet.private.id',route_table_id:'aws_route_table.private.id'}],
+ ['Security group','aws_security_group','web',{name:'"linform-web"',description:'"No inbound rules in this lab"',vpc_id:'aws_vpc.lab.id'}],
+ ['EC2 instance','aws_instance','web',{ami:'"ami-linform-demo"',instance_type:'"t3.micro"',subnet_id:'aws_subnet.public.id',associate_public_ip_address:'true',vpc_security_group_ids:'[aws_security_group.web.id]'}],
+ ['S3 bucket','aws_s3_bucket','lab',{bucket:'"linform-architecture-practice"'}],
+ ['S3 public access block','aws_s3_bucket_public_access_block','lab',{bucket:'aws_s3_bucket.lab.id',block_public_acls:'true',block_public_policy:'true',ignore_public_acls:'true',restrict_public_buckets:'true'}],
+ ['S3 versioning','aws_s3_bucket_versioning','lab',{bucket:'aws_s3_bucket.lab.id'},'  versioning_configuration {\n    status = "Enabled"\n  }\n'],
+];
+const awsStep=el('code-aws-step');
+awsStep.replaceChildren(...awsExamples.map(([title],i)=>new Option((i+1)+'. '+title,i)),new Option('Run and verify',awsExamples.length));
+function showAwsExample(){
+ const example=awsExamples[Number(awsStep.value)];
+ el('code-aws-note').textContent=example
+  ? 'Add this block to main.tf. Keep the blocks you already wrote.'
+  : 'Run each line separately. Review the plan, type yes to confirm, then check Applied resources. Finish with terraform destroy.';
+ el('code-example-text').textContent=example
+  ? 'resource "'+example[1]+'" "'+example[2]+'" {\n'+Object.entries(example[3]).map(([key,value])=>'  '+key+' = '+value+'\n').join('')+(example[4]||'')+'}'
+  : 'terraform init\nterraform fmt\nterraform validate\nterraform plan\nterraform apply\nterraform state list';
+ el(example?'code-file-reference':'code-terminal-reference').append(el('code-reference'));
+ selectFile('main.tf');
+}
+awsStep.onchange=showAwsExample;
 let track='python', index=0, file='main.tf', files={}, engine, linux, frame, pending, timer, sequence=0, history=[], cursor=0;
 const names=['main.tf','variables.tf','locals.tf','outputs.tf','versions.tf','terraform.tfvars'], item=()=>lessons[track][index];
 let saved={};try{const data=JSON.parse(localStorage.getItem('linform-code-examples-v1')||'{}');if(data&&typeof data==='object')saved=data;}catch{}
@@ -4419,6 +4484,13 @@ function refresh(clear=false){
  el('code-example-title').textContent=ex.title;
  el('code-task').textContent=p?'Type this script into main.py, then select Run Python.':ex.file?'Type this in '+ex.file+'. Your files are saved as you type.':'Type this command into the terminal, then press Enter.';
  el('code-example-text').textContent=ex.text;el('code-explanation').textContent=ex.explain;
+ el('code-file-reference').hidden=el('code-terminal-reference').hidden=!t;
+ el('code-aws-example').hidden=!ex.project;
+ el(!t?'code-example-home':ex.file?'code-file-reference':'code-terminal-reference').append(el('code-reference'));
+ if(ex.project){
+  el('code-task').textContent='Start with empty .tf files. Choose each example below and write its block by hand.';
+  showAwsExample();
+ }
  el('code-prev').disabled=index===0;el('code-next').disabled=index===lessons[track].length-1;
  el('code-stdin').hidden=!p;el('code-stdin').open=!!ex.input;el('code-input-lines').value='';
  el('code-files').hidden=!t;el('code-linux-tools').hidden=!l;editor.hidden=el('code-file').hidden=!(p||t);
@@ -4460,11 +4532,20 @@ function runCommand(value){
   }else{
    // Use each file's existing line count to split the line-oriented formatter's output.
    engine.variableFile=files['terraform.tfvars'];
-   const parts=names.filter(n=>n.endsWith('.tf')&&files[n].trim()).map(n=>[n,files[n].trim()]);
+   const parts=names.filter(n=>n.endsWith('.tf')&&files[n].trim()).map(n=>[n,files[n]]);
    engine.config=parts.map(([,contents])=>contents).join('\n');
+   engine.sourceLocation=line=>{
+    for(const [name,contents] of parts){
+     const count=contents.split('\n').length;
+     if(line<=count)return name+':'+line;
+     line-=count;
+    }
+    return 'Terraform configuration';
+   };
    result=engine.run(value);
    if(/^terraform\s+fmt(?:\s|$)/.test(value)&&result.exitCode===0&&!/\s--?(?:check|help)\b/.test(value)&&parts.length){
-    const lines=engine.config.trimEnd().split('\n');
+    const leading=(parts[0][1].match(/^(?:[^\S\n]*\n)*/)[0].match(/\n/g)||[]).length;
+    const lines=Array(leading).fill('').concat(engine.config.trimEnd().split('\n'));
     for(const [name,contents] of parts)files[name]=lines.splice(0,contents.split('\n').length).join('\n')+'\n';
     saved.tf=files;remember();selectFile(file);
    }
