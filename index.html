@@ -446,6 +446,16 @@ footer { flex-wrap: wrap; gap: 18px; }
 </style>
 <style>
 </style>
+<style>
+#code-workbench[data-track=terraform] #code-editor-frame{display:flex;background:#080d16;border:1px solid #3f516e;border-radius:10px;overflow:hidden}
+#code-workbench[data-track=terraform] #code-editor{min-height:0;height:290px;min-width:0;border:0;border-radius:0;margin:0;resize:none;padding:14px 12px;font:14px/1.6 ui-monospace,monospace;tab-size:2}
+#code-line-numbers{flex:0 0 auto;width:4ch;height:290px;overflow:hidden;border:0;border-right:1px solid #2c3b57;border-radius:0;padding:14px 6px;margin:0;text-align:right;background:#111a2c;color:#a5b4cf;font:14px/1.6 ui-monospace,monospace}
+#code-tf-resources{margin:20px 0 0;padding:18px;border:1px solid #3f516e;border-radius:10px;background:#0b1220}
+#code-tf-resources figcaption{font-weight:800}
+#code-tf-nodes{list-style:none;padding:0;margin:12px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,215px),1fr));gap:10px}
+#code-tf-nodes li{display:grid;gap:4px;border:1px solid #554576;border-left:3px solid #b49af8;border-radius:8px;padding:10px;background:#18142a;overflow-wrap:anywhere}
+#code-tf-nodes li span{font-size:13px;color:#c7b7ec}
+</style>
 </head>
 
 <body>
@@ -791,9 +801,14 @@ footer { flex-wrap: wrap; gap: 18px; }
     <div class="lf-workbench-heading"><div class="lf-workbench-top"><label for="code-example">Example</label><select id="code-example"></select><span id="code-progress"></span></div><span class="code-track-mark" aria-hidden="true"><svg data-code-mark="python" viewBox="0 0 24 24" focusable="false"><path d="M11.858 0c-.978.005-1.913.088-2.736.234C6.7.662 6.26 1.558 6.26 3.21v2.182h5.725v.727H4.111c-1.664 0-3.121 1-3.577 2.903-.526 2.181-.549 3.542 0 5.82.407 1.694 1.379 2.902 3.043 2.902h1.969v-2.616c0-1.89 1.635-3.557 3.576-3.557h5.72c1.591 0 2.862-1.31 2.862-2.91v-5.45c0-1.553-1.309-2.718-2.863-2.977A18 18 0 0 0 11.858 0M8.762 1.755c.591 0 1.074.491 1.074 1.095 0 .601-.483 1.087-1.074 1.087A1.08 1.08 0 0 1 7.688 2.85c0-.604.48-1.095 1.074-1.095m9.656 4.364v2.543c0 1.971-1.671 3.63-3.577 3.63H9.122c-1.566 0-2.862 1.34-2.862 2.91v5.452c0 1.551 1.349 2.464 2.862 2.91 1.813.532 3.55.628 5.72 0 1.44-.418 2.862-1.258 2.862-2.91V18.47h-5.719v-.727h8.582c1.664 0 2.284-1.16 2.862-2.903.598-1.793.573-3.518 0-5.819-.41-1.656-1.196-2.903-2.862-2.903zm-3.216 13.807a1.08 1.08 0 0 1 1.074 1.088c0 .604-.48 1.094-1.074 1.094-.592 0-1.075-.49-1.075-1.094 0-.601.483-1.088 1.075-1.088"/></svg><svg data-code-mark="terraform" viewBox="0 0 24 24" focusable="false"><path d="M1.44 0v7.575l6.561 3.79V3.787zm21.12 4.227l-6.561 3.791v7.574l6.56-3.787zM8.72 4.23v7.575l6.561 3.787V8.018zm0 8.405v7.575L15.28 24v-7.578z"/></svg><svg data-code-mark="linux" viewBox="0 0 24 24" focusable="false"><path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.132 1.884 1.071.771-.06 1.592-.536 2.257-1.306.631-.765 1.683-1.084 2.378-1.503.348-.199.629-.469.649-.853.023-.4-.2-.811-.714-1.376v-.097l-.003-.003c-.17-.2-.25-.535-.338-.926-.085-.401-.182-.786-.492-1.046h-.003c-.059-.054-.123-.067-.188-.135a.357.357 0 00-.19-.064c.431-1.278.264-2.55-.173-3.694-.533-1.41-1.465-2.638-2.175-3.483-.796-1.005-1.576-1.957-1.56-3.368.026-2.152.236-6.133-3.544-6.139zm.529 3.405h.013c.213 0 .396.062.584.198.19.135.33.332.438.533.105.259.158.459.166.724 0-.02.006-.04.006-.06v.105a.086.086 0 01-.004-.021l-.004-.024a1.807 1.807 0 01-.15.706.953.953 0 01-.213.335.71.71 0 00-.088-.042c-.104-.045-.198-.064-.284-.133a1.312 1.312 0 00-.22-.066c.05-.06.146-.133.183-.198.053-.128.082-.264.088-.402v-.02a1.21 1.21 0 00-.061-.4c-.045-.134-.101-.2-.183-.333-.084-.066-.167-.132-.267-.132h-.016c-.093 0-.176.03-.262.132a.8.8 0 00-.205.334 1.18 1.18 0 00-.09.4v.019c.002.089.008.179.02.267-.193-.067-.438-.135-.607-.202a1.635 1.635 0 01-.018-.2v-.02a1.772 1.772 0 01.15-.768c.082-.22.232-.406.43-.533a.985.985 0 01.594-.2zm-2.962.059h.036c.142 0 .27.048.399.135.146.129.264.288.344.465.09.199.14.4.153.667v.004c.007.134.006.2-.002.266v.08c-.03.007-.056.018-.083.024-.152.055-.274.135-.393.2.012-.09.013-.18.003-.267v-.015c-.012-.133-.04-.2-.082-.333a.613.613 0 00-.166-.267.248.248 0 00-.183-.064h-.021c-.071.006-.13.04-.186.132a.552.552 0 00-.12.27.944.944 0 00-.023.33v.015c.012.135.037.2.08.334.046.134.098.2.166.268.01.009.02.018.034.024-.07.057-.117.07-.176.136a.304.304 0 01-.131.068 2.62 2.62 0 01-.275-.402 1.772 1.772 0 01-.155-.667 1.759 1.759 0 01.08-.668 1.43 1.43 0 01.283-.535c.128-.133.26-.2.418-.2zm1.37 1.706c.332 0 .733.065 1.216.399.293.2.523.269 1.052.468h.003c.255.136.405.266.478.399v-.131a.571.571 0 01.016.47c-.123.31-.516.643-1.063.842v.002c-.268.135-.501.333-.775.465-.276.135-.588.292-1.012.267a1.139 1.139 0 01-.448-.067 3.566 3.566 0 01-.322-.198c-.195-.135-.363-.332-.612-.465v-.005h-.005c-.4-.246-.616-.512-.686-.71-.07-.268-.005-.47.193-.6.224-.135.38-.271.483-.336.104-.074.143-.102.176-.131h.002v-.003c.169-.202.436-.47.839-.601.139-.036.294-.065.466-.065zm2.8 2.142c.358 1.417 1.196 3.475 1.735 4.473.286.534.855 1.659 1.102 3.024.156-.005.33.018.513.064.646-1.671-.546-3.467-1.089-3.966-.22-.2-.232-.335-.123-.335.59.534 1.365 1.572 1.646 2.757.13.535.16 1.104.021 1.67.067.028.135.06.205.067 1.032.534 1.413.938 1.23 1.537v-.043c-.06-.003-.12 0-.18 0h-.016c.151-.467-.182-.825-1.065-1.224-.915-.4-1.646-.336-1.77.465-.008.043-.013.066-.018.135-.068.023-.139.053-.209.064-.43.268-.662.669-.793 1.187-.13.533-.17 1.156-.205 1.869v.003c-.02.334-.17.838-.319 1.35-1.5 1.072-3.58 1.538-5.348.334a2.645 2.645 0 00-.402-.533 1.45 1.45 0 00-.275-.333c.182 0 .338-.03.465-.067a.615.615 0 00.314-.334c.108-.267 0-.697-.345-1.163-.345-.467-.931-.995-1.788-1.521-.63-.4-.986-.87-1.15-1.396-.165-.534-.143-1.085-.015-1.645.245-1.07.873-2.11 1.274-2.763.107-.065.037.135-.408.974-.396.751-1.14 2.497-.122 3.854a8.123 8.123 0 01.647-2.876c.564-1.278 1.743-3.504 1.836-5.268.048.036.217.135.289.202.218.133.38.333.59.465.21.201.477.335.876.335.039.003.075.006.11.006.412 0 .73-.134.997-.268.29-.134.52-.334.74-.4h.005c.467-.135.835-.402 1.044-.7zm2.185 8.958c.037.6.343 1.245.882 1.377.588.134 1.434-.333 1.791-.765l.211-.01c.315-.007.577.01.847.268l.003.003c.208.199.305.53.391.876.085.4.154.78.409 1.066.486.527.645.906.636 1.14l.003-.007v.018l-.003-.012c-.015.262-.185.396-.498.595-.63.401-1.746.712-2.457 1.57-.618.737-1.37 1.14-2.036 1.191-.664.053-1.237-.2-1.574-.898l-.005-.003c-.21-.4-.12-1.025.056-1.69.176-.668.428-1.344.463-1.897.037-.714.076-1.335.195-1.814.12-.465.308-.797.641-.984l.045-.022zm-10.814.049h.01c.053 0 .105.005.157.014.376.055.706.333 1.023.752l.91 1.664.003.003c.243.533.754 1.064 1.189 1.637.434.598.77 1.131.729 1.57v.006c-.057.744-.48 1.148-1.125 1.294-.645.135-1.52.002-2.395-.464-.968-.536-2.118-.469-2.857-.602-.369-.066-.61-.2-.723-.4-.11-.2-.113-.602.123-1.23v-.004l.002-.003c.117-.334.03-.752-.027-1.118-.055-.401-.083-.71.043-.94.16-.334.396-.4.69-.533.294-.135.64-.202.915-.47h.002v-.002c.256-.268.445-.601.668-.838.19-.201.38-.336.663-.336zm7.159-9.074c-.435.201-.945.535-1.488.535-.542 0-.97-.267-1.28-.466-.154-.134-.28-.268-.373-.335-.164-.134-.144-.333-.074-.333.109.016.129.134.199.2.096.066.215.2.36.333.292.2.68.467 1.167.467.485 0 1.053-.267 1.398-.466.195-.135.445-.334.648-.467.156-.136.149-.267.279-.267.128.016.034.134-.147.332a8.097 8.097 0 01-.69.468zm-1.082-1.583V5.64c-.006-.02.013-.042.029-.05.074-.043.18-.027.26.004.063 0 .16.067.15.135-.006.049-.085.066-.135.066-.055 0-.092-.043-.141-.068-.052-.018-.146-.008-.163-.065zm-.551 0c-.02.058-.113.049-.166.066-.047.025-.086.068-.14.068-.05 0-.13-.02-.136-.068-.01-.066.088-.133.15-.133.08-.031.184-.047.259-.005.019.009.036.03.03.05v.02h.003z"/></svg><svg data-code-mark="git" viewBox="0 0 24 24" focusable="false"><path d="M13.09 23.549a1.54 1.54 0 0 1-2.18 0L.451 13.089a1.54 1.54 0 0 1 0-2.179l7.191-7.19 2.733 2.733a1.85 1.85 0 0 0 .964 2.326v6.66a1.849 1.849 0 1 0 1.54 0V8.957l2.508 2.508a1.85 1.85 0 1 0 1.09-1.09l-2.634-2.634a1.85 1.85 0 0 0-2.378-2.377L8.73 2.63 10.91.451a1.54 1.54 0 0 1 2.179 0l10.459 10.46a1.54 1.54 0 0 1 0 2.179z"/></svg><svg data-code-mark="docker" viewBox="0 0 24 24" focusable="false"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z"/></svg><svg data-code-mark="kubernetes" viewBox="0 0 24 24" focusable="false"><path d="M10.204 14.35l.007.01-.999 2.413a5.171 5.171 0 0 1-2.075-2.597l2.578-.437.004.005a.44.44 0 0 1 .484.606zm-.833-2.129a.44.44 0 0 0 .173-.756l.002-.011L7.585 9.7a5.143 5.143 0 0 0-.73 3.255l2.514-.725.002-.009zm1.145-1.98a.44.44 0 0 0 .699-.337l.01-.005.15-2.62a5.144 5.144 0 0 0-3.01 1.442l2.147 1.523.004-.002zm.76 2.75l.723.349.722-.347.18-.78-.5-.623h-.804l-.5.623.179.779zm1.5-3.095a.44.44 0 0 0 .7.336l.008.003 2.134-1.513a5.188 5.188 0 0 0-2.992-1.442l.148 2.615.002.001zm10.876 5.97l-5.773 7.181a1.6 1.6 0 0 1-1.248.594l-9.261.003a1.6 1.6 0 0 1-1.247-.596l-5.776-7.18a1.583 1.583 0 0 1-.307-1.34L2.1 5.573c.108-.47.425-.864.863-1.073L11.305.513a1.606 1.606 0 0 1 1.385 0l8.345 3.985c.438.209.755.604.863 1.073l2.062 8.955c.108.47-.005.963-.308 1.34zm-3.289-2.057c-.042-.01-.103-.026-.145-.034-.174-.033-.315-.025-.479-.038-.35-.037-.638-.067-.895-.148-.105-.04-.18-.165-.216-.216l-.201-.059a6.45 6.45 0 0 0-.105-2.332 6.465 6.465 0 0 0-.936-2.163c.052-.047.15-.133.177-.159.008-.09.001-.183.094-.282.197-.185.444-.338.743-.522.142-.084.273-.137.415-.242.032-.024.076-.062.11-.089.24-.191.295-.52.123-.736-.172-.216-.506-.236-.745-.045-.034.027-.08.062-.111.088-.134.116-.217.23-.33.35-.246.25-.45.458-.673.609-.097.056-.239.037-.303.033l-.19.135a6.545 6.545 0 0 0-4.146-2.003l-.012-.223c-.065-.062-.143-.115-.163-.25-.022-.268.015-.557.057-.905.023-.163.061-.298.068-.475.001-.04-.001-.099-.001-.142 0-.306-.224-.555-.5-.555-.275 0-.499.249-.499.555l.001.014c0 .041-.002.092 0 .128.006.177.044.312.067.475.042.348.078.637.056.906a.545.545 0 0 1-.162.258l-.012.211a6.424 6.424 0 0 0-4.166 2.003 8.373 8.373 0 0 1-.18-.128c-.09.012-.18.04-.297-.029-.223-.15-.427-.358-.673-.608-.113-.12-.195-.234-.329-.349-.03-.026-.077-.062-.111-.088a.594.594 0 0 0-.348-.132.481.481 0 0 0-.398.176c-.172.216-.117.546.123.737l.007.005.104.083c.142.105.272.159.414.242.299.185.546.338.743.522.076.082.09.226.1.288l.16.143a6.462 6.462 0 0 0-1.02 4.506l-.208.06c-.055.072-.133.184-.215.217-.257.081-.546.11-.895.147-.164.014-.305.006-.48.039-.037.007-.09.02-.133.03l-.004.002-.007.002c-.295.071-.484.342-.423.608.061.267.349.429.645.365l.007-.001.01-.003.129-.029c.17-.046.294-.113.448-.172.33-.118.604-.217.87-.256.112-.009.23.069.288.101l.217-.037a6.5 6.5 0 0 0 2.88 3.596l-.09.218c.033.084.069.199.044.282-.097.252-.263.517-.452.813-.091.136-.185.242-.268.399-.02.037-.045.095-.064.134-.128.275-.034.591.213.71.248.12.556-.007.69-.282v-.002c.02-.039.046-.09.062-.127.07-.162.094-.301.144-.458.132-.332.205-.68.387-.897.05-.06.13-.082.215-.105l.113-.205a6.453 6.453 0 0 0 4.609.012l.106.192c.086.028.18.042.256.155.136.232.229.507.342.84.05.156.074.295.145.457.016.037.043.09.062.129.133.276.442.402.69.282.247-.118.341-.435.213-.71-.02-.039-.045-.096-.065-.134-.083-.156-.177-.261-.268-.398-.19-.296-.346-.541-.443-.793-.04-.13.007-.21.038-.294-.018-.022-.059-.144-.083-.202a6.499 6.499 0 0 0 2.88-3.622c.064.01.176.03.213.038.075-.05.144-.114.28-.104.266.039.54.138.87.256.154.06.277.128.448.173.036.01.088.019.13.028l.009.003.007.001c.297.064.584-.098.645-.365.06-.266-.128-.537-.423-.608zM16.4 9.701l-1.95 1.746v.005a.44.44 0 0 0 .173.757l.003.01 2.526.728a5.199 5.199 0 0 0-.108-1.674A5.208 5.208 0 0 0 16.4 9.7zm-4.013 5.325a.437.437 0 0 0-.404-.232.44.44 0 0 0-.372.233h-.002l-1.268 2.292a5.164 5.164 0 0 0 3.326.003l-1.27-2.296h-.01zm1.888-1.293a.44.44 0 0 0-.27.036.44.44 0 0 0-.214.572l-.003.004 1.01 2.438a5.15 5.15 0 0 0 2.081-2.615l-2.6-.44-.004.005z"/></svg></span></div>
     <div class="lf-code-goal"><h2 id="code-example-title"></h2><p id="code-task"></p><pre id="code-example-text"></pre><p id="code-explanation"></p><div class="lf-code-actions"><button class="button secondary" type="button" id="code-prev">← Back</button><button class="button secondary" type="button" id="code-next">Next example →</button></div></div>
     <div class="lf-code-panels">
-      <div><div id="code-files" class="lf-code-actions" hidden><button type="button" class="button secondary" data-file="main.tf">main.tf</button><button type="button" class="button secondary" data-file="variables.tf">variables.tf</button><button type="button" class="button secondary" data-file="outputs.tf">outputs.tf</button><button type="button" class="button secondary" data-file="versions.tf">versions.tf</button></div><div id="code-linux-tools" hidden><p id="code-shell-tip" class="small-note"></p><div id="code-linux-files" class="small-note"></div></div><label id="code-file" for="code-editor">main.py</label><textarea id="code-editor" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="12000" wrap="off"></textarea><details id="code-stdin"><summary>Script input (optional)</summary><label for="code-input-lines">One line per input() call</label><textarea id="code-input-lines" rows="2" maxlength="4000"></textarea></details><div class="lf-code-actions"><button class="button" type="button" id="code-run">Run Python</button><button class="button secondary" type="button" id="code-reset">Reset workspace</button><button class="button secondary" type="button" id="code-stop" hidden>Stop Python</button></div></div>
-      <div><label for="code-output">Output</label><div id="code-screen"><pre id="code-output" tabindex="0" aria-label="Code output">Run your code to see results.</pre><form id="code-command" hidden><label id="code-command-label" for="code-cli">Terminal command</label><input id="code-cli" placeholder="terraform plan" autocomplete="off" spellcheck="false"><button class="button secondary" type="submit">Run command</button></form></div><p id="code-status" class="small-note" role="status"></p></div>
+      <div><div id="code-files" class="lf-code-actions" hidden><button type="button" class="button secondary" data-file="main.tf">main.tf</button><button type="button" class="button secondary" data-file="variables.tf">variables.tf</button><button type="button" class="button secondary" data-file="outputs.tf">outputs.tf</button><button type="button" class="button secondary" data-file="versions.tf">versions.tf</button><button type="button" class="button secondary" data-file="locals.tf">locals.tf</button><button type="button" class="button secondary" data-file="terraform.tfvars">terraform.tfvars</button></div><div id="code-linux-tools" hidden><p id="code-shell-tip" class="small-note"></p><div id="code-linux-files" class="small-note"></div></div><label id="code-file" for="code-editor">main.py</label><div id="code-editor-frame"><pre id="code-line-numbers" aria-hidden="true" hidden>1</pre><textarea id="code-editor" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="12000" wrap="off"></textarea></div><p id="code-editor-help" class="small-note" hidden>Enter continues indentation. Tab inserts two spaces. Press Escape, then Tab to leave the editor.</p><details id="code-stdin"><summary>Script input (optional)</summary><label for="code-input-lines">One line per input() call</label><textarea id="code-input-lines" rows="2" maxlength="4000"></textarea></details><div class="lf-code-actions"><button class="button" type="button" id="code-run">Run Python</button><button class="button secondary" type="button" id="code-reset">Reset workspace</button><button class="button secondary" type="button" id="code-stop" hidden>Stop Python</button></div></div>
+      <div><label id="code-output-label" for="code-output">Output</label><div id="code-screen"><pre id="code-output" tabindex="0" aria-label="Code output">Run your code to see results.</pre><form id="code-command" hidden><label id="code-command-label" for="code-cli">Terminal command</label><input id="code-cli" placeholder="terraform plan" autocomplete="off" spellcheck="false"><button class="button secondary" type="submit">Run command</button></form></div><p id="code-status" class="small-note" role="status"></p></div>
     </div>
+    <figure id="code-tf-resources" hidden aria-labelledby="code-tf-resources-title">
+      <figcaption id="code-tf-resources-title">Applied resources</figcaption>
+      <p id="code-tf-summary" class="small-note" role="status"></p>
+      <ul id="code-tf-nodes"></ul>
+    </figure>
     <p class="small-note" id="code-note">Python runs in an isolated browser workspace. First run downloads the runtime. Drafts save on this device.</p>
   </div>
 </section>
@@ -2865,13 +2880,14 @@ output "project_name" {
     if(quote||escape)throw new Error('Close the quote or escape before running the command.');
     if(started)out.push(value);return out;
   }
-  function blocks(source){
+  function blocks(source,{allowLocals=false}={}){
     const result=[];let i=0;
     while(i<source.length){
       while(i<source.length&&/\s/.test(source[i]))i++;
       if(source.startsWith('//',i)||source[i]==='#'){i=source.indexOf('\n',i);if(i<0)break;continue;}
       if(i>=source.length)break;
-      const match=source.slice(i).match(/^(variable|resource|output)\s+"([\w-]+)"(?:\s+"([\w-]+)")?\s*\{/);
+      const rest=source.slice(i);
+      const match=rest.match(/^(variable|resource|output)\s+"([\w-]+)"(?:\s+"([\w-]+)")?\s*\{/)||(allowLocals?rest.match(/^(locals)\s*\{/):null);
       if(!match)throw new Error('This lab supports variable, terraform_data resource, and output blocks only. Check the syntax near: '+source.slice(i,i+45));
       if(['__proto__','constructor','prototype'].includes(match[2])||['__proto__','constructor','prototype'].includes(match[3]))throw new Error('Use a different practice block name.');
       i+=match[0].length;const start=i;let depth=1,quoted=false,escaped=false;
@@ -2897,7 +2913,7 @@ output "project_name" {
       if(ref){if(!context.resources[ref[1]])throw new Error('Unknown resource '+ref[1]);return context.resources[ref[1]][ref[2]];}
       const call=value.match(/^(upper|lower|length|tostring|tonumber)\(([\s\S]*)\)$/);
       if(call){const arg=this.expression(call[2],context);if(call[1]==='upper')return String(arg).toUpperCase();if(call[1]==='lower')return String(arg).toLowerCase();if(call[1]==='length'){if(typeof arg!=='string'&&!Array.isArray(arg))throw new Error('length expects a string or list');return arg.length;}if(call[1]==='tonumber'){const n=Number(arg);if(!Number.isFinite(n))throw new Error('Value is not a number');return n;}return String(arg);}
-      try{const literal=JSON.parse(value);if(typeof literal==='string')return literal.replace(/\$\{([^}]+)\}/g,(_,expr)=>String(this.expression(expr,context)));return literal;}catch(error){if(error.message.startsWith('No value')||error.message.startsWith('Unknown resource'))throw error;}
+      try{const literal=JSON.parse(value);if(typeof literal==='string')return literal.replace(/\$\{([^}]+)\}/g,(_,expr)=>String(this.expression(expr,context)));return literal;}catch(error){if(!(error instanceof SyntaxError))throw error;}
       throw new Error('Unsupported expression in this teaching subset: '+value+'. Try a literal, var.name, terraform.workspace, a terraform_data attribute, or upper/lower/length.');
     }
     model(overrides={}){
@@ -3869,29 +3885,64 @@ Object.assign(SCHEMAS,{"azurerm_virtual_network": {"label": "Azure virtual netwo
 class CloudTerraform extends window.LinformTerraform.Simulator{
  expression(source,context={variables:{},resources:this.state.resources}){
   const value=source.trim(),ref=value.match(/^([\w-]+\.[\w-]+)\.([\w-]+)$/);
+  if(/^local\.[\w-]+$/.test(value)){
+   if(!context.resolveLocal)throw Error('Local values are available when evaluating the configuration.');
+   return context.resolveLocal(value.slice(6));
+  }
   if(ref&&ref[1].split('.')[0]!=='var'&&SCHEMAS[ref[1].split('.')[0]]){const r=context.resources[ref[1]];if(!r)throw Error('Resource dependency is not ready: '+ref[1]);if(!own(r,ref[2]))throw Error('Attribute '+ref[2]+' is outside the supported preview for '+ref[1]);return r[ref[2]];}
   if(value.startsWith('{')&&value.endsWith('}')){const object=Object.create(null);const body=value.slice(1,-1).trim();for(const line of body.split(/[,\n]/).filter(x=>x.trim())){const m=line.trim().match(/^(?:"([\w-]+)"|([\w-]+))\s*(?:=|:)\s*(.+)$/);if(!m||['__proto__','constructor','prototype'].includes(m[1]||m[2]))throw Error('Use simple tags such as { Name = "Learning" }.');object[m[1]||m[2]]=this.expression(m[3],context);}return object;}
   return super.expression(source,context);
  }
  parse(){let s=this.config;
+  // Version constraints are accepted as project metadata in the simulator.
+  s=s.replace(/^(\s*)terraform[ \t]*\{([^{}]*)\}/gm,(_,leading,body)=>{
+   const settings=body.split('\n').map(line=>line.trim()).filter(line=>line&&!line.startsWith('#')&&!line.startsWith('//'));
+   if(settings.length!==1||!/^required_version\s*=\s*"[^"\n]+"$/.test(settings[0]))throw Error('Use a terraform block with one quoted required_version constraint. The simulator does not install or select CLI versions.');
+   return leading;
+  });
   // Fold multiline object attributes for the existing line-oriented teaching parser.
   s=s.replace(/\btags\s*=\s*\{([^{}]*)\}/g,(_,body)=>'tags = { '+body.trim().split(/\n/).map(x=>x.trim()).filter(Boolean).join(', ')+' }');
   // Provider configuration is metadata only. Reject credential-bearing settings.
   s=s.replace(/provider\s+"(aws|azurerm)"\s*\{([^{}]*)\}/g,(_,type,body)=>{if(/access_key|secret_key|token|client_secret|subscription_id/i.test(body))throw Error('Keep real credentials out of this browser lab.');if(body.trim()&&!/^\s*region\s*=\s*"[a-z0-9-]+"\s*$/.test(body))throw Error('Provider configuration is not executed here; use resource-only examples.');return '';});
-  try{return window.LinformTerraform.blocks(s);}catch(e){throw Error(e.message.replace('variable, terraform_data resource, and output blocks','variable, supported resource, and output blocks'));}
+  try{return window.LinformTerraform.blocks(s,{allowLocals:true});}catch(e){throw Error(e.message.replace('variable, terraform_data resource, and output blocks','variable, supported resource, and output blocks'));}
  }
  model(overrides={}){const parsed=this.parse(),variables={},resources={},outputs={},seen=new Set();
+  if(this.variableFile?.trim()){
+   const blocks=window.LinformTerraform.blocks('locals {\n'+this.variableFile+'\n}',{allowLocals:true});
+   if(blocks.length!==1||blocks[0].kind!=='locals')throw Error('Use one name = value assignment per line in terraform.tfvars.');
+   const values=Object.create(null);
+   for(const [key,value] of Object.entries(blocks[0].attrs)){
+    try{values[key]=JSON.parse(value);}
+    catch{throw Error('Use a quoted string, number, or boolean value for '+key+' in terraform.tfvars.');}
+   }
+   overrides={...values,...overrides};
+  }
   if(parsed.length>50)throw Error('Keep this practice project under 50 blocks.');
-  for(const b of parsed){const id=b.kind+':'+b.name+':'+(b.second||'');if(seen.has(id))throw Error('Duplicate block '+b.name);seen.add(id);}
+  for(const b of parsed.filter(block=>block.kind!=='locals')){const id=b.kind+':'+b.name+':'+(b.second||'');if(seen.has(id))throw Error('Duplicate block '+b.name);seen.add(id);}
   for(const b of parsed.filter(b=>b.kind==='variable')){for(const k of Object.keys(b.attrs))if(!['type','default','description','sensitive'].includes(k))throw Error('Unsupported variable setting '+k);const v=own(overrides,b.name)?overrides[b.name]:b.attrs.default===undefined?undefined:this.expression(b.attrs.default);if(v===undefined)throw Error('Set a default for '+b.name+' or pass -var.');const expected={string:'string',number:'number',bool:'boolean'}[b.attrs.type];if(b.attrs.type&&!expected)throw Error('Use string, number or bool variables.');if(expected&&typeof v!==expected)throw Error('Variable '+b.name+' must be '+b.attrs.type);variables[b.name]=v;}
   for(const key of Object.keys(overrides))if(!parsed.some(b=>b.kind==='variable'&&b.name===key))throw Error('Undeclared variable '+key);
-  let pending=parsed.filter(b=>b.kind==='resource');while(pending.length){const next=[];let last;for(const b of pending){const schema=SCHEMAS[b.name];if(!schema||!b.second)throw Error('Resource '+b.name+' is not supported in this browser lab. Try '+Object.keys(SCHEMAS).join(', ')+'.');for(const k of Object.keys(b.attrs))if(!schema.fields.includes(k))throw Error(b.name+'.'+k+' is outside this practice subset. Supported: '+schema.fields.join(', '));for(const k of schema.required)if(!own(b.attrs,k))throw Error(b.name+'.'+b.second+' needs '+k);let attrs={};try{for(const [k,v]of Object.entries(b.attrs))attrs[k]=this.expression(v,{variables,resources});}catch(e){if(e.message.startsWith('Resource dependency')){next.push(b);last=e;continue;}throw e;}
+  const locals=new Map(), resolving=new Set();
+  for(const b of parsed.filter(block=>block.kind==='locals')){
+   for(const [name,expression] of Object.entries(b.attrs)){
+    if(locals.has(name))throw Error('Duplicate local value '+name);
+    locals.set(name,expression);
+   }
+  }
+  const context={variables,resources,resolveLocal:name=>{
+   if(!locals.has(name))throw Error('No value for local '+name);
+   if(resolving.has(name))throw Error('Circular local value: '+name);
+   resolving.add(name);
+   try{return this.expression(locals.get(name),context);}
+   finally{resolving.delete(name);}
+  }};
+  let pending=parsed.filter(b=>b.kind==='resource');while(pending.length){const next=[];let last;for(const b of pending){const schema=SCHEMAS[b.name];if(!schema||!b.second)throw Error('Resource '+b.name+' is not supported in this browser lab. Try '+Object.keys(SCHEMAS).join(', ')+'.');for(const k of Object.keys(b.attrs))if(!schema.fields.includes(k))throw Error(b.name+'.'+k+' is outside this practice subset. Supported: '+schema.fields.join(', '));for(const k of schema.required)if(!own(b.attrs,k))throw Error(b.name+'.'+b.second+' needs '+k);let attrs={};try{for(const [k,v]of Object.entries(b.attrs))attrs[k]=this.expression(v,context);}catch(e){if(e.message.startsWith('Resource dependency')){next.push(b);last=e;continue;}throw e;}
    for(const k of schema.required){if(['address_space','address_prefixes'].includes(k)){if(!Array.isArray(attrs[k])||!attrs[k].length||attrs[k].some(v=>typeof v!=='string'||!v.trim()))throw Error(b.name+'.'+k+' must be a list of CIDR strings.');}else if(typeof attrs[k]!=='string'||!attrs[k].trim())throw Error(b.name+'.'+k+' must be a nonempty string.');}
    const address=b.name+'.'+b.second,id=this.state.resources[address]?.id||'sim-'+this.current+'-'+b.name+'-'+b.second;
    const dependencies=[...new Set(Object.values(b.attrs).flatMap(v=>[...v.matchAll(/\b((?:aws_|azurerm_|google_|terraform_data)[\w-]*\.[\w-]+)\.[\w-]+/g)].map(m=>m[1])))];
    resources[address]={...attrs,input:b.name==='terraform_data'?(attrs.input??null):attrs,output:b.name==='terraform_data'?(attrs.input??null):attrs,id,type:b.name,label:schema.label,dependencies};
   }if(next.length===pending.length)throw Error('Unresolved or circular resource dependency. '+(last?.message||''));pending=next;}
-  for(const b of parsed.filter(b=>b.kind==='output')){if(b.attrs.value===undefined)throw Error('Output '+b.name+' needs value.');for(const k of Object.keys(b.attrs))if(!['value','description','sensitive'].includes(k))throw Error('Unsupported output setting '+k);outputs[b.name]=this.expression(b.attrs.value,{variables,resources});}
+  for(const name of locals.keys())context.resolveLocal(name);
+  for(const b of parsed.filter(b=>b.kind==='output')){if(b.attrs.value===undefined)throw Error('Output '+b.name+' needs value.');for(const k of Object.keys(b.attrs))if(!['value','description','sensitive'].includes(k))throw Error('Unsupported output setting '+k);outputs[b.name]=this.expression(b.attrs.value,context);}
   return {variables,resources,outputs};
  }
  stateCommand(args){const [sub,from,to]=args;
@@ -4288,15 +4339,19 @@ terraform:[
  write('Describe a resource','main.tf','resource "terraform_data" "app" {\n  input = var.environment\n}','A resource block describes what you want. This local resource takes its value from variables.tf.'),
  write('Define an input','variables.tf','variable "environment" {\n  type    = string\n  default = "staging"\n}','A variable lets you change an input without rewriting the resource.'),
  write('Expose a result','outputs.tf','output "environment" {\n  value = terraform_data.app.output\n}','An output gives a result a name. This expression reads the resource’s output.'),
- write('Set the Terraform version','versions.tf',"terraform {\n  required_version = \">= 1.4.0\"\n}\n",'This sets the minimum Terraform CLI version for a real project. The lab uses the built-in terraform_data resource, so no external provider is needed. The simulator keeps this file as practice metadata.'),
+ write('Set the Terraform version','versions.tf',"terraform {\n  required_version = \">= 1.4.0\"\n}\n",'This sets the minimum Terraform CLI version for a real project. The lab uses the built-in terraform_data resource, so no external provider is needed. The simulator checks this block’s syntax as metadata without selecting a CLI version.'),
+ write('Name a derived value','locals.tf','locals {\n  stage = upper(var.environment)\n}','Locals name computed values. To use this one, change input in main.tf to local.stage. Its value will then appear in your output.'),
+ write('Override a variable for this project','terraform.tfvars','environment = "production"','Terraform automatically reads terraform.tfvars. This overrides the default in variables.tf. An explicit -var flag takes precedence.'),
  shell('Initialize the workspace','terraform init','Initialization prepares the workspace. This lab uses an in-browser simulator and installs no providers.'),
- shell('Format the files','terraform fmt','Format normalizes whitespace and indentation in your practice configuration.'),
+ shell('Format the files','terraform fmt','Format normalizes whitespace and indentation in your practice .tf files.'),
  shell('Validate the configuration','terraform validate','Validate checks the parts of HCL supported here. Fix any errors before planning.'),
  shell('Preview changes','terraform plan','Plan previews what would change. Review the result before applying it.'),
  shell('Apply the plan','terraform apply','Read the proposed changes. If prompted, type yes in the command field to update simulated state.'),
- shell('Read your output','terraform output','The output should show the environment value you set in variables.tf.'),
+ shell('Read your output','terraform output','Compare the output with terraform.tfvars, or with variables.tf if you left terraform.tfvars blank. If you used local.stage as the input, the value is uppercase.'),
  shell('Inspect state','terraform state list','State lists what has been applied. Compare the resource address with your main.tf file.'),
  shell('Practice cleanup','terraform destroy','Review the simulated removal, then type yes if prompted. No real cloud resources are affected.'),
+ write('Build an AWS network','main.tf',tf.TEMPLATES.network.code.slice(tf.TEMPLATES.network.code.indexOf('resource "aws_vpc"')).split('output "server_id"')[0].trimEnd().replace('var.network','"10.0.0.0/16"'),'After cleaning up the previous exercise, replace main.tf with this network and clear outputs.tf, which referenced the old resource. Run terraform plan and terraform apply. Then compare the VPC, subnet and EC2 instance in Applied resources.'),
+ shell('Inspect the network state','terraform state list','Compare the three addresses with the editor and the dependencies in Applied resources. Run terraform destroy when finished.'),
 ],
 linux:[
  shell('Find your current folder','pwd','Prints the working directory: your starting point for relative paths.'),
@@ -4316,13 +4371,36 @@ linux:[
  shell('Find files by name','find . -name notes.txt','Searches the current folder and its subfolders for notes.txt.'),
  ]};
 let track='python', index=0, file='main.tf', files={}, engine, linux, frame, pending, timer, sequence=0, history=[], cursor=0;
-const names=['main.tf','variables.tf','outputs.tf','versions.tf'], item=()=>lessons[track][index];
+const names=['main.tf','variables.tf','locals.tf','outputs.tf','versions.tf','terraform.tfvars'], item=()=>lessons[track][index];
 let saved={};try{const data=JSON.parse(localStorage.getItem('linform-code-examples-v1')||'{}');if(data&&typeof data==='object')saved=data;}catch{}
 function remember(){try{localStorage.setItem('linform-code-examples-v1',JSON.stringify(saved));}catch{}}
 const pyKey=()=>String(index);
 function cancel(){clearTimeout(timer);pending=null;frame?.remove();frame=null;el('code-stop').hidden=true;el('code-run').disabled=false;}
+function updateLineNumbers(){
+ const gutter=el('code-line-numbers');
+ gutter.textContent=Array.from({length:editor.value.split('\n').length},(_,i)=>i+1).join('\n');
+ gutter.scrollTop=editor.scrollTop;
+}
+function renderTerraformResources(){
+ const resources=Object.entries(engine.state.resources), addresses=new Set(resources.map(([address])=>address));
+ el('code-tf-summary').textContent=resources.length
+  ? engine.current+' workspace · '+resources.length+' simulated resource'+(resources.length===1?'':'s')+' in state'
+  : engine.current+' workspace · No applied resources. Run terraform apply to populate this view.';
+ el('code-tf-nodes').replaceChildren(...resources.map(([address,resource])=>{
+  const node=document.createElement('li'), title=document.createElement('strong'), code=document.createElement('code');
+  title.textContent=resource.label||resource.type||'Terraform resource';code.textContent=address;
+  node.append(title,code);
+  const dependencies=Array.isArray(resource.dependencies)?resource.dependencies.filter(dep=>addresses.has(dep)):[];
+  if(dependencies.length){
+   const detail=document.createElement('span');
+   detail.textContent='Depends on '+dependencies.join(', ');
+   node.append(detail);
+  }
+  return node;
+ }));
+}
 function selectFile(name){
- file=name;editor.value=files[name];el('code-file').textContent=name;
+ file=name;editor.value=files[name];editor.scrollTop=0;el('code-file').textContent=name;updateLineNumbers();
  el('code-files').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.file===name)));
 }
 function newWorkspace(){
@@ -4346,9 +4424,12 @@ function refresh(clear=false){
  el('code-files').hidden=!t;el('code-linux-tools').hidden=!l;editor.hidden=el('code-file').hidden=!(p||t);
  el('code-run').hidden=!p;el('code-command').hidden=p;el('code-command-label').textContent=trackNames[track]+' terminal';
  cli.placeholder='Type a '+trackNames[track]+' command';cli.value='';editor.placeholder='Type the example here…';
- if(t)selectFile(ex.file||file);
+ el('code-output-label').textContent=t?'Terminal':'Output';
+ el('code-line-numbers').hidden=el('code-editor-help').hidden=el('code-tf-resources').hidden=!t;
+ if(t){selectFile(ex.file||file);renderTerraformResources();}
+
  if(p){editor.value=saved.py?.[pyKey()]||'';el('code-file').textContent='main.py';}
- if(clear||p)output.textContent=p?'Run the script to see its output here.':'Command output appears here.';
+ if(clear||p)output.textContent=p?'Run the script to see its output here.':t?'Terraform practice shell. Type terraform init to start.':'Command output appears here.';
  el('code-note').textContent=['git','docker','kubernetes'].includes(track)?'Browser simulation. Nothing is installed, pushed to GitHub, or deployed. Workspace state lasts until refresh.':p?'Python runs in your browser. The first run downloads the runtime.':t?'Files save on this device. This is a Terraform simulator; it cannot create real cloud resources.':'This shell works on practice files only. It does not connect to your device or a cloud account.';
  el('code-shell-tip').textContent=!p?'Try help for more commands. Use ↑ and ↓ to recall commands.':'';
  if(l)el('code-linux-files').textContent='Working directory: '+linux.run('pwd').text;
@@ -4374,13 +4455,21 @@ addEventListener('message',e=>{
 function runCommand(value){
  let result;const t=track==='terraform';
  if(t){
-  engine.config=names.filter(n=>n!=='versions.tf').map(n=>files[n]).join('\n');
-  result=engine.run(value);
-  if(/^terraform fmt$/.test(value)&&result.exitCode===0){
-   // Keep files separate: format each independently using the simulator's formatter.
-   for(const n of names.filter(n=>n!=='versions.tf')){const temp=new tf.CloudTerraform();temp.config=files[n];if(temp.run('terraform fmt').exitCode===0)files[n]=temp.config;}
-   saved.tf=files;remember();selectFile(file);
+  if(value==='clear'&&!engine.pending&&!engine.consoleMode){
+   result={clear:true,exitCode:0};
+  }else{
+   // Use each file's existing line count to split the line-oriented formatter's output.
+   engine.variableFile=files['terraform.tfvars'];
+   const parts=names.filter(n=>n.endsWith('.tf')&&files[n].trim()).map(n=>[n,files[n].trim()]);
+   engine.config=parts.map(([,contents])=>contents).join('\n');
+   result=engine.run(value);
+   if(/^terraform\s+fmt(?:\s|$)/.test(value)&&result.exitCode===0&&!/\s--?(?:check|help)\b/.test(value)&&parts.length){
+    const lines=engine.config.trimEnd().split('\n');
+    for(const [name,contents] of parts)files[name]=lines.splice(0,contents.split('\n').length).join('\n')+'\n';
+    saved.tf=files;remember();selectFile(file);
+   }
   }
+  renderTerraformResources();
  }else if(track==='git'){
   result=value==='help'?{ok:true,text:'Try git init, git status, git add, git diff, git commit, git log, or git switch. You can also edit a file with echo "text" > README.md.'}:git.run(value);
  }else if(track==='docker'||track==='kubernetes'){
@@ -4394,7 +4483,7 @@ function runCommand(value){
  if(result.clear)output.textContent='';
  else output.textContent=(output.textContent+'\n\n$ '+value+(result.text?'\n'+result.text:'')).slice(-16000);
  output.scrollTop=output.scrollHeight;
- if(!t){const screen=el('code-screen');screen.scrollTop=screen.scrollHeight;}
+ const screen=el('code-screen');screen.scrollTop=screen.scrollHeight;
  if(track==='linux')el('code-linux-files').textContent='Working directory: '+linux.run('pwd').text;
  status.textContent=result.ok===false||result.exitCode===1?'Read the message above and try again.':'';
 }
@@ -4404,9 +4493,47 @@ selector.onchange=()=>setExample(Number(selector.value));el('code-prev').onclick
 el('code-files').querySelectorAll('button').forEach(b=>b.onclick=()=>selectFile(b.dataset.file));
 editor.oninput=()=>{
  if(track==='python'){saved.py??={};saved.py[pyKey()]=editor.value;}
- else if(track==='terraform'){files[file]=editor.value;saved.tf=files;engine.pending=null;}
+ else if(track==='terraform'){files[file]=editor.value;saved.tf=files;engine.pending=null;updateLineNumbers();}
  remember();
 };
+let releaseEditorTab=false;
+editor.addEventListener('blur',()=>{releaseEditorTab=false;});
+editor.addEventListener('scroll',()=>{el('code-line-numbers').scrollTop=editor.scrollTop;});
+editor.addEventListener('keydown',event=>{
+ if(track!=='terraform'||event.isComposing)return;
+ if(event.key==='Escape'){releaseEditorTab=true;return;}
+ const release=releaseEditorTab;releaseEditorTab=false;
+ if(event.ctrlKey||event.metaKey||event.altKey)return;
+ const {selectionStart:start,selectionEnd:end,value}=editor;
+ const before=value.slice(value.lastIndexOf('\n',start-1)+1,start);
+ const indent=before.match(/^[ \t]*/)[0];
+ let insert;
+ if(event.key==='Tab'&&!event.shiftKey&&!release)insert='  ';
+ if(event.key==='Enter'){
+  const opens=/[\[{]\s*$/.test(before);
+  insert='\n'+indent+(opens?'  ':'');
+  if(opens&&/^[}\]]/.test(value.slice(end))){
+   const cursor=start+insert.length;
+   insert+='\n'+indent;
+   event.preventDefault();
+   if(value.length-end+start+insert.length>editor.maxLength)return;
+   if(!document.execCommand('insertText',false,insert)){
+    editor.setRangeText(insert,start,end,'end');editor.oninput();
+   }
+   editor.setSelectionRange(cursor,cursor);
+   return;
+  }
+ }
+ if(event.key==='}'&&/^ {2,}$/.test(before)&&start===end){
+  event.preventDefault();editor.setRangeText('}',start-2,end,'end');editor.oninput();return;
+ }
+ if(insert===undefined)return;
+ event.preventDefault();
+ if(value.length-end+start+insert.length>editor.maxLength)return;
+ if(!document.execCommand('insertText',false,insert)){
+  editor.setRangeText(insert,start,end,'end');editor.oninput();
+ }
+});
 el('code-reset').onclick=()=>{
  if(!confirm('Reset this track’s workspace?'))return;
  if(track==='python')delete saved.py?.[pyKey()];
@@ -4419,7 +4546,7 @@ el('code-reset').onclick=()=>{
 };
 el('code-run').onclick=python;el('code-stop').onclick=()=>{cancel();output.textContent='Python stopped.';};
 el('code-command').onsubmit=e=>{e.preventDefault();const value=cli.value.trim();if(track==='python'||!value)return;history.push(value);if(history.length>60)history.shift();cursor=history.length;runCommand(value);cli.value='';cli.focus();};
-el('code-screen').addEventListener('click',e=>{if(track!=='python'&&e.target.id==='code-screen')cli.focus();});
+el('code-screen').addEventListener('click',e=>{if(track!=='python'&&(e.target.id==='code-screen'||(track==='terraform'&&e.target===output&&!window.getSelection()?.toString())))cli.focus();});
 cli.onkeydown=e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();cursor=Math.max(0,Math.min(history.length,cursor+(e.key==='ArrowUp'?-1:1)));cli.value=history[cursor]||'';}};
 document.querySelector('a[href="#consulting-inquiry"]').onclick=e=>{e.preventDefault();el('consulting-inquiry').scrollIntoView({block:'start'});el('consult-company').focus({preventScroll:true});};
 function openCodeRoute(){
@@ -4441,7 +4568,7 @@ newWorkspace();refresh(true);openCodeRoute();
 #code-files,#code-quick{margin-bottom:10px}#code-files button[aria-pressed=true]{border-color:var(--code-accent);color:var(--code-accent)}
 #code-quick .button,#code-files .button{padding:7px 12px;min-height:42px}
 #code-stdin textarea{min-height:58px;margin:0}#code-stdin{margin:0 0 12px}
-#code-workbench:is([data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-output{min-height:220px}
+#code-workbench:is([data-track=terraform],[data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-output{min-height:220px}
 </style>
 
 <style>
@@ -4470,13 +4597,13 @@ newWorkspace();refresh(true);openCodeRoute();
 .consulting-mode #consulting-inquiry :is(input,select,textarea){background:#231537;border-color:#6b478c}
 .consulting-mode footer{border-top:1px solid #553276}
 .consulting-mode .lf-consult article,.consulting-mode #consulting-inquiry{background:linear-gradient(145deg,#3c2258ae,#231331e8);border:1px solid #80549780;border-radius:18px;padding:clamp(16px,3vw,26px)}
-#code-workbench:is([data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-screen{min-height:290px;max-height:420px;overflow:auto;cursor:text;background:#080d16;border:1px solid #3f516e;border-radius:10px;padding:12px}
-#code-workbench:is([data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-output{padding:4px 0;margin:0;min-height:0;max-height:none;overflow:visible;border:0;background:transparent}
-#code-workbench:is([data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-command{display:flex;align-items:center;gap:9px;margin:8px 0 0}
-#code-workbench:is([data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-command label{font:700 14px ui-monospace,monospace;color:#90c9ff;font-size:0}
-#code-workbench:is([data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-command label::after{content:'$';font-size:14px}
-#code-workbench:is([data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-cli{border:0;background:transparent;padding:8px 4px;outline-offset:0;color:#edf5ff}
-#code-workbench:is([data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-command button{min-height:40px;white-space:nowrap;padding:6px 12px}
+#code-workbench:is([data-track=terraform],[data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-screen{min-height:290px;max-height:420px;overflow:auto;cursor:text;background:#080d16;border:1px solid #3f516e;border-radius:10px;padding:12px}
+#code-workbench:is([data-track=terraform],[data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-output{padding:4px 0;margin:0;min-height:0;max-height:none;overflow:visible;border:0;background:transparent}
+#code-workbench:is([data-track=terraform],[data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-command{display:flex;align-items:center;gap:9px;margin:8px 0 0}
+#code-workbench:is([data-track=terraform],[data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-command label{font:700 14px ui-monospace,monospace;color:#90c9ff;font-size:0}
+#code-workbench:is([data-track=terraform],[data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-command label::after{content:'$';font-size:14px}
+#code-workbench:is([data-track=terraform],[data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-cli{border:0;background:transparent;padding:8px 4px;outline-offset:0;color:#edf5ff}
+#code-workbench:is([data-track=terraform],[data-track=linux],[data-track=git],[data-track=docker],[data-track=kubernetes]) #code-command button{min-height:40px;white-space:nowrap;padding:6px 12px}
 
 </style>
 
