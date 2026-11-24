@@ -1,4 +1,4 @@
-import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
+import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import {execFileSync} from 'node:child_process';import vm from 'node:vm';import assert from 'node:assert/strict';
 const html=fs.readFileSync('index.html','utf8');const elements=new Map();
 class E{
  constructor(tag='div'){this.tag=tag;this.children=[];this.listeners={};this.dataset={};this.attributes={};this.value='';this.hidden=false;this.open=false;this.files=[];this.textContent='';}
@@ -6,9 +6,9 @@ class E{
  append(...x){this.children.push(...x);}replaceChildren(...x){this.children=x;}get firstChild(){return {remove:()=>this.children.shift()};}setAttribute(k,v){this.attributes[k]=v;}getAttribute(k){return this.attributes[k];}addEventListener(k,f){this.listeners[k]=f;}click(){return this.listeners.click?.({preventDefault(){}});}focus(){this.focused=true;}showModal(){this.open=true;}close(){this.open=false;}
 }
 const body=new E(),host=new E();elements.set('premium-build-host',host);let subject='student-a';const saved=new Map(),downloads=[];
-const c=vm.createContext({window:{LinformAccount:{identity:()=>subject}},document:{body,getElementById:id=>elements.get(id),createElement:tag=>new E(tag)},URL:{...URL,createObjectURL:b=>{downloads.push(b);return 'blob:test';},revokeObjectURL(){}},Blob,setTimeout,confirm:()=>true,localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)}});
+const c=vm.createContext({window:{LinformAccount:{identity:()=>subject}},document:{body,getElementById:id=>elements.get(id),createElement:tag=>new E(tag)},URL:{...URL,createObjectURL:b=>{downloads.push(b);return 'blob:test';},revokeObjectURL(){}},Blob,TextEncoder,setTimeout,confirm:()=>true,localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)}});
 // Git model needs URL as a constructor; this fixture only uses a local repo.
-c.URL=URL;
+c.URL=Object.assign(URL,{createObjectURL:blob=>{downloads.push(blob);return "blob:test";},revokeObjectURL(){}});
 for(const id of ['linform-terraform-engine','linform-git-model','linform-build-engine','linform-build-ui'])vm.runInContext(html.match(new RegExp('<script id="'+id+'">([\\s\\S]*?)<\\/script>'))[1],c);
 const $=id=>elements.get(id),access=c.window.LinformBuildLab;
 assert.equal($('premium-build-lab').hidden,true);const enter=async command=>{$('build-input').value=command;await $('build-form').listeners.submit({preventDefault(){}});};
@@ -32,3 +32,43 @@ for(const name of ['azure_network','azure_security','azure_compute']){$('build-t
 assert.doesNotMatch(html,/<button[^>]+id="build-next"|id="build-shortcuts"/);assert.match(html,/Create account to get Premium/);console.log('PASS: code file editing, safe syntax highlights, live error diagnostics, expanded Azure examples and collapsed optional controls.');
 
 assert.match(html,/<div class="build-terminal-screen"[^>]*>[\s\S]*?<div class="build-output"[\s\S]*?<form class="build-command-form"/);assert.doesNotMatch(html,/<button type="submit">Run<\/button>/);assert.match(html,/enterkeyhint="go"/);await $('build-editor-cancel').click();await $('build-terminal-screen').listeners.click();assert.equal($('build-input').focused,true);await enter('pwd');assert.match($('build-inline-prompt').textContent,/student:~\/linform/);console.log('PASS: command entry lives inside terminal scrollback; clicking the black terminal focuses its inline prompt.');
+
+$('build-project').value='azure-network';
+await $('build-launch').click();
+assert.match($('build-project-title').textContent,/Azure/);
+assert.match($('build-project-steps').children[1].textContent,/monthly cost/);
+await enter('echo "portfolio script" > deploy.sh');
+await enter('echo "private inputs" > terraform.tfvars');
+await enter('rm terraform.tfvars');
+for(const cmd of ['terraform init','terraform plan','terraform apply','yes'])await enter(cmd);
+assert.match($('build-output').children.at(-1).textContent,/Actual Linform cloud charges: \$0/);
+await enter('echo "private inputs" > terraform.tfvars');
+await $('build-portfolio').click();
+const dir=fs.mkdtempSync(path.join(os.tmpdir(),'linform-portfolio-'));
+try {
+ const file=path.join(dir,'portfolio.zip');
+ fs.writeFileSync(file,Buffer.from(await downloads.at(-1).arrayBuffer()));
+ execFileSync('unzip',['-t',file]);
+ const entries=execFileSync('unzip',['-Z1',file],{encoding:'utf8'});
+ assert.match(entries,/deploy\.sh\n/);
+ assert.match(entries,/main\.tf\n/);
+ assert.doesNotMatch(entries,/terraform\.tfstate|terraform\.tfvars|credentials/);
+ const summary=execFileSync('unzip',['-p',file,'LINFORM-ARCHITECTURE.md'],{encoding:'utf8'});
+ assert.match(summary,/azurerm_subnet\.apps.*azurerm_virtual_network\.main/);
+} finally {
+ fs.rmSync(dir,{recursive:true,force:true});
+}
+access.setAccess(false,null);
+access.setAccess(true,'student-a');
+assert.equal($('build-project').value,'azure-network');
+await enter('cat deploy.sh');
+assert.match($('build-output').children.at(-1).textContent,/portfolio script/);
+$('build-project').value='custom';
+await $('build-launch').click();
+await enter('cat own.txt');
+assert.match($('build-output').children.at(-1).textContent,/updated from the editor/);
+access.setAccess(false,null);
+access.setAccess(true,'student-b');
+assert.equal($('build-project').value,'custom');
+assert.doesNotMatch(saved.get('linform-build-v1:student-b'),/portfolio script/);
+console.log('PASS: project launch and restoration, account-scoped project isolation, published monthly estimates, and a readable ZIP without state, variable values or mock credentials.');
