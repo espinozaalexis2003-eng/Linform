@@ -7,7 +7,7 @@ const catalog=base?JSON.parse(fs.readFileSync(base+'/catalog.json')):{notice:'Sy
 const contents=Object.fromEntries(catalog.items.map(i=>[i.id,base?JSON.parse(fs.readFileSync(base+'/content/'+i.id+'.json')):{...i,
  intro:'Fixture introduction',studyPlan:['Fixture plan'],chapters:[{id:i.id+'-fixture-chapter',title:'Fixture chapter',domain:'Fixture domain',explanation:'Fixture explanation',practice:'Fixture practice',pitfall:'Fixture pitfall',checkpoint:{question:'Fixture question',answer:'Fixture answer'}}],
  practiceExam:{title:'Fixture review',notice:'Synthetic',questions:Array.from({length:12},()=>({domain:'Fixture',question:'Fixture question',options:['A','B'],answer:0,explanation:'Fixture answer'}))},reference:'https://example.com',
- steps:[['Fixture step','Fixture task','Fixture check']],walkthrough:[{title:'Fixture milestone',steps:['Fixture action'],solution:'Fixture outcome',completionId:i.id+'-fixture-step'}],commands:'echo fixture',deliverables:['Fixture deliverable'],interview:['Fixture question'],files:[{path:'README.md',content:'Synthetic fixture'}],resumeBullets:[{text:'Fixture resume wording',evidence:'Fixture evidence'}],resumeGuidance:'Use completed work only'
+ steps:[['Fixture step','Fixture task','Fixture check']],walkthrough:[{title:'Fixture milestone',steps:['Fixture action'],solution:'Fixture outcome',completionId:i.id+'-fixture-step'}],commands:'echo fixture',deliverables:['Fixture deliverable'],interview:['Fixture question'],files:[{path:'README.md',content:'Synthetic fixture'},...(i.kind==='resource'?[{path:'linux-reference.md',content:'Legacy Linux reference'}]:[])],resumeBullets:[{text:'Fixture resume wording',evidence:'Fixture evidence'}],resumeGuidance:'Use completed work only'
  }]));
 const script=html.match(/<script id="linform-premium-ui">([\s\S]*?)<\/script>/)[1];
 const settle=async()=>{for(let i=0;i<5;i++)await new Promise(setImmediate);};
@@ -28,6 +28,7 @@ let identity='student-a',paid=!ownerGranted,saves=0,failContent=false;const pend
 const context=vm.createContext({document:{getElementById:id=>elements.get(id),createElement:tag=>new Element(tag),body:new Element('body'),visibilityState:'visible',addEventListener:(n,f)=>docEvents[n]=f},
  window:{LinformAccount:{identity:()=>identity,configured:()=>true,async request(path,method='GET',value){calls.push({path,method,value});if(path.startsWith('/premium/access'))return {purchased:paid,owner:ownerGranted,checkoutReady:true,...(testTier!=='legacy'?{tierPolicyVersion:2,tier:testTier,supportAccess:paid&&personal,checkoutOptions:{digital:true,mentorship:true},support:personal?{policyVersion:2,mode:'bundle',mentoringUsed:0,customProjectUsed:0,resumeUsed:0}:null}:{})};if(path==='/premium/catalog')return structuredClone(catalog);if(path.startsWith('/premium/content/')){const id=path.split('/').at(-1);if(pending.has(id))await pending.get(id);if(failContent)throw Object.assign(new Error('Forbidden'),{status:403});return structuredClone(contents[id]);}if(path==='/premium/mentoring')return {requestId:'local-test'};throw Error(path)}},addEventListener:(n,f)=>events[n]=f},
  location:{hash:'#premium',search:'',pathname:'/'},history:{replaceState(){}},URL,URLSearchParams,TextEncoder,Blob,Uint8Array,DataView,encodeURIComponent,sessionStorage:{setItem(){}},setTimeout,progress,isComplete:id=>!!progress[id],saveProgress:()=>saves++,makeCodeBlock:code=>{const e=new Element('pre');e.textContent=code;return e;}});
+vm.runInContext(html.slice(html.indexOf('const commandReference = ['),html.indexOf('const STORAGE_KEY = ')),context);
 vm.runInContext(script,context);await settle();
 const el=id=>elements.get(id);const walk=e=>[e,...e.children.flatMap(walk)];
 if(ownerGranted)assert.equal(el('premium-access-label').textContent,'Owner access');
@@ -43,7 +44,16 @@ for(const [index,item]of catalog.items.entries()){
  const button=cardFor(item).children.at(-1);await button.click();await settle();
  const reader=el('premium-reader');assert.equal(reader.hidden,false);assert.match(reader.textContent,new RegExp(item.title.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
  const marks=walk(reader).filter(e=>e.tag==='button'&&/Mark .*complete/.test(e.textContent));
- if(item.kind!=='resource'){assert.ok(marks.length>0,item.id+' has completion controls');await marks[0].click();assert.ok(saves>0);}else{assert.ok(reader.textContent.includes('Download cheat sheets'));}
+ if(item.kind!=='resource'){assert.ok(marks.length>0,item.id+' has completion controls');await marks[0].click();assert.ok(saves>0);}else{
+  assert.ok(reader.textContent.includes('Download cheat sheets'));
+  const sheet=walk(reader).find(e=>e.className==='linux-cheat-sheet');
+  assert.equal(sheet.children.filter(e=>e.tag==='details').length,5);
+  assert.ok(sheet.textContent.includes("grep 'ERROR' app.log | wc -l"));
+  assert.ok(!reader.textContent.includes('Legacy Linux reference'));
+  const markdown=vm.runInContext('linuxCheatSheetMarkdown()',context);
+  assert.match(markdown,/## Users and permissions/);
+  assert.match(markdown,/&#124; wc -l/);
+ }
  if(item.kind==='guide'){
   assert.equal(walk(reader).filter(e=>e.tag==='fieldset').length,0);
   const launch=walk(reader).find(e=>e.tag==='button'&&e.textContent==='Start 5-question quiz');assert.ok(launch);await launch.click();

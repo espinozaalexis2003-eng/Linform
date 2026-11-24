@@ -99,3 +99,29 @@ test('Premium break-fix tasks preserve their repair state across sessions',()=>{
  run(lock,'terraform force-unlock '+id);
  run(Workspace.restore(lock.serialize()),'terraform apply -auto-approve');
 });
+
+test('Google Cloud links VM to its subnet, reports region errors and estimates compute and storage',()=>{
+ const {newProject}=ctx.window.LinformBuild;
+ const w=newProject('gcp-network');
+ run(w,'terraform init');
+ run(w,'terraform validate');
+ const preview=w.run('terraform plan');
+ assert.equal(preview.ok,true,preview.text);
+ assert.match(preview.estimate,/subtotal \(USD\): \$6\.31/);
+ assert.match(preview.estimate,/Iowa benchmark/);
+ assert.match(preview.estimate,/10 GiB Standard Cloud Storage \(US-CENTRAL1\)/);
+ run(w,'terraform apply');
+ const invalid=w.run('yes');
+ assert.equal(invalid.ok,false);
+ assert.match(invalid.text,/Error 400:[\s\S]+main\.tf:1[\s\S]+network\.tf/);
+ assert.equal(Object.keys(w.tf.state.resources).length,0);
+ w.write('main.tf',w.read('main.tf').replace('us-east1-b','us-central1-a'));
+ const restored=Workspace.restore(w.serialize());
+ const applied=restored.run('terraform apply -auto-approve');
+ assert.equal(applied.ok,true,applied.text);
+ assert.match(applied.estimate,/\$6\.31/);
+ assert.deepEqual(Array.from(restored.tf.state.resources['google_compute_instance.app'].dependencies),['google_compute_subnetwork.apps']);
+ assert.equal(restored.tf.state.resources['google_storage_bucket.reports'].public_access_prevention,'enforced');
+ run(restored,'terraform destroy -auto-approve');
+ assert.equal(Object.keys(restored.tf.state.resources).length,0);
+});
